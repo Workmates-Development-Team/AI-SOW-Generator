@@ -31,28 +31,77 @@ class AIService:
             logger.error(f"Failed to initialize AI Service: {e}")
             raise
     
-    def generate_ppt_content(self, user_prompt: str) -> dict:
-        """Generate PowerPoint content based on user prompt"""
+    def generate_presentation_structure(self, user_prompt: str) -> dict:
+        """Generate structured presentation data for frontend styling"""
         try:
             system_prompt = """
-            You are a PowerPoint presentation generator. Create a structured presentation based on the user's prompt.
-            Return ONLY a valid JSON object with the following structure (no markdown formatting):
+            You are a presentation content generator. Create structured content that will be styled in the frontend.
+            Return ONLY a valid JSON object with this structure:
             {
                 "title": "Presentation Title",
+                "theme_suggestions": ["modern", "corporate", "creative", "minimal"],
+                "color_palette": ["#1f2937", "#3b82f6", "#ef4444", "#10b981"],
                 "slides": [
                     {
-                        "title": "Slide Title",
-                        "content": ["Bullet point 1", "Bullet point 2", "Bullet point 3"],
-                        "slide_type": "title"
+                        "id": "slide-1",
+                        "type": "title",
+                        "title": "Main Title",
+                        "subtitle": "Subtitle text",
+                        "layout": "center",
+                        "elements": [
+                            {
+                                "id": "element-1",
+                                "type": "text",
+                                "content": "Main Title",
+                                "style": "title",
+                                "position": {"x": 50, "y": 30},
+                                "size": {"width": 80, "height": 20}
+                            },
+                            {
+                                "id": "element-2", 
+                                "type": "text",
+                                "content": "Subtitle",
+                                "style": "subtitle",
+                                "position": {"x": 50, "y": 60},
+                                "size": {"width": 80, "height": 15}
+                            }
+                        ]
                     },
                     {
-                        "title": "Content Slide Title",
-                        "content": ["Main point 1", "Main point 2", "Main point 3"],
-                        "slide_type": "content"
+                        "id": "slide-2",
+                        "type": "content",
+                        "title": "Content Slide",
+                        "layout": "left-right",
+                        "elements": [
+                            {
+                                "id": "element-3",
+                                "type": "text",
+                                "content": "Slide Title",
+                                "style": "heading",
+                                "position": {"x": 10, "y": 10},
+                                "size": {"width": 80, "height": 15}
+                            },
+                            {
+                                "id": "element-4",
+                                "type": "bullet-list",
+                                "content": ["Point 1", "Point 2", "Point 3"],
+                                "style": "bullets",
+                                "position": {"x": 10, "y": 30},
+                                "size": {"width": 45, "height": 60}
+                            },
+                            {
+                                "id": "element-5",
+                                "type": "image-placeholder",
+                                "content": "Chart or Image",
+                                "style": "placeholder",
+                                "position": {"x": 60, "y": 30},
+                                "size": {"width": 35, "height": 60}
+                            }
+                        ]
                     }
                 ]
             }
-            Make sure to create engaging, informative content with 3-7 slides total.
+            Create the number of slides specified by the user with varied layouts and content types.
             """
             
             messages = [
@@ -67,14 +116,8 @@ class AIService:
                 content = content.replace('```json', '').replace('```', '').strip()
             
             parsed_content = json.loads(content)
-            logger.info(f"Generated presentation with {len(parsed_content.get('slides', []))} slides")
-            
             return parsed_content
             
-        except json.JSONDecodeError as e:
-            logger.error(f"JSON parsing error: {e}")
-            logger.error(f"Raw content: {content}")
-            raise ValueError("Failed to parse AI response as JSON")
         except Exception as e:
-            logger.error(f"Error generating PPT content: {e}")
+            logger.error(f"Error generating presentation: {e}")
             raise
