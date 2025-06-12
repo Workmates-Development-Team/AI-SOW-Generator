@@ -1,5 +1,5 @@
 import "./index.css";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,16 +27,37 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [error, setError] = useState('');
+  const [isBackendAvailable, setIsBackendAvailable] = useState(true);
+
+  const API_URL = import.meta.env.BUN_API_URL || 'http://localhost:5000';
+
+  useEffect(() => {
+    const checkBackendHealth = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/health`);
+        const data = await response.json();
+        setIsBackendAvailable(data.status === 'healthy');
+      } catch (err) {
+        console.error('Backend health check failed:', err);
+        setIsBackendAvailable(false);
+      }
+    };
+
+    checkBackendHealth();
+    // Check health every 30 seconds
+    const interval = setInterval(checkBackendHealth, 30000);
+    return () => clearInterval(interval);
+  }, [API_URL]);
 
   const handleGenerate = async () => {
-    if (!prompt.trim()) return;
+    if (!prompt.trim() || !isBackendAvailable) return;
     
     setLoading(true);
     setError('');
     setResult(null);
     
     try {
-      const response = await fetch('http://localhost:5000/api/generate-ppt', {
+      const response = await fetch(`${API_URL}/api/generate-ppt`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,9 +80,25 @@ function App() {
     }
   };
 
-  const handleDownload = () => {
-    if (result) {
-      window.open(`http://localhost:5000${result.download_url}`, '_blank');
+  const handleDownload = async () => {
+    if (!result) return;
+    
+    try {
+      const response = await fetch(`${API_URL}${result.download_url}`);
+      if (!response.ok) throw new Error('Download failed');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = result.filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('Download error:', err);
+      setError('Failed to download presentation. Please try again.');
     }
   };
 
@@ -88,6 +125,15 @@ function App() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
+            {!isBackendAvailable && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Backend service is currently unavailable. Please try again later.
+                </AlertDescription>
+              </Alert>
+            )}
+            
             <div>
               <Textarea
                 placeholder="e.g., Create a presentation about renewable energy with 5 slides covering solar power, wind energy, hydroelectric power, environmental benefits, and future outlook for sustainable energy"
@@ -103,7 +149,7 @@ function App() {
             
             <Button 
               onClick={handleGenerate} 
-              disabled={loading || !prompt.trim()}
+              disabled={loading || !prompt.trim() || !isBackendAvailable}
               className="w-full bg-indigo-600 hover:bg-indigo-700"
               size="lg"
             >
