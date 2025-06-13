@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from services import AIService
+from services.ai_service import AIService
 
 app = Flask(__name__)
 CORS(app)
@@ -19,7 +19,12 @@ def generate_presentation():
         
         return jsonify({
             'success': True,
-            'data': presentation_data
+            'data': {
+                'title': presentation_data.get('title'),
+                'theme': presentation_data.get('theme', 'modern'),
+                'slides': presentation_data.get('slides', []),
+                'totalSlides': len(presentation_data.get('slides', []))
+            }
         })
         
     except Exception as e:
@@ -27,6 +32,10 @@ def generate_presentation():
             'success': False,
             'error': str(e)
         }), 500
+
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    return jsonify({'status': 'healthy', 'service': 'presentation-generator'})
 
 if __name__ == '__main__':
     app.run(debug=True)
