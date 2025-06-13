@@ -1,8 +1,10 @@
-import "./index.css";
 import GeneratePPTPage from "./pages/GeneratePPTPage";
+import PPTEditor from "./pages/PPTEditor";
 
 function App() {
-  return <GeneratePPTPage />;
+  return(
+    <PPTEditor/>
+  )
 }
 
 export default App;
