@@ -1,5 +1,5 @@
-import Canvas from "@/components/Canvas";
-import Sidebar from "@/components/Sidebar";
+import Canvas from "@/components/Editor/Canvas";
+import Sidebar from "@/components/Editor/Sidebar";
 import {useRef} from 'react';
 
 const PPTEditor: React.FC = () => {

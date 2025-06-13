@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ChevronLeft, ChevronRight, Pencil } from 'lucide-react';
+import DownloadPDFButton from '@/components/Viewer/DownloadPDFButton';
 
 interface Slide {
   id: string;
@@ -25,7 +26,6 @@ const PresentationViewer: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   if (!presentation) {
-    // If no presentation data, redirect back to generate page
     navigate('/');
     return null;
   }
@@ -47,6 +47,7 @@ const PresentationViewer: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-3xl font-bold text-gray-900">{presentation.title}</h1>
+          <DownloadPDFButton slides={presentation.slides} title={presentation.title} />
           <Button variant="outline" className="flex items-center gap-2">
             <Pencil className="w-4 h-4" />
             Edit

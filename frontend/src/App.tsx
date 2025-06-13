@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import GeneratePPTPage from "./pages/GeneratePPTPage";
-import PPTEditor from "./pages/PPTEditor";
 import PresentationViewer from "./pages/PresentationViewer";
 
 function App() {

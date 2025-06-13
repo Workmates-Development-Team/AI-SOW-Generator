@@ -22,7 +22,7 @@ class AIService:
                 client=self.bedrock_client,
                 model_id=Config.BEDROCK_MODEL_ID,
                 model_kwargs={
-                    "max_tokens": 8000,
+                    "max_tokens": 4000,
                     "temperature": 0.7
                 }
             )
@@ -32,10 +32,13 @@ class AIService:
             raise
     
     def generate_presentation_structure(self, user_prompt: str) -> dict:
-        """Generate HTML-based presentation data for React frontend"""
+        """Generate scalable, beautifully formatted HTML presentation"""
         try:
             system_prompt = """
-            You are a presentation content generator. Create structured content with HTML that uses Tailwind CSS classes.
+            You are an expert presentation designer. Create visually stunning, scalable presentations with beautiful colors and perfect centering.
+            
+            IMPORTANT: Analyze the content depth and create the APPROPRIATE number of slides (anywhere from 5 to 20+ slides based on topic complexity).
+            
             Return ONLY a valid JSON object with this structure:
             {
                 "title": "Presentation Title",
@@ -44,54 +47,76 @@ class AIService:
                     {
                         "id": "slide-1",
                         "type": "title",
-                        "html": "<div class='flex flex-col items-center justify-center h-full text-center'><h1 class='text-6xl font-bold text-gray-800 mb-6'>Main Title</h1><p class='text-2xl text-gray-600'>Subtitle description</p></div>"
-                    },
-                    {
-                        "id": "slide-2", 
-                        "type": "content",
-                        "html": "<div class='p-8 h-full'><h2 class='text-4xl font-bold text-gray-800 mb-8'>Slide Title</h2><div class='grid grid-cols-2 gap-8 h-3/4'><div class='space-y-4'><ul class='space-y-3 text-xl text-gray-700'><li class='flex items-start'><span class='w-2 h-2 bg-blue-500 rounded-full mt-3 mr-4 flex-shrink-0'></span>First key point</li><li class='flex items-start'><span class='w-2 h-2 bg-blue-500 rounded-full mt-3 mr-4 flex-shrink-0'></span>Second important point</li><li class='flex items-start'><span class='w-2 h-2 bg-blue-500 rounded-full mt-3 mr-4 flex-shrink-0'></span>Third crucial point</li></ul></div><div class='bg-gray-100 rounded-lg flex items-center justify-center'><p class='text-gray-500 text-lg'>Chart/Image Placeholder</p></div></div></div>"
-                    },
-                    {
-                        "id": "slide-3",
-                        "type": "two-column",
-                        "html": "<div class='p-8 h-full'><h2 class='text-4xl font-bold text-gray-800 mb-8'>Two Column Layout</h2><div class='grid grid-cols-2 gap-12 h-3/4'><div class='space-y-6'><h3 class='text-2xl font-semibold text-gray-700 mb-4'>Left Column</h3><p class='text-lg text-gray-600 leading-relaxed'>Content for left side with detailed explanation and key insights.</p></div><div class='space-y-6'><h3 class='text-2xl font-semibold text-gray-700 mb-4'>Right Column</h3><p class='text-lg text-gray-600 leading-relaxed'>Content for right side with supporting information and examples.</p></div></div></div>"
-                    },
-                    {
-                        "id": "slide-4",
-                        "type": "full-content",
-                        "html": "<div class='p-8 h-full flex flex-col'><h2 class='text-4xl font-bold text-gray-800 mb-8 text-center'>Key Insights</h2><div class='flex-1 flex flex-col justify-center space-y-8'><div class='bg-blue-50 p-6 rounded-lg'><h3 class='text-2xl font-semibold text-blue-800 mb-4'>Important Point 1</h3><p class='text-gray-700 text-lg'>Detailed explanation of the first key insight with supporting details.</p></div><div class='bg-green-50 p-6 rounded-lg'><h3 class='text-2xl font-semibold text-green-800 mb-4'>Important Point 2</h3><p class='text-gray-700 text-lg'>Detailed explanation of the second key insight with supporting details.</p></div></div></div>"
-                    },
-                    {
-                        "id": "slide-5",
-                        "type": "closing",
-                        "html": "<div class='flex flex-col items-center justify-center h-full text-center p-8'><h1 class='text-5xl font-bold text-gray-800 mb-6'>Thank You</h1><p class='text-xl text-gray-600 mb-8'>Questions & Discussion</p><div class='w-24 h-1 bg-blue-500 rounded'></div></div>"
+                        "html": "HTML_CONTENT_HERE"
                     }
                 ]
             }
             
-            Guidelines for HTML generation:
-            - Use Tailwind CSS classes exclusively
-            - Ensure responsive design with appropriate spacing
-            - Use semantic HTML structure
-            - Include proper heading hierarchy (h1, h2, h3)
-            - Use consistent color scheme (grays, blues, greens)
-            - Make layouts flexible and readable
-            - Include visual elements like bullets, dividers, backgrounds
-            - Ensure text is properly sized and spaced for presentations
-            - Use grid and flexbox for layouts
-            - Add subtle backgrounds and borders for visual appeal
+            DESIGN GUIDELINES:
             
-            Create 3-7 slides based on the content complexity, with varied layouts including:
-            - Title slide
-            - Content slides with bullet points
-            - Two-column layouts
-            - Full-content slides
-            - Closing slide
+            1. **Color Schemes** (rotate through these):
+               - Ocean: bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-500, text-white
+               - Sunset: bg-gradient-to-br from-orange-900 via-red-600 to-pink-500, text-white
+               - Forest: bg-gradient-to-br from-green-900 via-emerald-700 to-teal-500, text-white
+               - Royal: bg-gradient-to-br from-purple-900 via-violet-700 to-indigo-500, text-white
+               - Corporate: bg-gradient-to-br from-gray-900 via-slate-700 to-blue-600, text-white
+               - Warm: bg-gradient-to-br from-amber-900 via-orange-700 to-red-500, text-white
+            
+            2. **Layout Types** (vary throughout presentation):
+               - Title slide: Full-screen centered with gradient background
+               - Content slides: Split layouts, card-based designs
+               - Image/chart slides: Large visual areas with side content
+               - Quote/emphasis slides: Large centered text with decorative elements
+               - List slides: Beautiful bullet points with icons
+               - Conclusion slides: Call-to-action style
+            
+            3. **Visual Elements**:
+               - Use gradients for backgrounds
+               - Add subtle shadows and borders
+               - Include decorative elements (circles, lines, shapes)
+               - Use proper typography hierarchy
+               - Perfect centering with flexbox
+               - Consistent spacing
+            
+            4. **Slide Types Examples**:
+            
+            TITLE SLIDE:
+            "<div class='h-full bg-gradient-to-br from-blue-900 via-blue-700 to-cyan-500 flex flex-col items-center justify-center text-white relative overflow-hidden'><div class='absolute inset-0 bg-black bg-opacity-20'></div><div class='relative z-10 text-center space-y-8'><h1 class='text-7xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-cyan-200'>TITLE HERE</h1><div class='w-32 h-1 bg-gradient-to-r from-cyan-400 to-white mx-auto mb-6'></div><p class='text-2xl font-light text-cyan-100 max-w-2xl mx-auto leading-relaxed'>Subtitle description here</p></div><div class='absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black to-transparent opacity-30'></div></div>"
+            
+            CONTENT SLIDE:
+            "<div class='h-full bg-gradient-to-br from-purple-900 via-violet-700 to-indigo-500 p-12 flex flex-col'><div class='text-center mb-12'><h2 class='text-5xl font-bold text-white mb-4'>Slide Title</h2><div class='w-24 h-1 bg-gradient-to-r from-violet-400 to-purple-300 mx-auto'></div></div><div class='flex-1 grid grid-cols-2 gap-12 items-center'><div class='space-y-6'><div class='bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl p-8 border border-white border-opacity-20'><h3 class='text-3xl font-semibold text-white mb-6'>Key Points</h3><ul class='space-y-4 text-xl text-white'><li class='flex items-center'><div class='w-3 h-3 bg-gradient-to-r from-violet-400 to-purple-300 rounded-full mr-4 flex-shrink-0'></div>First important point</li><li class='flex items-center'><div class='w-3 h-3 bg-gradient-to-r from-violet-400 to-purple-300 rounded-full mr-4 flex-shrink-0'></div>Second key insight</li><li class='flex items-center'><div class='w-3 h-3 bg-gradient-to-r from-violet-400 to-purple-300 rounded-full mr-4 flex-shrink-0'></div>Third crucial element</li></ul></div></div><div class='bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl p-8 border border-white border-opacity-20 flex items-center justify-center'><p class='text-white text-xl font-light'>Chart/Visual Placeholder</p></div></div></div>"
+            
+            EMPHASIS SLIDE:
+            "<div class='h-full bg-gradient-to-br from-orange-900 via-red-600 to-pink-500 flex items-center justify-center text-white relative overflow-hidden'><div class='absolute inset-0'><div class='absolute top-10 left-10 w-64 h-64 bg-white bg-opacity-5 rounded-full'></div><div class='absolute bottom-10 right-10 w-96 h-96 bg-white bg-opacity-5 rounded-full'></div></div><div class='relative z-10 text-center max-w-4xl mx-auto px-8'><h2 class='text-6xl font-bold mb-8 leading-tight'>Key Message Here</h2><div class='w-32 h-1 bg-gradient-to-r from-orange-300 to-pink-300 mx-auto mb-8'></div><p class='text-2xl font-light text-orange-100 leading-relaxed'>Supporting explanation or quote that emphasizes the main point beautifully</p></div></div>"
+            
+            5. **Content Scaling Rules**:
+               - Simple topics: 5-8 slides
+               - Medium complexity: 8-12 slides  
+               - Complex topics: 12-20+ slides
+               - Always include: Title, Introduction, Main Content (multiple), Key Insights, Conclusion
+               - Add transition slides for topic changes
+               - Include summary slides for complex sections
+            
+            6. **Typography & Spacing**:
+               - Titles: text-6xl to text-7xl, font-bold or font-extrabold
+               - Subtitles: text-2xl to text-3xl, font-light or font-medium
+               - Body text: text-xl to text-2xl, proper line-height
+               - Perfect vertical and horizontal centering
+               - Consistent padding and margins
+               - Use space-y-* for vertical spacing
+            
+            Generate slides that are:
+            - Visually stunning with gradients and effects
+            - Perfectly centered and balanced
+            - Scalable based on content complexity
+            - Professional yet creative
+            - Easy to read with proper contrast
+            - Consistent theme throughout
             """
             
             messages = [
                 SystemMessage(content=system_prompt),
-                HumanMessage(content=f"Create a presentation about: {user_prompt}")
+                HumanMessage(content=f"Create a comprehensive presentation about: {user_prompt}")
             ]
             
             response = self.llm.invoke(messages)
@@ -101,6 +126,11 @@ class AIService:
                 content = content.replace('```json', '').replace('```', '').strip()
             
             parsed_content = json.loads(content)
+            
+            # Ensure totalSlides matches actual slides
+            if 'slides' in parsed_content:
+                parsed_content['totalSlides'] = len(parsed_content['slides'])
+            
             return parsed_content
             
         except Exception as e:
