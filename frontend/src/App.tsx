@@ -1,10 +1,16 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import GeneratePPTPage from "./pages/GeneratePPTPage";
 import PPTEditor from "./pages/PPTEditor";
-import PresentationGenerator from "./components/templates/Template";
+import PresentationViewer from "./pages/PresentationViewer";
 
 function App() {
   return(
-    <PresentationGenerator/>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<GeneratePPTPage />} />
+        <Route path="/presentation" element={<PresentationViewer />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 

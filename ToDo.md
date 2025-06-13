@@ -1,8 +1,6 @@
 ## To add
-- PPT templates
-- The ability to generate the ppt and bring the generated ppt directly into the editor
 - Have to attach the delete icon to the object instead of being rendered at a fixed location
-- Offload the generate presentation prompt input from the template page to the GeneratePPTPage
+- Make the edit button in the viewer to lead the user to the PPTEditor page with the ppt preloaded into the canvas
 
 ## Issues
 - Images not added into the canvas on 

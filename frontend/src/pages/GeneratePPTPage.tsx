@@ -1,209 +1,85 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Download, 
-  Loader2, 
-  FileText, 
-  Sparkles,
-  CheckCircle,
-  AlertCircle 
-} from "lucide-react";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, Sparkles, AlertCircle } from 'lucide-react';
 
-interface GenerationResult {
-  success: boolean;
-  filename: string;
-  download_url: string;
-  title: string;
-  slide_count: number;
-}
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 const GeneratePPTPage: React.FC = () => {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<GenerationResult | null>(null);
   const [error, setError] = useState('');
-  const [isBackendAvailable, setIsBackendAvailable] = useState(true);
-
-  const API_URL = import.meta.env.BUN_API_URL || 'http://localhost:5000';
-
-  useEffect(() => {
-    const checkBackendHealth = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/health`);
-        const data = await response.json();
-        setIsBackendAvailable(data.status === 'healthy');
-      } catch (err) {
-        console.error('Backend health check failed:', err);
-        setIsBackendAvailable(false);
-      }
-    };
-
-    checkBackendHealth();
-    // Check health every 30 seconds
-    const interval = setInterval(checkBackendHealth, 30000);
-    return () => clearInterval(interval);
-  }, [API_URL]);
+  const navigate = useNavigate();
 
   const handleGenerate = async () => {
-    if (!prompt.trim() || !isBackendAvailable) return;
-    
+    if (!prompt.trim()) return;
     setLoading(true);
     setError('');
-    setResult(null);
-    
     try {
-      const response = await fetch(`${API_URL}/api/generate-ppt`, {
+      const response = await fetch(`${API_URL}/api/generate-presentation`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: prompt.trim() }),
       });
-      
       const data = await response.json();
-      
       if (data.success) {
-        setResult(data);
+        // Pass the presentation data to the next page via state
+        navigate('/presentation', { state: { presentation: data.data } });
       } else {
         setError(data.error || 'Failed to generate presentation');
       }
     } catch (err) {
-      console.error('Error:', err);
       setError('Network error. Please make sure the backend server is running.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDownload = async () => {
-    if (!result) return;
-    
-    try {
-      const response = await fetch(`${API_URL}${result.download_url}`);
-      if (!response.ok) throw new Error('Download failed');
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = result.filename;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (err) {
-      console.error('Download error:', err);
-      setError('Failed to download presentation. Please try again.');
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <h1 className="text-4xl font-bold text-gray-900">
-              AI PowerPoint Generator
-            </h1>
-          </div>
-        </div>
-
-        <Card className="shadow-xl border-0">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Describe Your Presentation
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {!isBackendAvailable && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Backend service is currently unavailable. Please try again later.
-                </AlertDescription>
-              </Alert>
+    <div className="min-h-screen bg-gray-100 p-4 md:p-8 flex items-center justify-center">
+      <Card className="w-full max-w-2xl shadow-xl border-0">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5" />
+            Generate a Presentation
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Textarea
+            placeholder="Describe your presentation topic..."
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            className="min-h-[120px] text-base"
+            disabled={loading}
+          />
+          <Button
+            onClick={handleGenerate}
+            disabled={loading || !prompt.trim()}
+            className="w-full bg-indigo-600 hover:bg-indigo-700"
+            size="lg"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Sparkles className="mr-2 h-5 w-5" />
+                Generate Presentation
+              </>
             )}
-            
-            <div>
-              <Textarea
-                placeholder="e.g., Create a presentation about renewable energy with 5 slides covering solar power, wind energy, hydroelectric power, environmental benefits, and future outlook for sustainable energy"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                className="min-h-[120px] text-base"
-                disabled={loading}
-              />
+          </Button>
+          {error && (
+            <div className="flex items-center gap-2 text-red-600 text-sm mt-2">
+              <AlertCircle className="h-4 w-4" />
+              {error}
             </div>
-            
-            <Button 
-              onClick={handleGenerate} 
-              disabled={loading || !prompt.trim() || !isBackendAvailable}
-              className="w-full bg-indigo-600 hover:bg-indigo-700"
-              size="lg"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Generating Presentation...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Generate PowerPoint
-                </>
-              )}
-            </Button>
-            
-            {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            
-            {result && (
-              <Card className="bg-green-50 border-green-200">
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <CheckCircle className="h-5 w-5 text-green-600" />
-                        <span className="font-semibold text-green-800">
-                          Presentation Generated Successfully!
-                        </span>
-                      </div>
-                      <div className="space-y-2">
-                        <p className="text-green-700 font-medium">
-                          {result.title}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="secondary">
-                            {result.slide_count} slides
-                          </Badge>
-                          <Badge variant="secondary">
-                            {result.filename}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                    <Button 
-                      onClick={handleDownload}
-                      className="bg-green-600 hover:bg-green-700"
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Download PPT
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
