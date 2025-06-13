@@ -4,6 +4,7 @@ import React, {
   useState,
   useImperativeHandle,
   forwardRef,
+  useCallback,
 } from "react";
 import * as fabric from 'fabric';
 
@@ -18,10 +19,39 @@ interface CanvasProps {
 
 const Canvas = forwardRef<CanvasHandle, CanvasProps>(
   ({ width = 1200, height = 800 }, ref) => {
+
+    const [selectedObject, setSelectedObject] = useState<fabric.Object | null>(null);
+    const [iconPosition, setIconPosition] = useState<{ left: number; top: number } | null>(null);
+
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const fabricRef = useRef<any>(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const handleDelete = () => {
+      if (selectedObject && fabricRef.current) {
+        fabricRef.current.remove(selectedObject);
+        fabricRef.current.discardActiveObject();
+        fabricRef.current.requestRenderAll();
+        setSelectedObject(null);
+        setIconPosition(null);
+      }
+    };
+
+    const handleSelection = useCallback(() => {
+      const active = fabricRef.current?.getActiveObject();
+      if (active) {
+        setSelectedObject(active);
+        const bound = active.getBoundingRect();
+        setIconPosition({
+          left: bound.left + bound.width / 2,
+          top: bound.top - 30,
+        });
+      } else {
+        setSelectedObject(null);
+        setIconPosition(null);
+      }
+    }, []);
 
     useEffect(() => {
       if (!fabric || !fabric.Canvas) {
@@ -46,6 +76,10 @@ const Canvas = forwardRef<CanvasHandle, CanvasProps>(
 
         setIsLoaded(true);
         setError(null);
+
+        fabricRef.current.on("selection:created", handleSelection);
+        fabricRef.current.on("selection:updated", handleSelection);
+        fabricRef.current.on("selection:cleared", handleSelection);
       } catch (err) {
         console.error("Error initializing Fabric.js canvas:", err);
         setError(`Initialization error: ${err}`);
@@ -54,6 +88,9 @@ const Canvas = forwardRef<CanvasHandle, CanvasProps>(
       return () => {
         if (fabricRef.current) {
           try {
+            fabricRef.current.off("selection:created", handleSelection);
+            fabricRef.current.off("selection:updated", handleSelection);
+            fabricRef.current.off("selection:cleared", handleSelection);
             fabricRef.current.dispose();
             fabricRef.current = null;
           } catch (err) {
@@ -61,7 +98,7 @@ const Canvas = forwardRef<CanvasHandle, CanvasProps>(
           }
         }
       };
-    }, [width, height]);
+    }, [width, height, handleSelection]);
 
     useImperativeHandle(ref, () => ({
       addObject: (type: string, options?: any) => {
@@ -75,10 +112,6 @@ const Canvas = forwardRef<CanvasHandle, CanvasProps>(
               fill: "#3498db",
               width: 120,
               height: 80,
-              stroke: "#2980b9",
-              strokeWidth: 2,
-              cornerColor: "#e74c3c",
-              cornerSize: 6,
               hasControls: true,
               hasBorders: true,
               selectable: true,
@@ -90,8 +123,6 @@ const Canvas = forwardRef<CanvasHandle, CanvasProps>(
               top: 150,
               fill: "#2ecc71",
               radius: 60,
-              stroke: "#27ae60",
-              strokeWidth: 2,
               hasControls: true,
               hasBorders: true,
               selectable: true,
@@ -104,15 +135,13 @@ const Canvas = forwardRef<CanvasHandle, CanvasProps>(
               fill: "#f39c12",
               width: 100,
               height: 100,
-              stroke: "#e67e22",
-              strokeWidth: 2,
               hasControls: true,
               hasBorders: true,
               selectable: true,
             });
             break;
             case "text":
-              obj = new fabric.IText("Double-click to edit", {
+              obj = new fabric.IText("Double click to edit", {
               left: 250,
               top: 250,
               fontSize: 32,
@@ -156,6 +185,29 @@ const Canvas = forwardRef<CanvasHandle, CanvasProps>(
             ]);
           }
           break;
+          case "image":
+            if (options?.src) {
+              console.log("image source:", options?.src)
+              fabric.FabricImage.fromURL(
+                options.src,
+                undefined,
+                (img: any) => {
+                  img.set({
+                    left: 300,
+                    top: 300,
+                    scaleX: 0.5,
+                    scaleY: 0.5,
+                    hasControls: true,
+                    hasBorders: true,
+                    selectable: true,
+                  });
+                  fabricRef.current.add(img);
+                  fabricRef.current.setActiveObject(img);
+                  fabricRef.current.renderAll();
+                }
+              );
+            }
+            return;
           default:
             return;
         }
@@ -177,25 +229,53 @@ const Canvas = forwardRef<CanvasHandle, CanvasProps>(
       );
     }
 
-    return (
-      <div
-        className="border border-gray-300 rounded-lg inline-block bg-white shadow-md relative"
-      >
-        <canvas
-          ref={canvasRef}
-          width={width}
-          height={height}
-          className={`block ${isLoaded ? 'opacity-100' : 'opacity-50'} transition-opacity duration-300 ease-in-out rounded-md`}
-        />
-        {!isLoaded && !error && (
-          <div
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-400"
-          >
-            Loading canvas...
-          </div>
-        )}
-      </div>
-    );
+return (
+  <div style={{ position: "relative", display: "inline-block" }}>
+    <canvas
+      ref={canvasRef}
+      width={width}
+      height={height}
+      style={{
+        display: "block",
+        opacity: isLoaded ? 1 : 0.5,
+        transition: "opacity 0.3s ease",
+        borderRadius: "8px",
+      }}
+    />
+    {iconPosition &&
+      iconPosition.left !== undefined &&
+      iconPosition.top !== undefined && (
+        <button
+          onClick={handleDelete}
+          style={{
+            position: "absolute",
+            left: iconPosition.left - 16,
+            top: iconPosition.top,
+            zIndex: 10,
+            background: "#fff",
+            border: "1px solid #e74c3c",
+            borderRadius: "50%",
+            width: 32,
+            height: 32,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+            cursor: "pointer",
+          }}
+          title="Delete"
+        >
+          {/* SVG trash icon */}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+            <line x1="10" y1="11" x2="10" y2="17" />
+            <line x1="14" y1="11" x2="14" y2="17" />
+          </svg>
+        </button>
+      )}
+  </div>
+);
   }
 );
 

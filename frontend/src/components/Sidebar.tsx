@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React, { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,10 +28,26 @@ const lineStyles = [
 
 const Sidebar: React.FC<SidebarProps> = ({ onAddObject }) => {
   const [selectedLine, setSelectedLine] = useState("solid");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target?.result as string;
+        onAddObject("image", { src: dataUrl });
+      };
+      reader.readAsDataURL(file);
+    }
+    e.target.value = "";
+  };
 
   return (
     <aside className="h-full w-64 bg-white border-r flex flex-col gap-4 p-4" style={{ minWidth: 220 }}>
-      <h2 className="text-lg font-semibold mb-2">Test Objects</h2>
+      <h2 className="text-lg font-semibold mb-2">Objects</h2>
       {testObjects.map((obj) => (
         <Card key={obj.type} className="mb-2 p-3 flex items-center">
           <span className="flex-1">{obj.label}</span>
@@ -64,7 +80,20 @@ const Sidebar: React.FC<SidebarProps> = ({ onAddObject }) => {
         >
           Add Line
         </Button>
-      </Card>         }
+      </Card>}
+      <Card className="mb-2 p-3 flex items-center">
+        <span className="flex-1">Image</span>
+        <Button variant="outline" size="sm" onClick={handleImageClick}>
+          Add
+        </Button>
+        <input
+          type="file"
+          accept="image/*"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          onChange={handleFileChange}
+        />
+      </Card>
     </aside>
   );
 };
