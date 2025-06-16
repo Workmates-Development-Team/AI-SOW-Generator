@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from services.ai_service import AIService
+from services.AI import AIService
 
 app = Flask(__name__)
 CORS(app)
-ai_service = AIService()
+AI = AIService()
 
 @app.route('/api/generate-presentation', methods=['POST'])
 def generate_presentation():
@@ -15,7 +15,7 @@ def generate_presentation():
         if not prompt:
             return jsonify({'error': 'Prompt is required'}), 400
         
-        presentation_data = ai_service.generate_presentation_structure(prompt)
+        presentation_data = AI.generate_presentation_structure(prompt)
         
         return jsonify({
             'success': True,
@@ -32,10 +32,6 @@ def generate_presentation():
             'success': False,
             'error': str(e)
         }), 500
-
-@app.route('/api/health', methods=['GET'])
-def health_check():
-    return jsonify({'status': 'healthy', 'service': 'presentation-generator'})
 
 if __name__ == '__main__':
     app.run(debug=True)

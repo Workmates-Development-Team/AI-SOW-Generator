@@ -43,8 +43,8 @@ const DownloadPDFButton: React.FC<DownloadPDFButtonProps> = ({ slides, title }) 
   };
 
   return (
-    <Button variant="outline" onClick={handleDownloadPDF}>
-      <Download className="w-4 h-4 mr-2" />
+    <Button variant="outline" className='text-white' onClick={handleDownloadPDF}>
+      <Download className="text-white w-4 h-4 mr-2" />
       Download as PDF
     </Button>
   );
