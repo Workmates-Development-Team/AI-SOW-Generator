@@ -157,7 +157,7 @@ const PresentationViewer: React.FC = () => {
             ${isFullscreen ? 'h-screen w-screen rounded-none' : 'aspect-video rounded-2xl'}
             bg-grey shadow-2xl overflow-hidden transition-all duration-300
           `}>
-            {/* Override AI generated styles for content inside the card */}
+            {/* styles for content inside the card */}
             <style>{`
               .slide-content {
                 display: flex;
@@ -165,10 +165,7 @@ const PresentationViewer: React.FC = () => {
                 justify-content: center;
                 height: 100%;
                 width: 100%;
-              }
-              .slide-content * {
-                background: transparent !important;
-                border: none !important;
+                color: white;
               }
             `}</style>
             <div

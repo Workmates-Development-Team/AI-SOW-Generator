@@ -29,6 +29,8 @@ export default function GeneratePPTPage() {
 
       const data = await response.json();
       if (data.success) {
+        // Wait for a short delay to ensure the loading state is visible
+        await new Promise(resolve => setTimeout(resolve, 1000));
         navigate('/presentation', { state: { presentation: data.data } });
       } else {
         setError(data.error || 'Failed to generate presentation');

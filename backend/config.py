@@ -3,25 +3,21 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-class Config:
+class ConfigAI:
     AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-    AWS_REGION = os.getenv('AWS_REGION', 'us-east-1')
+    AWS_REGION = os.getenv('AWS_REGION')
     BEDROCK_MODEL_ID = os.getenv('BEDROCK_MODEL_ID')
     
     DEBUG = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
-    CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:3000').split(',')
+    CORS_ORIGINS = os.getenv('CORS_ORIGINS').split(',')
+
+class ConfigInfo:
+    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    AWS_REGION_INFO = os.getenv('AWS_REGION_INFO')
+    BEDROCK_MODEL_ID_INFO = os.getenv('BEDROCK_MODEL_ID_INFO')
     
-    GENERATED_FILES_DIR = os.path.join(os.path.dirname(__file__), 'generated')
-
-class DevelopmentConfig(Config):
-    DEBUG = True
-
-class ProductionConfig(Config):
-    DEBUG = False
-
-config = {
-    'development': DevelopmentConfig,
-    'production': ProductionConfig,
-    'default': DevelopmentConfig
-}
+    DEBUG = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
+    CORS_ORIGINS = os.getenv('CORS_ORIGINS').split(',')
+    
