@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { AVAILABLE_TEMPLATES } from '@/types/template';
-import type { TemplateStyles } from '@/types/template';
 
 interface TemplateApplierProps {
   templateId: string;

@@ -47,10 +47,16 @@ class AIService:
         6. NO single quotes for strings
         7. ALL HTML content must be properly escaped within the JSON strings
         
+        CRITICAL HTML STRUCTURE REQUIREMENTS:
+        - EVERY slide's HTML content MUST start with <div id="slide-content">
+        - ALL content must be wrapped inside the slide-content div
+        - This wrapper is essential for template styling to work properly
+        - Never generate HTML without the slide-content wrapper
+        
         STANDARDIZED HTML ID CONVENTIONS (MUST USE THESE EXACT IDs):
+        - id="slide-content" - Main content area (div) - REQUIRED: ALL slides MUST start with <div id="slide-content">
         - id="slide-title" - Main slide title (h1/h2)
         - id="slide-subtitle" - Subtitle or secondary heading (h2/h3)
-        - id="slide-content" - Main content area (div)
         - id="slide-list" - Lists (ul/ol)
         - id="slide-table" - Data tables (table)
         - id="slide-image" - Images (img)
@@ -293,7 +299,15 @@ class AIService:
                 if 'chartConfig' not in slide:
                     logger.warning(f"Chart slide {i} missing chartConfig, converting to content")
                     slide['type'] = 'content'
-                    slide['html'] = '<div><h2>Data Visualization</h2><p>Chart data unavailable</p></div>'
+                    slide['html'] = '<div id="slide-content"><h2 id="slide-title">Data Visualization</h2><p id="slide-description">Chart data unavailable</p></div>'
+            
+            # Validate HTML slides have proper slide-content wrapper
+            elif 'html' in slide and slide['html']:
+                html_content = slide['html'].strip()
+                if not html_content.startswith('<div id="slide-content">'):
+                    # Wrap the content with slide-content div if missing
+                    slide['html'] = f'<div id="slide-content">{html_content}</div>'
+                    logger.info(f"Added slide-content wrapper to slide {i}")
         
         print(f"Generated {len(parsed_content['slides'])} slides successfully")
         return parsed_content

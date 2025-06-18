@@ -34,40 +34,8 @@ export default function GeneratePPTPage() {
         return;
       }
   
-      const infographResponse = await fetch(`${API_URL}/api/generate-infograph`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          title: presentationResult.data.title || prompt.trim(),
-          data: presentationResult.data 
-        }),
-      });
-  
-      const infographResult = await infographResponse.json();
-      
-      if (!infographResult.success) {
-        setError(infographResult.error || 'Failed to generate infograph');
-        return;
-      }
-  
-      const infographSlide = {
-        id: `slide-${(presentationResult.data.slides?.length || 0) + 1}`,
-        type: "infograph",
-        html: `
-          <div>
-            <img src="http://localhost:5000/${infographResult.data}" alt="Infographic" />
-          </div>
-        `
-      };
-  
-      const updatedPresentation = {
-        ...presentationResult.data,
-        slides: [...(presentationResult.data.slides || []), infographSlide],
-        totalSlides: (presentationResult.data.slides?.length || 0) + 1
-      };
-  
       await new Promise(resolve => setTimeout(resolve, 1000));
-      navigate('/presentation', { state: { presentation: updatedPresentation } });
+      navigate('/presentation', { state: { presentation: presentationResult.data } });
   
     } catch (err) {
       setError(`Error: ${err.message || err}`);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export const useTemplate = (initialTemplate: string = 'modern-dark') => {
+export const useTemplate = (initialTemplate: string = 'corporate-blue') => {
   const [currentTemplate, setCurrentTemplate] = useState(initialTemplate);
 
   const changeTemplate = (templateId: string) => {
@@ -10,6 +10,6 @@ export const useTemplate = (initialTemplate: string = 'modern-dark') => {
   return {
     currentTemplate,
     changeTemplate,
-    isLoading: false, // No loading needed with CSS-in-JS
+    isLoading: false,
   };
 };

@@ -56,11 +56,13 @@ interface ChartData {
 interface ChartRendererProps {
   chartConfig: ChartData;
   className?: string;
+  textColor?: string;
 }
 
 const ChartRenderer: React.FC<ChartRendererProps> = ({ 
   chartConfig, 
-  className = "" 
+  className = "",
+  textColor = "white"
 }) => {
   const defaultOptions = {
     responsive: true,
@@ -69,7 +71,7 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
       legend: {
         position: 'top' as const,
         labels: {
-          color: 'white',
+          color: textColor,
           font: {
             size: 14,
           },
@@ -78,7 +80,7 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
       title: {
         display: !!chartConfig.title,
         text: chartConfig.title,
-        color: 'white',
+        color: textColor,
         font: {
           size: 18,
           weight: 'bold',
@@ -86,8 +88,8 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
       },
       tooltip: {
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        titleColor: 'white',
-        bodyColor: 'white',
+        titleColor: textColor,
+        bodyColor: textColor,
         borderColor: 'rgba(255, 255, 255, 0.2)',
         borderWidth: 1,
       },
@@ -95,7 +97,7 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
     scales: chartConfig.type !== 'pie' && chartConfig.type !== 'doughnut' && chartConfig.type !== 'polarArea' ? {
       x: {
         ticks: {
-          color: 'white',
+          color: textColor,
         },
         grid: {
           color: 'rgba(255, 255, 255, 0.1)',
@@ -103,7 +105,7 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
       },
       y: {
         ticks: {
-          color: 'white',
+          color: textColor,
         },
         grid: {
           color: 'rgba(255, 255, 255, 0.1)',
@@ -148,7 +150,7 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({
       </div>
       {chartConfig.description && (
         <div className="p-4 text-center">
-          <p className="text-white/80 text-sm">{chartConfig.description}</p>
+          <p style={{ color: textColor }} className="text-sm opacity-80">{chartConfig.description}</p>
         </div>
       )}
     </div>

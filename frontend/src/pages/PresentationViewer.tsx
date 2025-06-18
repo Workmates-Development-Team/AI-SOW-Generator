@@ -17,9 +17,8 @@ import ChartRenderer from '@/components/Charts/ChartRenderer';
 import TemplateApplier from '@/components/Viewer/TemplateApplier';
 import TemplateSelector from '@/components/Viewer/TemplateSelector';
 import { useTemplate } from '@/hooks/useTemplate';
+import { AVAILABLE_TEMPLATES } from '@/types/template';
 import type { PresentationData, Slide, HtmlSlide, ChartSlide } from '@/types/presentation';
-
-const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
 
 const PresentationViewer: React.FC = () => {
   const location = useLocation();
@@ -81,15 +80,21 @@ const PresentationViewer: React.FC = () => {
   };
 
   const renderSlideContent = (slide: Slide) => {
+    const template = AVAILABLE_TEMPLATES.find(t => t.id === currentTemplate);
+    const textColor = template?.styles.slideContent.color || 'white';
+    
     if (slide.type === 'chart') {
       const chartSlide = slide as ChartSlide;
       return (
-        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
-          <ChartRenderer 
-            chartConfig={chartSlide.chartConfig}
-            className="w-full h-full"
-          />
-        </div>
+        <TemplateApplier templateId={currentTemplate} className="w-full h-full">
+          <div id="slide-content" className="w-full h-full flex items-center justify-center">
+            <ChartRenderer 
+              chartConfig={chartSlide.chartConfig}
+              className="w-full h-full"
+              textColor={textColor}
+            />
+          </div>
+        </TemplateApplier>
       );
     } else {
       const htmlSlide = slide as HtmlSlide;
