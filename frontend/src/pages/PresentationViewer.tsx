@@ -49,6 +49,31 @@ const PresentationViewer: React.FC = () => {
     }
   }, [currentSlide, presentationState, isPlaying]);
 
+  // Auto-scroll to current slide in thumbnails
+  useEffect(() => {
+    const thumbnailContainer = document.querySelector('.slide-thumbnails-container');
+    const currentThumbnail = document.querySelector(`[data-slide-index="${currentSlide}"]`);
+    
+    if (thumbnailContainer && currentThumbnail) {
+      const containerRect = thumbnailContainer.getBoundingClientRect();
+      const thumbnailRect = currentThumbnail.getBoundingClientRect();
+      
+      const scrollLeft = thumbnailContainer.scrollLeft;
+      const containerLeft = containerRect.left;
+      const thumbnailLeft = thumbnailRect.left;
+      const thumbnailWidth = thumbnailRect.width;
+      
+      // Calculate if the current thumbnail is outside the visible area
+      if (thumbnailLeft < containerLeft || thumbnailLeft + thumbnailWidth > containerLeft + containerRect.width) {
+        const newScrollLeft = scrollLeft + (thumbnailLeft - containerLeft) - (containerRect.width / 2) + (thumbnailWidth / 2);
+        thumbnailContainer.scrollTo({
+          left: newScrollLeft,
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, [currentSlide]);
+
   if (!presentationState) {
     navigate('/');
     return null;
@@ -245,32 +270,35 @@ const PresentationViewer: React.FC = () => {
 
           {/* Slide Thumbnails */}
           {showControls && !isFullscreen && (
-            <div className="flex gap-3 justify-center overflow-x-auto py-6 px-4">
-              <div className="flex gap-3 min-w-max">
-                {presentationState.slides.map((slide, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentSlide(index)}
-                    className={`
-                      w-20 h-14 border-2 rounded-xl flex-shrink-0 transition-all duration-300
-                      ${currentSlide === index
-                        ? 'border-blue-500 bg-blue-500/20 shadow-lg shadow-blue-500/25 scale-110'
-                        : 'border-white/20 bg-white/10 hover:border-white/40 hover:bg-white/20'
-                      }
-                      backdrop-blur-sm relative
-                    `}
-                  >
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-xs text-white font-medium">{index + 1}</span>
-                      {slide.type === 'chart' && (
-                        <div className="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full"></div>
-                      )}
-                      {(slide as HtmlSlide).html?.includes('id="slide-table"') && (
-                        <div className="absolute top-0 left-0 w-2 h-2 bg-yellow-500 rounded-full"></div>
-                      )}
-                    </div>
-                  </button>
-                ))}
+            <div className="w-full overflow-hidden">
+              <div className="slide-thumbnails-container flex gap-3 justify-start overflow-x-auto py-6 px-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                <div className="flex gap-3 min-w-max">
+                  {presentationState.slides.map((slide, index) => (
+                    <button
+                      key={index}
+                      data-slide-index={index}
+                      onClick={() => setCurrentSlide(index)}
+                      className={`
+                        w-20 h-14 border-2 rounded-xl flex-shrink-0 transition-all duration-300
+                        ${currentSlide === index
+                          ? 'border-blue-500 bg-blue-500/20 shadow-lg shadow-blue-500/25 scale-110'
+                          : 'border-white/20 bg-white/10 hover:border-white/40 hover:bg-white/20'
+                        }
+                        backdrop-blur-sm relative
+                      `}
+                    >
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="text-xs text-white font-medium">{index + 1}</span>
+                        {slide.type === 'chart' && (
+                          <div className="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full"></div>
+                        )}
+                        {(slide as HtmlSlide).html?.includes('id="slide-table"') && (
+                          <div className="absolute top-0 left-0 w-2 h-2 bg-yellow-500 rounded-full"></div>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
