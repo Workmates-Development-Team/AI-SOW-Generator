@@ -31,7 +31,12 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
     };
 
     // Apply all template styles
-    applyStyles('slide-content', styles.slideContent);
+    applyStyles('slide-content', {
+      ...styles.slideContent,
+      width: '100%',
+      height: '100%',
+      boxSizing: 'border-box',
+    });
     applyStyles('slide-title', styles.slideTitle);
     applyStyles('slide-subtitle', styles.slideSubtitle);
     applyStyles('slide-list', styles.slideList);
@@ -65,7 +70,7 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
   return (
     <div 
       ref={containerRef}
-      className={`${template?.backgroundClass || ''} ${className}`}
+      className={`w-full h-full ${template?.backgroundClass || ''} ${className}`}
     >
       {children}
     </div>

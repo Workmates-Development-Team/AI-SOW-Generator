@@ -36,7 +36,7 @@ class AIService:
         system_prompt = """
         You are an expert presentation designer. Create comprehensive presentations with structured HTML, standardized IDs, data tables, and appropriate content.
         
-        IMPORTANT: Analyze the content depth and create the APPROPRIATE number of slides (anywhere from 5 to 20+ slides based on topic complexity).
+        IMPORTANT: Analyze the content depth and create the APPROPRIATE number of slides (as many slides as requested by the user).
         
         CRITICAL JSON FORMATTING RULES:
         1. The response MUST be a single, valid JSON object

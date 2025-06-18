@@ -86,13 +86,16 @@ export const AVAILABLE_TEMPLATES: Template[] = [
     backgroundClass: 'bg-gradient-to-br from-slate-900 to-slate-800',
     styles: {
       slideContent: {
+        width: '100%',
+        height: '100%',
         padding: '2rem',
         background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
         color: 'white',
-        minHeight: '100%',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
+        alignItems: 'center',
+        boxSizing: 'border-box',
       },
       slideTitle: {
         fontSize: '2.5rem',
@@ -185,13 +188,16 @@ export const AVAILABLE_TEMPLATES: Template[] = [
     backgroundClass: 'bg-gradient-to-br from-blue-50 to-blue-100',
     styles: {
       slideContent: {
+        width: '100%',
+        height: '100%',
         padding: '3rem',
         background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
         color: '#1e293b',
-        minHeight: '100%',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
+        alignItems: 'center',
+        boxSizing: 'border-box',
       },
       slideTitle: {
         fontSize: '2.8rem',
@@ -298,13 +304,16 @@ export const AVAILABLE_TEMPLATES: Template[] = [
     backgroundClass: 'bg-white',
     styles: {
       slideContent: {
+        width: '100%',
+        height: '100%',
         padding: '4rem',
         background: '#ffffff',
         color: '#2d3748',
-        minHeight: '100%',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
+        alignItems: 'center',
+        boxSizing: 'border-box',
         fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
       },
       slideTitle: {
@@ -399,13 +408,16 @@ export const AVAILABLE_TEMPLATES: Template[] = [
     backgroundClass: 'bg-gradient-to-br from-purple-600 to-purple-800',
     styles: {
       slideContent: {
+        width: '100%',
+        height: '100%',
         padding: '3rem',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         color: 'white',
-        minHeight: '100%',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
+        alignItems: 'center',
+        boxSizing: 'border-box',
       },
       slideTitle: {
         fontSize: '2.8rem',
@@ -515,13 +527,16 @@ export const AVAILABLE_TEMPLATES: Template[] = [
     backgroundClass: 'bg-gradient-to-br from-green-50 to-green-100',
     styles: {
       slideContent: {
+        width: '100%',
+        height: '100%',
         padding: '3rem',
         background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
         color: '#1f2937',
-        minHeight: '100%',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
+        alignItems: 'center',
+        boxSizing: 'border-box',
       },
       slideTitle: {
         fontSize: '2.8rem',

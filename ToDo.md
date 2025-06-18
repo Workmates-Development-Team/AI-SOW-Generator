@@ -7,9 +7,8 @@
 ### Viewer
 - streaming api ?
 - Implement watermark/logo
-- add styles to data
-- Ability to export as PPT
 - A template has to me more than just styles
+- Styles should be carried over when exported as ppt
 
 ## Issues
 - Images cannot be added into the canvas
