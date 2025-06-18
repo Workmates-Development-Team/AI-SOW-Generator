@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,27 +16,61 @@ export default function GeneratePPTPage() {
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
-
+  
     setLoading(true);
     setError('');
-
+  
     try {
-      const response = await fetch(`${API_URL}/api/generate-presentation`, {
+      const presentationResponse = await fetch(`${API_URL}/api/generate-presentation`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: prompt.trim() }),
       });
-
-      const data = await response.json();
-      if (data.success) {
-        // Wait for a short delay to ensure the loading state is visible
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        navigate('/presentation', { state: { presentation: data.data } });
-      } else {
-        setError(data.error || 'Failed to generate presentation');
+  
+      const presentationResult = await presentationResponse.json();
+      
+      if (!presentationResult.success) {
+        setError(presentationResult.error || 'Failed to generate presentation');
+        return;
       }
+  
+      const infographResponse = await fetch(`${API_URL}/api/generate-infograph`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          title: presentationResult.data.title || prompt.trim(),
+          data: presentationResult.data 
+        }),
+      });
+  
+      const infographResult = await infographResponse.json();
+      
+      if (!infographResult.success) {
+        setError(infographResult.error || 'Failed to generate infograph');
+        return;
+      }
+  
+      const infographSlide = {
+        id: `slide-${(presentationResult.data.slides?.length || 0) + 1}`,
+        type: "infograph",
+        html: `
+          <div>
+            <img src="http://localhost:5000/${infographResult.data}" alt="Infographic" />
+          </div>
+        `
+      };
+  
+      const updatedPresentation = {
+        ...presentationResult.data,
+        slides: [...(presentationResult.data.slides || []), infographSlide],
+        totalSlides: (presentationResult.data.slides?.length || 0) + 1
+      };
+  
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      navigate('/presentation', { state: { presentation: updatedPresentation } });
+  
     } catch (err) {
-      setError(`Error: ${err}`);
+      setError(`Error: ${err.message || err}`);
     } finally {
       setLoading(false);
     }
@@ -61,13 +95,14 @@ export default function GeneratePPTPage() {
             </label>
             <Textarea
               id="prompt"
-              placeholder="Describe your presentation topic..."
+              placeholder="List your topics"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               className="min-h-[120px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
               disabled={loading}
             />
           </div>
+
           <Button
             onClick={handleGenerate}
             disabled={loading || !prompt.trim()}

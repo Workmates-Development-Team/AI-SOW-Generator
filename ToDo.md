@@ -4,6 +4,7 @@
 - Update the backend architecture such that there is an intermediate font that can be sent to an image generation model for relevant info-graphs
 - Make the styles section of system prompt dynamic. To be selected by the user via dropdown.
 - streaming api
+- Implement chart.js
 
 ## Issues
-- Images not added into the canvas
+- Images cannot be added into the canvas

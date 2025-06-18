@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import DownloadPDFButton from '@/components/Viewer/DownloadPDFButton';
 
+const API_URL = import.meta.env.API_URL || 'http://localhost:5000'
+
 interface Slide {
   id: string;
   type: string;
@@ -32,6 +34,7 @@ const PresentationViewer: React.FC = () => {
   const navigate = useNavigate();
   const presentation: PresentationData | undefined = location.state?.presentation;
 
+  const [presentationState, setPresentation] = useState<PresentationData | undefined>(presentation);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -39,27 +42,27 @@ const PresentationViewer: React.FC = () => {
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (isPlaying && currentSlide < presentation!.slides.length - 1) {
+    if (isPlaying && currentSlide < presentationState!.slides.length - 1) {
       interval = setInterval(() => {
         setCurrentSlide(prev => prev + 1);
       }, 5000); // Auto-advance every 5 seconds
     }
     return () => clearInterval(interval);
-  }, [isPlaying, currentSlide, presentation]);
+  }, [isPlaying, currentSlide, presentationState]);
 
   useEffect(() => {
-    if (isPlaying && currentSlide === presentation!.slides.length - 1) {
+    if (isPlaying && currentSlide === presentationState!.slides.length - 1) {
       setIsPlaying(false);
     }
-  }, [currentSlide, presentation, isPlaying]);
+  }, [currentSlide, presentationState, isPlaying]);
 
-  if (!presentation) {
+  if (!presentationState) {
     navigate('/');
     return null;
   }
 
   const nextSlide = () => {
-    if (currentSlide < presentation.slides.length - 1) {
+    if (currentSlide < presentationState.slides.length - 1) {
       setCurrentSlide(currentSlide + 1);
     }
   };
@@ -102,8 +105,8 @@ const PresentationViewer: React.FC = () => {
                 ← Back to Generator
               </Button>
               <DownloadPDFButton 
-                slides={presentation.slides} 
-                title={presentation.title} 
+                slides={presentationState.slides} 
+                title={presentationState.title} 
               />
             </div>
             
@@ -145,7 +148,7 @@ const PresentationViewer: React.FC = () => {
           <div className="text-center mb-6">
             <div className="inline-block bg-white/10 backdrop-blur-md rounded-full px-6 py-2 border border-white/20">
               <span className="text-white text-lg font-medium">
-                {currentSlide + 1} of {presentation.totalSlides}
+                {currentSlide + 1} of {presentationState.totalSlides}
               </span>
             </div>
           </div>
@@ -171,7 +174,7 @@ const PresentationViewer: React.FC = () => {
             <div
               className="w-full h-full relative slide-content"
               dangerouslySetInnerHTML={{
-                __html: presentation.slides[currentSlide]?.html || 
+                __html: presentationState.slides[currentSlide]?.html || 
                   '<div class="h-full flex items-center justify-center"><p class="text-gray-500">No content available</p></div>',
               }}
             />
@@ -207,7 +210,7 @@ const PresentationViewer: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={nextSlide}
-                disabled={currentSlide === presentation.slides.length - 1}
+                disabled={currentSlide === presentationState.slides.length - 1}
                 className="bg-white/10 border-white/20 text-white hover:bg-white/20"
               >
                 Next
@@ -216,8 +219,8 @@ const PresentationViewer: React.FC = () => {
               
               <Button
                 variant="outline"
-                onClick={() => setCurrentSlide(presentation.slides.length - 1)}
-                disabled={currentSlide === presentation.slides.length - 1}
+                onClick={() => setCurrentSlide(presentationState.slides.length - 1)}
+                disabled={currentSlide === presentationState.slides.length - 1}
                 className="bg-white/10 border-white/20 text-white hover:bg-white/20"
               >
                 <SkipForward className="w-4 h-4" />
@@ -229,7 +232,7 @@ const PresentationViewer: React.FC = () => {
           {showControls && !isFullscreen && (
             <div className="flex gap-3 justify-center overflow-x-auto py-6 px-4">
               <div className="flex gap-3 min-w-max">
-                {presentation.slides.map((_, index) => (
+                {presentationState.slides.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentSlide(index)}
@@ -273,13 +276,13 @@ const PresentationViewer: React.FC = () => {
             </Button>
             
             <span className="text-white text-sm">
-              {currentSlide + 1} / {presentation.totalSlides}
+              {currentSlide + 1} / {presentationState.totalSlides}
             </span>
             
             <Button
               variant="ghost"
               onClick={nextSlide}
-              disabled={currentSlide === presentation.slides.length - 1}
+              disabled={currentSlide === presentationState.slides.length - 1}
               className="text-white hover:bg-white/20"
             >
               <ChevronRight className="w-5 h-5" />

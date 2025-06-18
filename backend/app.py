@@ -1,55 +1,47 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from ai import AIService
 from infograph import InfoService
-from flask import send_from_directory
+import json
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder="public",      # where your files live
+    static_url_path="/public"    # under what URL
+)
 CORS(app)
-AI = AIService()
+ai = AIService()
 infograph = InfoService()
 
 @app.route('/api/generate-presentation', methods=['POST'])
 def generate_presentation():
     try:
+        if not request.is_json:
+            return jsonify({'error': 'Content-Type must be JSON'}), 400
+            
         data = request.get_json()
-        prompt = data.get('prompt', '')
-        
+
+        if not data:
+            return jsonify({'error': 'Invalid JSON data'}), 400
+            
+        prompt = data.get('prompt')
+
         if not prompt:
             return jsonify({'error': 'Prompt is required'}), 400
        
-        presentation_data = AI.generate_presentation_structure(prompt)
-        
-        infograph_context = {
-            "title": presentation_data.get("title", ""),
-            "slides": presentation_data.get("slides", [])
-        }
-        infograph_data = infograph.generate_infograph(infograph_context)
-        
-        # Adding infograph as the last slide for now
-        infograph_slide = {
-            "id": f"slide-{len(presentation_data['slides']) + 1}",
-            "type": "infograph",
-            "html": f"""
-            <div class='h-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center justify-center p-12'>
-                <div class='text-center mb-8'>
-                    <h2 class='text-5xl font-bold text-white mb-4'>Key Insights</h2>
-                    <div class='w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-400 mx-auto'></div>
-                </div>
-                <div class='w-full max-w-4xl bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20'>
-                    <img src='{infograph_data.get("image_url", "")}' alt='Infographic' class='w-full h-auto rounded-lg' />
-                </div>
-            </div>
-            """
-        }
-        presentation_data['slides'].append(infograph_slide)
-        presentation_data['totalSlides'] = len(presentation_data['slides'])
+        presentation_data = ai.generate_presentation_structure(prompt)
         
         return jsonify({
             'success': True,
             'data': presentation_data
         })
         
+    except json.JSONDecodeError as e:
+        return jsonify({
+            'success': False,
+            'error': f'Invalid JSON format: {str(e)}'
+        }), 400
+
     except Exception as e:
         return jsonify({
             'success': False,
@@ -57,36 +49,40 @@ def generate_presentation():
         }), 500
 
 @app.route('/api/generate-infograph', methods=['POST'])
-def generate_infograph_from_presentation():
+def generate_image():
     try:
+        if not request.is_json:
+            return jsonify({'error': 'Content-Type must be JSON'}), 400
+            
         data = request.get_json()
-        presentation = data.get('presentation', None)
+        if not data:
+            return jsonify({'error': 'Invalid JSON data'}), 400
 
-        if not presentation:
-            return jsonify({'error': 'Presentation data is required'}), 400
-
-        infograph_context = {
-            "title": presentation.get("title", ""),
-            "slides": presentation.get("slides", [])
-        }
+        prompt = data.get('title')
+        if not isinstance(prompt, str):
+            return jsonify(error='prompt must be a string'), 400
+            
+        presentation_data = data.get('data')
+        if not isinstance(presentation_data, dict):
+            return jsonify({'error': 'presentation data must be an object'}), 400
         
-        infograph_data = infograph.generate_infograph(infograph_context)
+        infograph_data = infograph.generate_infograph(prompt)
 
         return jsonify({
             'success': True,
-            'infograph': infograph_data
+            'data': infograph_data
         })
-
+        
+    except json.JSONDecodeError as e:
+        return jsonify({
+            'success': False,
+            'error': f'Invalid JSON format: {str(e)}'
+        }), 400
     except Exception as e:
         return jsonify({
             'success': False,
             'error': str(e)
         }), 500
-
-@app.route('/public/<path:filename>')
-def serve_public_file(filename):
-    public_dir = os.path.join(os.path.dirname(__file__), "public")
-    return send_from_directory(public_dir, filename)
 
 if __name__ == '__main__':
     app.run(debug=True)
