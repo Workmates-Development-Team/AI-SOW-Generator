@@ -12,22 +12,14 @@ import {
   SkipBack,
   SkipForward
 } from 'lucide-react';
-import DownloadPDFButton from '@/components/Viewer/DownloadPDFButton';
+import DownloadPPTXButton from '@/components/Viewer/DownloadPPTXButton';
+import ChartRenderer from '@/components/Charts/ChartRenderer';
+import TemplateApplier from '@/components/Viewer/TemplateApplier';
+import TemplateSelector from '@/components/Viewer/TemplateSelector';
+import { useTemplate } from '@/hooks/useTemplate';
+import type { PresentationData, Slide, HtmlSlide, ChartSlide } from '@/types/presentation';
 
-const API_URL = import.meta.env.API_URL || 'http://localhost:5000'
-
-interface Slide {
-  id: string;
-  type: string;
-  html: string;
-}
-
-interface PresentationData {
-  title: string;
-  theme: string;
-  slides: Slide[];
-  totalSlides: number;
-}
+const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
 
 const PresentationViewer: React.FC = () => {
   const location = useLocation();
@@ -39,13 +31,15 @@ const PresentationViewer: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  
+  const { currentTemplate, changeTemplate } = useTemplate('modern-dark');
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isPlaying && currentSlide < presentationState!.slides.length - 1) {
       interval = setInterval(() => {
         setCurrentSlide(prev => prev + 1);
-      }, 5000); // Auto-advance every 5 seconds
+      }, 5000);
     }
     return () => clearInterval(interval);
   }, [isPlaying, currentSlide, presentationState]);
@@ -86,6 +80,32 @@ const PresentationViewer: React.FC = () => {
     setIsPlaying(!isPlaying);
   };
 
+  const renderSlideContent = (slide: Slide) => {
+    if (slide.type === 'chart') {
+      const chartSlide = slide as ChartSlide;
+      return (
+        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
+          <ChartRenderer 
+            chartConfig={chartSlide.chartConfig}
+            className="w-full h-full"
+          />
+        </div>
+      );
+    } else {
+      const htmlSlide = slide as HtmlSlide;
+      return (
+        <TemplateApplier templateId={currentTemplate} className="w-full h-full">
+          <div
+            dangerouslySetInnerHTML={{
+              __html: htmlSlide.html || 
+                '<div id="slide-content"><p id="slide-description">No content available</p></div>',
+            }}
+          />
+        </TemplateApplier>
+      );
+    }
+  };
+
   return (
     <div className={`min-h-screen transition-all duration-300 ${
       isFullscreen 
@@ -104,41 +124,48 @@ const PresentationViewer: React.FC = () => {
               >
                 ← Back to Generator
               </Button>
-              <DownloadPDFButton 
+              <DownloadPPTXButton 
                 slides={presentationState.slides} 
                 title={presentationState.title} 
               />
             </div>
             
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={togglePlayback}
-                variant="outline"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                {isPlaying ? (
-                  <><Pause className="w-4 h-4 mr-2" />Pause</>
-                ) : (
-                  <><Play className="w-4 h-4 mr-2" />Play</>
-                )}
-              </Button>
+            <div className="flex items-center gap-4">
+              <TemplateSelector
+                selectedTemplate={currentTemplate}
+                onTemplateChange={changeTemplate}
+              />
               
-              <Button
-                onClick={toggleFullscreen}
-                variant="outline"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                <Maximize className="w-4 h-4 mr-2" />
-                Fullscreen
-              </Button>
-              
-              <Button 
-                variant="outline" 
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                <Pencil className="w-4 h-4 mr-2" />
-                Edit
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={togglePlayback}
+                  variant="outline"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                >
+                  {isPlaying ? (
+                    <><Pause className="w-4 h-4 mr-2" />Pause</>
+                  ) : (
+                    <><Play className="w-4 h-4 mr-2" />Play</>
+                  )}
+                </Button>
+                
+                <Button
+                  onClick={toggleFullscreen}
+                  variant="outline"
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                >
+                  <Maximize className="w-4 h-4 mr-2" />
+                  Fullscreen
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                >
+                  <Pencil className="w-4 h-4 mr-2" />
+                  Edit
+                </Button>
+              </div>
             </div>
           </div>
         )}
@@ -158,26 +185,9 @@ const PresentationViewer: React.FC = () => {
         <div className="space-y-6">
           <Card className={`
             ${isFullscreen ? 'h-screen w-screen rounded-none' : 'aspect-video rounded-2xl'}
-            bg-grey shadow-2xl overflow-hidden transition-all duration-300
+            shadow-2xl overflow-hidden transition-all duration-300
           `}>
-            {/* styles for content inside the card */}
-            <style>{`
-              .slide-content {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                height: 100%;
-                width: 100%;
-                color: white;
-              }
-            `}</style>
-            <div
-              className="w-full h-full relative slide-content"
-              dangerouslySetInnerHTML={{
-                __html: presentationState.slides[currentSlide]?.html || 
-                  '<div class="h-full flex items-center justify-center"><p class="text-gray-500">No content available</p></div>',
-              }}
-            />
+            {renderSlideContent(presentationState.slides[currentSlide])}
             
             {/* Slide transition overlay */}
             <div className="absolute inset-0 pointer-events-none">
@@ -232,7 +242,7 @@ const PresentationViewer: React.FC = () => {
           {showControls && !isFullscreen && (
             <div className="flex gap-3 justify-center overflow-x-auto py-6 px-4">
               <div className="flex gap-3 min-w-max">
-                {presentationState.slides.map((_, index) => (
+                {presentationState.slides.map((slide, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentSlide(index)}
@@ -242,11 +252,17 @@ const PresentationViewer: React.FC = () => {
                         ? 'border-blue-500 bg-blue-500/20 shadow-lg shadow-blue-500/25 scale-110'
                         : 'border-white/20 bg-white/10 hover:border-white/40 hover:bg-white/20'
                       }
-                      backdrop-blur-sm
+                      backdrop-blur-sm relative
                     `}
                   >
                     <div className="w-full h-full flex items-center justify-center">
                       <span className="text-xs text-white font-medium">{index + 1}</span>
+                      {slide.type === 'chart' && (
+                        <div className="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full"></div>
+                      )}
+                      {(slide as HtmlSlide).html?.includes('id="slide-table"') && (
+                        <div className="absolute top-0 left-0 w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      )}
                     </div>
                   </button>
                 ))}

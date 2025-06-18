@@ -6,8 +6,8 @@ import json
 
 app = Flask(
     __name__,
-    static_folder="public",      # where your files live
-    static_url_path="/public"    # under what URL
+    static_folder="public",
+    static_url_path="/public"
 )
 CORS(app)
 ai = AIService()

@@ -24,7 +24,7 @@ class InfoService:
                 client=self.bedrock_client,
                 model_id="stability.sd3-5-large-v1:0",   
                 model_kwargs={
-                    "max_tokens": 77,
+                    "max_tokens": 16000,
                     "temperature": 0.7
                 }
             )
