@@ -117,6 +117,8 @@ export const AVAILABLE_TEMPLATES: Template[] = [
         margin: '1.5rem 0',
         paddingLeft: '2rem',
         color: '#e2e8f0',
+        listStyleType: 'disc',
+        listStylePosition: 'outside',
       },
       slideTable: {
         width: '100%',
@@ -223,6 +225,8 @@ export const AVAILABLE_TEMPLATES: Template[] = [
         padding: '2rem',
         borderRadius: '8px',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        listStyleType: 'disc',
+        listStylePosition: 'outside',
       },
       slideTable: {
         width: '100%',
@@ -333,10 +337,12 @@ export const AVAILABLE_TEMPLATES: Template[] = [
       },
       slideList: {
         fontSize: '1.2rem',
-        lineHeight: 2,
-        margin: '2rem 0',
-        listStyle: 'none',
-        padding: 0,
+        lineHeight: 1.8,
+        margin: '1.5rem 0',
+        paddingLeft: '2rem',
+        color: '#2d3748',
+        listStyleType: 'disc',
+        listStylePosition: 'outside',
       },
       slideTable: {
         width: '100%',
@@ -443,6 +449,8 @@ export const AVAILABLE_TEMPLATES: Template[] = [
         borderRadius: '12px',
         backdropFilter: 'blur(10px)',
         border: '1px solid rgba(255, 255, 255, 0.2)',
+        listStyleType: 'disc',
+        listStylePosition: 'outside',
       },
       slideTable: {
         width: '100%',
@@ -560,7 +568,8 @@ export const AVAILABLE_TEMPLATES: Template[] = [
         padding: '2rem',
         borderRadius: '12px',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-        borderLeft: '4px solid #22c55e',
+        listStyleType: 'disc',
+        listStylePosition: 'outside',
       },
       slideTable: {
         width: '100%',
