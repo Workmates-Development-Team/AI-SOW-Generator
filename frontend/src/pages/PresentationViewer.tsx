@@ -31,7 +31,7 @@ const PresentationViewer: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showControls, setShowControls] = useState(true);
   
-  const { currentTemplate, changeTemplate } = useTemplate('modern-dark');
+  const { currentTemplate, changeTemplate } = useTemplate();
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -271,7 +271,7 @@ const PresentationViewer: React.FC = () => {
           {/* Slide Thumbnails */}
           {showControls && !isFullscreen && (
             <div className="w-full overflow-hidden">
-              <div className="slide-thumbnails-container flex gap-3 justify-start overflow-x-auto py-6 px-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+              <div className="slide-thumbnails-container flex gap-3 justify-center overflow-x-auto py-6 px-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
                 <div className="flex gap-3 min-w-max">
                   {presentationState.slides.map((slide, index) => (
                     <button

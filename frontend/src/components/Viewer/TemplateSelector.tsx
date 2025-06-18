@@ -28,7 +28,7 @@ const getTemplatePreviewColors = (templateId: string) => {
     'nature-green': { primary: 'bg-green-600', secondary: 'bg-emerald-400', accent: 'bg-lime-500' },
   };
   
-  return colorMap[templateId] || colorMap['modern-dark'];
+  return colorMap[templateId] || colorMap['corporate-blue'];
 };
 
 const TemplateSelector: React.FC<TemplateSelectorProps> = ({
