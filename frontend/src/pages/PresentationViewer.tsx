@@ -58,16 +58,24 @@ const PresentationViewer: React.FC = () => {
       const containerRect = thumbnailContainer.getBoundingClientRect();
       const thumbnailRect = currentThumbnail.getBoundingClientRect();
       
-      const scrollLeft = thumbnailContainer.scrollLeft;
-      const containerLeft = containerRect.left;
-      const thumbnailLeft = thumbnailRect.left;
-      const thumbnailWidth = thumbnailRect.width;
+      // Calculate the position of the current thumbnail relative to the container
+      const thumbnailLeft = thumbnailRect.left - containerRect.left;
+      const thumbnailRight = thumbnailLeft + thumbnailRect.width;
       
-      // Calculate if the current thumbnail is outside the visible area
-      if (thumbnailLeft < containerLeft || thumbnailLeft + thumbnailWidth > containerLeft + containerRect.width) {
-        const newScrollLeft = scrollLeft + (thumbnailLeft - containerLeft) - (containerRect.width / 2) + (thumbnailWidth / 2);
+      // Check if the thumbnail is outside the visible area
+      const isOutsideLeft = thumbnailLeft < 0;
+      const isOutsideRight = thumbnailRight > containerRect.width;
+      
+      if (isOutsideLeft || isOutsideRight) {
+        // Calculate the target scroll position to center the thumbnail
+        const targetScrollLeft = thumbnailContainer.scrollLeft + thumbnailLeft - (containerRect.width / 2) + (thumbnailRect.width / 2);
+        
+        // Ensure we don't scroll beyond the bounds
+        const maxScrollLeft = thumbnailContainer.scrollWidth - containerRect.width;
+        const clampedScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScrollLeft));
+        
         thumbnailContainer.scrollTo({
-          left: newScrollLeft,
+          left: clampedScrollLeft,
           behavior: 'smooth'
         });
       }
@@ -271,8 +279,8 @@ const PresentationViewer: React.FC = () => {
           {/* Slide Thumbnails */}
           {showControls && !isFullscreen && (
             <div className="w-full overflow-hidden">
-              <div className="slide-thumbnails-container flex gap-3 justify-center overflow-x-auto py-6 px-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-                <div className="flex gap-3 min-w-max">
+              <div className="slide-thumbnails-container flex gap-3 overflow-x-auto py-6 px-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                <div className="flex gap-3 min-w-max mx-auto">
                   {presentationState.slides.map((slide, index) => (
                     <button
                       key={index}
