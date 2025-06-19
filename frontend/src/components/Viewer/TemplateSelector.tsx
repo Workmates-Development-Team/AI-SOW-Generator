@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { Palette, ChevronDown, Check, Sparkles } from 'lucide-react';
+import { ChevronDown, Check, Sparkles } from 'lucide-react';
 import { AVAILABLE_TEMPLATES } from '@/types/template';
 
 interface TemplateSelectorProps {
@@ -41,8 +41,6 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <Palette className="w-4 h-4 text-white/80" />
-      
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button 

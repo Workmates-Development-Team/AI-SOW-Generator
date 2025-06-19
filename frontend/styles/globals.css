@@ -143,3 +143,13 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
+
+/* Hide number input spinners for all browsers */
+input.hide-number-spin::-webkit-outer-spin-button,
+input.hide-number-spin::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input.hide-number-spin[type=number] {
+  -moz-appearance: textfield;
+}

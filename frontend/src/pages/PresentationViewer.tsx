@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -20,6 +20,7 @@ import TemplateSelector from '@/components/Viewer/TemplateSelector';
 import { useTemplate } from '@/hooks/useTemplate';
 import { AVAILABLE_TEMPLATES } from '@/types/template';
 import type { PresentationData, Slide, HtmlSlide, ChartSlide } from '@/types/presentation';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const PresentationViewer: React.FC = () => {
   const location = useLocation();
@@ -31,6 +32,10 @@ const PresentationViewer: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [slideInterval, setSlideInterval] = useState(5);
+  const [intervalMode, setIntervalMode] = useState('preset'); // 'preset' or 'custom'
+  const [customInterval, setCustomInterval] = useState('5');
+  const customInputRef = useRef<HTMLInputElement>(null);
   
   const { currentTemplate, changeTemplate } = useTemplate();
 
@@ -38,11 +43,11 @@ const PresentationViewer: React.FC = () => {
     let interval: NodeJS.Timeout;
     if (isPlaying && currentSlide < presentationState!.slides.length - 1) {
       interval = setInterval(() => {
-        setCurrentSlide(prev => prev + 1);
-      }, 5000);
+        nextSlide();
+      }, slideInterval * 1000);
     }
     return () => clearInterval(interval);
-  }, [isPlaying, currentSlide, presentationState]);
+  }, [isPlaying, currentSlide, presentationState, slideInterval]);
 
   useEffect(() => {
     if (isPlaying && currentSlide === presentationState!.slides.length - 1) {
@@ -111,6 +116,12 @@ const PresentationViewer: React.FC = () => {
     };
   }, [currentSlide, presentationState, isFullscreen]);
 
+  useEffect(() => {
+    if (intervalMode === 'custom' && customInputRef.current) {
+      customInputRef.current.focus();
+    }
+  }, [intervalMode]);
+
   if (!presentationState) {
     navigate('/');
     return null;
@@ -146,7 +157,17 @@ const PresentationViewer: React.FC = () => {
   };
 
   const togglePlayback = () => {
-    setIsPlaying(!isPlaying);
+    if (!isPlaying) {
+      // If at the last slide, reset to first before playing
+      if (currentSlide === presentationState.slides.length - 1) {
+        setCurrentSlide(0);
+        setIsPlaying(true);
+      } else {
+        setIsPlaying(true);
+      }
+    } else {
+      setIsPlaying(false);
+    }
   };
 
   const skipToFirstSlide = () => {
@@ -218,7 +239,7 @@ const PresentationViewer: React.FC = () => {
       <div className={`${isFullscreen ? 'h-screen w-screen flex flex-col' : 'max-w-7xl mx-auto h-full flex flex-col pt-3'}`} style={{ height: '100vh', minHeight: '100vh', maxHeight: '100vh' }}>
         {/* Header Controls */}
         {showControls && !isFullscreen && (
-          <div className="flex items-center justify-between bg-white/10 backdrop-blur-md rounded-2xl px-3 py-2 border border-white/20 flex-shrink-0" style={{ minHeight: 40, fontSize: '0.95rem' }}>
+          <div className="relative flex items-center justify-between bg-white/10 backdrop-blur-md rounded-2xl px-3 py-2 border border-white/20 flex-shrink-0" style={{ minHeight: 40, fontSize: '0.95rem' }}>
             <div className="flex items-center gap-4">
               <Button
                 onClick={() => navigate('/')}
@@ -231,17 +252,91 @@ const PresentationViewer: React.FC = () => {
                 slides={presentationState.slides} 
                 title={presentationState.title} 
               />
-            </div>
-            <div className="flex items-center gap-4">
               <TemplateSelector
                 selectedTemplate={currentTemplate}
                 onTemplateChange={changeTemplate}
               />
+            </div>
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white/80 text-sm font-medium select-none pointer-events-none bg-white/10 border border-white/20 px-4 py-1 rounded-full shadow-sm">
+              Slide {currentSlide + 1} of {presentationState.slides.length}
+            </span>
+            <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
+                {intervalMode === 'preset' ? (
+                  <Select
+                    value={slideInterval.toString()}
+                    onValueChange={v => {
+                      if (v === 'custom') {
+                        setIntervalMode('custom');
+                      } else {
+                        setSlideInterval(Number(v));
+                        setCustomInterval(v);
+                        setIntervalMode('preset');
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-24 bg-white/10 border-white/20 text-white hover:bg-white/20">
+                      {(
+                        !['2','3','5','10','15'].includes(slideInterval.toString()) && slideInterval !== 0
+                      ) ? (
+                        <span>{slideInterval}s</span>
+                      ) : (
+                        <SelectValue />
+                      )}
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800/95 backdrop-blur-md border-gray-600 text-white">
+                      <SelectItem value="2">2s</SelectItem>
+                      <SelectItem value="3">3s</SelectItem>
+                      <SelectItem value="5">5s</SelectItem>
+                      <SelectItem value="10">10s</SelectItem>
+                      <SelectItem value="15">15s</SelectItem>
+                      <SelectItem value="custom">Custom</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <input
+                    ref={customInputRef}
+                    type="number"
+                    min={0}
+                    max={10000}
+                    value={customInterval}
+                    onChange={e => {
+                      const val = e.target.value;
+                      if (/^\d{0,5}$/.test(val) && Number(val) <= 10000) {
+                        setCustomInterval(val);
+                      }
+                    }}
+                    onBlur={() => {
+                      let val = Number(customInterval);
+                      if (isNaN(val) || val < 0) val = 0;
+                      if (val > 10000) val = 10000;
+                      setSlideInterval(val);
+                      setCustomInterval(val.toString());
+                      setIntervalMode('preset');
+                    }}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        let val = Number(customInterval);
+                        if (isNaN(val) || val < 0) val = 0;
+                        if (val > 10000) val = 10000;
+                        setSlideInterval(val);
+                        setCustomInterval(val.toString());
+                        setIntervalMode('preset');
+                      } else if (e.key === 'Escape') {
+                        setIntervalMode('preset');
+                      }
+                    }}
+                    className="w-24 px-3 py-2 rounded-md border border-white/20 bg-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 hide-number-spin"
+                    placeholder="Custom (s)"
+                    inputMode="numeric"
+                    style={{ MozAppearance: 'textfield' }}
+                  />
+                )}
                 <Button
                   onClick={togglePlayback}
                   variant="outline"
                   className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  disabled={presentationState.slides.length === 1}
                 >
                   {isPlaying ? (
                     <><Pause className="w-4 h-4 mr-2" />Pause</>
