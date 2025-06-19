@@ -10,7 +10,7 @@ class ConfigAI:
     BEDROCK_MODEL_ID = os.getenv('BEDROCK_MODEL_ID')
     
     DEBUG = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
-    CORS_ORIGINS = os.getenv('CORS_ORIGINS').split(',')
+    CORS_ORIGINS = os.getenv('CORS_ORIGINS')
 
 class ConfigInfo:
     AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
@@ -19,5 +19,5 @@ class ConfigInfo:
     BEDROCK_MODEL_ID_INFO = os.getenv('BEDROCK_MODEL_ID_INFO')
     
     DEBUG = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
-    CORS_ORIGINS = os.getenv('CORS_ORIGINS').split(',')
+    CORS_ORIGINS = os.getenv('CORS_ORIGINS')
     

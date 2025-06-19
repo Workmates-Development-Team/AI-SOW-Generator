@@ -12,4 +12,5 @@
 
 ## Issues
 - Images cannot be added into the canvas
-- Remove the image append slide from the end
+- Pages do not cover the dedicated area unless a few slides are switched
+- Pages do not completely switch the theme until a few slides are changed. There is temporarily a thick border of the previous slide all around.
