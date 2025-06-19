@@ -11,7 +11,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Palette, ChevronDown, Check, Sparkles } from 'lucide-react';
 import { AVAILABLE_TEMPLATES } from '@/types/template';
-import type { Template } from '@/types/template';
 
 interface TemplateSelectorProps {
   selectedTemplate: string;
@@ -128,14 +127,6 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({
               </DropdownMenuItem>
             );
           })}
-          
-          <DropdownMenuSeparator className="bg-gray-600" />
-          
-          <div className="p-2">
-            <div className="text-xs text-gray-400 text-center">
-              Templates change the visual styling of your presentation
-            </div>
-          </div>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

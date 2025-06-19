@@ -9,6 +9,7 @@
 - Implement watermark/logo
 - A template has to me more than just styles
 - Styles should be carried over when exported as ppt
+- Implement prompt based editing
 
 ## Issues
 - Images cannot be added into the canvas

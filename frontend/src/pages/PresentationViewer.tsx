@@ -84,9 +84,9 @@ const PresentationViewer: React.FC = () => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
         prevSlide();
-      } else if (e.key === 'ArrowRight') {
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         nextSlide();
       } else if (e.key === 'Escape') {
         if (isFullscreen) {
@@ -114,12 +114,20 @@ const PresentationViewer: React.FC = () => {
   const nextSlide = () => {
     if (currentSlide < presentationState.slides.length - 1) {
       setCurrentSlide(currentSlide + 1);
+      const slideElement = document.getElementById(`slide-${currentSlide + 1}`);
+      if (slideElement) {
+        slideElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
   };
 
   const prevSlide = () => {
     if (currentSlide > 0) {
       setCurrentSlide(currentSlide - 1);
+      const slideElement = document.getElementById(`slide-${currentSlide - 1}`);
+      if (slideElement) {
+        slideElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
   };
 
@@ -134,6 +142,22 @@ const PresentationViewer: React.FC = () => {
 
   const togglePlayback = () => {
     setIsPlaying(!isPlaying);
+  };
+
+  const skipToFirstSlide = () => {
+    setCurrentSlide(0);
+    const slideElement = document.getElementById('slide-0');
+    if (slideElement) {
+      slideElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
+  const skipToLastSlide = () => {
+    setCurrentSlide(presentationState.slides.length - 1);
+    const slideElement = document.getElementById(`slide-${presentationState.slides.length - 1}`);
+    if (slideElement) {
+      slideElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   };
 
   const renderSlideContent = (slide: Slide) => {
@@ -158,6 +182,7 @@ const PresentationViewer: React.FC = () => {
       return (
         <TemplateApplier templateId={currentTemplate} className="w-full h-full">
           <div
+            className="w-full h-full flex flex-col justify-center"
             dangerouslySetInnerHTML={{
               __html: htmlSlide.html || 
                 '<div id="slide-content"><p id="slide-description">No content available</p></div>',
@@ -172,12 +197,12 @@ const PresentationViewer: React.FC = () => {
     <div className={`min-h-screen transition-all duration-300 ${
       isFullscreen 
         ? 'bg-black p-0' 
-        : 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4'
-    }`}>
-      <div className={`${isFullscreen ? 'h-screen w-screen flex flex-col' : 'max-w-7xl mx-auto'}`}>
+        : 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-0'
+    }`} style={{ height: '100vh', minHeight: '100vh', maxHeight: '100vh' }}>
+      <div className={`${isFullscreen ? 'h-screen w-screen flex flex-col' : 'max-w-7xl mx-auto h-full flex flex-col'}`} style={{ height: '100vh', minHeight: '100vh', maxHeight: '100vh' }}>
         {/* Header Controls */}
         {showControls && !isFullscreen && (
-          <div className="flex items-center justify-between mb-6 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
+          <div className="flex items-center justify-between bg-white/10 backdrop-blur-md rounded-2xl px-3 py-2 border border-white/20 flex-shrink-0" style={{ minHeight: 40, fontSize: '0.95rem' }}>
             <div className="flex items-center gap-4">
               <Button
                 onClick={() => navigate('/')}
@@ -191,13 +216,11 @@ const PresentationViewer: React.FC = () => {
                 title={presentationState.title} 
               />
             </div>
-            
             <div className="flex items-center gap-4">
               <TemplateSelector
                 selectedTemplate={currentTemplate}
                 onTemplateChange={changeTemplate}
               />
-              
               <div className="flex items-center gap-2">
                 <Button
                   onClick={togglePlayback}
@@ -210,7 +233,6 @@ const PresentationViewer: React.FC = () => {
                     <><Play className="w-4 h-4 mr-2" />Play</>
                   )}
                 </Button>
-                
                 <Button
                   onClick={toggleFullscreen}
                   variant="outline"
@@ -219,7 +241,6 @@ const PresentationViewer: React.FC = () => {
                   <Maximize className="w-4 h-4 mr-2" />
                   Fullscreen
                 </Button>
-                
                 <Button 
                   variant="outline" 
                   className="bg-white/10 border-white/20 text-white hover:bg-white/20"
@@ -231,111 +252,113 @@ const PresentationViewer: React.FC = () => {
             </div>
           </div>
         )}
-
         {/* Slide Counter */}
         {showControls && !isFullscreen && (
-          <div className="text-center mb-6">
-            <div className="inline-block bg-white/10 backdrop-blur-md rounded-full px-6 py-2 border border-white/20">
-              <span className="text-white text-lg font-medium">
-                {currentSlide + 1} of {presentationState.totalSlides}
-              </span>
+          <></>
+        )}
+        {/* Slides Area (scrollable, fills available space) */}
+        {!isFullscreen && (
+          <div className="flex-1 flex flex-col gap-4 overflow-y-auto mt-3" style={{ maxHeight: 'calc(100vh - 40px - 28px - 48px - 56px)' }}>
+            {presentationState.slides.map((slide, idx) => (
+              <div key={idx} id={`slide-${idx}`} className="w-full max-w-[90vw] mx-auto aspect-video flex-shrink-0">
+                <Card
+                  className="w-full h-full rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 flex items-stretch"
+                >
+                  {renderSlideContent(slide)}
+                </Card>
+              </div>
+            ))}
+          </div>
+        )}
+        {/* Navigation Controls (below slides) */}
+        {showControls && !isFullscreen && (
+          <div className="flex justify-center gap-2 mt-3 flex-shrink-0" style={{ minHeight: 36, fontSize: '0.95rem' }}>
+            <Button
+              variant="outline"
+              onClick={skipToFirstSlide}
+              disabled={currentSlide === 0}
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            >
+              <SkipBack className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="outline"
+              onClick={prevSlide}
+              disabled={currentSlide === 0}
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            >
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              onClick={nextSlide}
+              disabled={currentSlide === presentationState.slides.length - 1}
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            >
+              Next
+              <ChevronRight className="w-4 h-4 ml-2" />
+            </Button>
+            <Button
+              variant="outline"
+              onClick={skipToLastSlide}
+              disabled={currentSlide === presentationState.slides.length - 1}
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            >
+              <SkipForward className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
+        {/* Slide Thumbnails (horizontal, below slides) */}
+        {showControls && !isFullscreen && (
+          <div className="w-full overflow-hidden flex-shrink-0" style={{ minHeight: 40 }}>
+            <div className="slide-thumbnails-container flex gap-3 overflow-x-auto py-6 px-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+              <div className="flex gap-3 min-w-max mx-auto">
+                {presentationState.slides.map((slide, index) => (
+                  <button
+                    key={index}
+                    data-slide-index={index}
+                    onClick={() => {
+                      setCurrentSlide(index);
+                      const slideElement = document.getElementById(`slide-${index}`);
+                      if (slideElement) {
+                        slideElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }
+                    }}
+                    className={
+                      `w-20 h-14 border-2 rounded-xl flex-shrink-0 transition-all duration-300
+                      ${currentSlide === index
+                        ? 'border-blue-500 bg-blue-500/20 shadow-lg shadow-blue-500/25 scale-110'
+                        : 'border-white/20 bg-white/10 hover:border-white/40 hover:bg-white/20'
+                      }
+                      backdrop-blur-sm relative`
+                    }
+                  >
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-xs text-white font-medium">{index + 1}</span>
+                      {slide.type === 'chart' && (
+                        <div className="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full"></div>
+                      )}
+                      {(slide as HtmlSlide).html?.includes('id=\"slide-table\"') && (
+                        <div className="absolute top-0 left-0 w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
-
-        {/* Slide Display */}
-        <div className={`space-y-6 ${isFullscreen ? 'flex-1 flex flex-col items-stretch justify-start' : ''}`}>
-          <Card className={
-            `${isFullscreen ? 'h-full w-full rounded-none' : 'aspect-video rounded-2xl'}
-            shadow-2xl overflow-hidden transition-all duration-300
-          `}>
-            {renderSlideContent(presentationState.slides[currentSlide])}
-            
-            {/* Slide transition overlay */}
-            <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+        {/* Single Slide (fullscreen mode) */}
+        {isFullscreen && (
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <div className="w-full max-w-[98vw] h-full flex items-center justify-center">
+              <Card className="w-full h-full rounded-none bg-black flex items-center justify-center aspect-video">
+                {renderSlideContent(presentationState.slides[currentSlide])}
+              </Card>
             </div>
-          </Card>
-
-          {/* Navigation Controls */}
-          {showControls && !isFullscreen && (
-            <div className="flex justify-center gap-4">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentSlide(0)}
-                disabled={currentSlide === 0}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                <SkipBack className="w-4 h-4" />
-              </Button>
-              
-              <Button
-                variant="outline"
-                onClick={prevSlide}
-                disabled={currentSlide === 0}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                <ChevronLeft className="w-4 h-4 mr-2" />
-                Previous
-              </Button>
-              
-              <Button
-                variant="outline"
-                onClick={nextSlide}
-                disabled={currentSlide === presentationState.slides.length - 1}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                Next
-                <ChevronRight className="w-4 h-4 ml-2" />
-              </Button>
-              
-              <Button
-                variant="outline"
-                onClick={() => setCurrentSlide(presentationState.slides.length - 1)}
-                disabled={currentSlide === presentationState.slides.length - 1}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                <SkipForward className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
-
-          {/* Slide Thumbnails */}
-          {showControls && !isFullscreen && (
-            <div className="w-full overflow-hidden">
-              <div className="slide-thumbnails-container flex gap-3 overflow-x-auto py-6 px-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-                <div className="flex gap-3 min-w-max mx-auto">
-                  {presentationState.slides.map((slide, index) => (
-                    <button
-                      key={index}
-                      data-slide-index={index}
-                      onClick={() => setCurrentSlide(index)}
-                      className={`
-                        w-20 h-14 border-2 rounded-xl flex-shrink-0 transition-all duration-300
-                        ${currentSlide === index
-                          ? 'border-blue-500 bg-blue-500/20 shadow-lg shadow-blue-500/25 scale-110'
-                          : 'border-white/20 bg-white/10 hover:border-white/40 hover:bg-white/20'
-                        }
-                        backdrop-blur-sm relative
-                      `}
-                    >
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-xs text-white font-medium">{index + 1}</span>
-                        {slide.type === 'chart' && (
-                          <div className="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full"></div>
-                        )}
-                        {(slide as HtmlSlide).html?.includes('id="slide-table"') && (
-                          <div className="absolute top-0 left-0 w-2 h-2 bg-yellow-500 rounded-full"></div>
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
+          </div>
+        )}
         {/* Fullscreen Controls */}
         {isFullscreen && (
           <div 
@@ -349,17 +372,20 @@ const PresentationViewer: React.FC = () => {
           >
             <Button
               variant="ghost"
+              onClick={skipToFirstSlide}
+              disabled={currentSlide === 0}
+              className="text-white hover:bg-white/20"
+            >
+              <SkipBack className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
               onClick={prevSlide}
               disabled={currentSlide === 0}
               className="text-white hover:bg-white/20"
             >
               <ChevronLeft className="w-5 h-5" />
             </Button>
-            
-            <span className="text-white text-sm">
-              {currentSlide + 1} / {presentationState.totalSlides}
-            </span>
-            
             <Button
               variant="ghost"
               onClick={nextSlide}
@@ -368,7 +394,14 @@ const PresentationViewer: React.FC = () => {
             >
               <ChevronRight className="w-5 h-5" />
             </Button>
-            
+            <Button
+              variant="ghost"
+              onClick={skipToLastSlide}
+              disabled={currentSlide === presentationState.slides.length - 1}
+              className="text-white hover:bg-white/20"
+            >
+              <SkipForward className="w-5 h-5" />
+            </Button>
             <Button
               variant="ghost"
               onClick={toggleFullscreen}
