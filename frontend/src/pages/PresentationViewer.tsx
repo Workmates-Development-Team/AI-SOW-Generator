@@ -10,7 +10,8 @@ import {
   Pause,
   Maximize,
   SkipBack,
-  SkipForward
+  SkipForward,
+  Trash
 } from 'lucide-react';
 import DownloadPPTXButton from '@/components/Viewer/DownloadPPTXButton';
 import ChartRenderer from '@/components/Charts/ChartRenderer';
@@ -160,6 +161,17 @@ const PresentationViewer: React.FC = () => {
     }
   };
 
+  const deleteCurrentSlide = () => {
+    if (!presentationState || presentationState.slides.length === 1) return;
+    const newSlides = presentationState.slides.filter((_, idx) => idx !== currentSlide);
+    let newCurrent = currentSlide;
+    if (currentSlide >= newSlides.length) {
+      newCurrent = newSlides.length - 1;
+    }
+    setPresentation({ ...presentationState, slides: newSlides });
+    setCurrentSlide(newCurrent);
+  };
+
   const renderSlideContent = (slide: Slide) => {
     const template = AVAILABLE_TEMPLATES.find(t => t.id === currentTemplate);
     const textColor = template?.styles.slideContent.color || 'white';
@@ -272,41 +284,57 @@ const PresentationViewer: React.FC = () => {
         )}
         {/* Navigation Controls (below slides) */}
         {showControls && !isFullscreen && (
-          <div className="flex justify-center gap-2 mt-3 flex-shrink-0" style={{ minHeight: 36, fontSize: '0.95rem' }}>
-            <Button
-              variant="outline"
-              onClick={skipToFirstSlide}
-              disabled={currentSlide === 0}
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-            >
-              <SkipBack className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="outline"
-              onClick={prevSlide}
-              disabled={currentSlide === 0}
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-            >
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              onClick={nextSlide}
-              disabled={currentSlide === presentationState.slides.length - 1}
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-            >
-              Next
-              <ChevronRight className="w-4 h-4 ml-2" />
-            </Button>
-            <Button
-              variant="outline"
-              onClick={skipToLastSlide}
-              disabled={currentSlide === presentationState.slides.length - 1}
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-            >
-              <SkipForward className="w-4 h-4" />
-            </Button>
+          <div className="relative flex items-center mt-3 flex-shrink-0" style={{ minHeight: 36, fontSize: '0.95rem' }}>
+            {/* Centered navigation buttons */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex gap-2">
+              <Button
+                variant="outline"
+                onClick={skipToFirstSlide}
+                disabled={currentSlide === 0}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <SkipBack className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                onClick={prevSlide}
+                disabled={currentSlide === 0}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <ChevronLeft className="w-4 h-4 mr-2" />
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                onClick={nextSlide}
+                disabled={currentSlide === presentationState.slides.length - 1}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                Next
+                <ChevronRight className="w-4 h-4 ml-2" />
+              </Button>
+              <Button
+                variant="outline"
+                onClick={skipToLastSlide}
+                disabled={currentSlide === presentationState.slides.length - 1}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <SkipForward className="w-4 h-4" />
+              </Button>
+            </div>
+            {/* Right-aligned delete button */}
+            <div className="ml-auto">
+              <Button
+                variant="destructive"
+                onClick={deleteCurrentSlide}
+                disabled={presentationState.slides.length === 1}
+                className="bg-red-600/80 border-red-600/40 text-white hover:bg-red-700/90"
+                title="Delete current slide"
+              >
+                <Trash className="w-4 h-4 mr-2" />
+                Delete
+              </Button>
+            </div>
           </div>
         )}
         {/* Slide Thumbnails (horizontal, below slides) */}
