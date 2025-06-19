@@ -85,9 +85,9 @@ const PresentationViewer: React.FC = () => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      if (e.key === 'ArrowUp') {
         prevSlide();
-      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      } else if (e.key === 'ArrowDown') {
         nextSlide();
       } else if (e.key === 'Escape') {
         if (isFullscreen) {
@@ -99,6 +99,10 @@ const PresentationViewer: React.FC = () => {
           document.documentElement.requestFullscreen();
           setIsFullscreen(true);
         }
+      } else if (e.key === 'ArrowLeft') {
+        skipToFirstSlide();
+      } else if (e.key === 'ArrowRight') {
+        skipToLastSlide();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -211,7 +215,7 @@ const PresentationViewer: React.FC = () => {
         ? 'bg-black p-0' 
         : 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-0'
     }`} style={{ height: '100vh', minHeight: '100vh', maxHeight: '100vh' }}>
-      <div className={`${isFullscreen ? 'h-screen w-screen flex flex-col' : 'max-w-7xl mx-auto h-full flex flex-col'}`} style={{ height: '100vh', minHeight: '100vh', maxHeight: '100vh' }}>
+      <div className={`${isFullscreen ? 'h-screen w-screen flex flex-col' : 'max-w-7xl mx-auto h-full flex flex-col pt-3'}`} style={{ height: '100vh', minHeight: '100vh', maxHeight: '100vh' }}>
         {/* Header Controls */}
         {showControls && !isFullscreen && (
           <div className="flex items-center justify-between bg-white/10 backdrop-blur-md rounded-2xl px-3 py-2 border border-white/20 flex-shrink-0" style={{ minHeight: 40, fontSize: '0.95rem' }}>
@@ -284,7 +288,7 @@ const PresentationViewer: React.FC = () => {
         )}
         {/* Navigation Controls (below slides) */}
         {showControls && !isFullscreen && (
-          <div className="relative flex items-center mt-3 flex-shrink-0" style={{ minHeight: 36, fontSize: '0.95rem' }}>
+          <div className="relative flex items-center mt-3 pt-8 flex-shrink-0" style={{ minHeight: 36, fontSize: '0.95rem' }}>
             {/* Centered navigation buttons */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex gap-2">
               <Button
@@ -322,8 +326,8 @@ const PresentationViewer: React.FC = () => {
                 <SkipForward className="w-4 h-4" />
               </Button>
             </div>
-            {/* Right-aligned delete button */}
-            <div className="ml-auto">
+            {/* Right-aligned delete button, vertically centered */}
+            <div className="absolute right-0 top-1/2 -translate-y-1/2">
               <Button
                 variant="destructive"
                 onClick={deleteCurrentSlide}
