@@ -82,6 +82,30 @@ const PresentationViewer: React.FC = () => {
     }
   }, [currentSlide]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        prevSlide();
+      } else if (e.key === 'ArrowRight') {
+        nextSlide();
+      } else if (e.key === 'Escape') {
+        if (isFullscreen) {
+          document.exitFullscreen();
+          setIsFullscreen(false);
+        }
+      } else if (e.key === 'f' || e.key === 'F') {
+        if (!isFullscreen) {
+          document.documentElement.requestFullscreen();
+          setIsFullscreen(true);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [currentSlide, presentationState, isFullscreen]);
+
   if (!presentationState) {
     navigate('/');
     return null;
@@ -150,7 +174,7 @@ const PresentationViewer: React.FC = () => {
         ? 'bg-black p-0' 
         : 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4'
     }`}>
-      <div className={`${isFullscreen ? 'h-screen' : 'max-w-7xl mx-auto'}`}>
+      <div className={`${isFullscreen ? 'h-screen w-screen flex flex-col' : 'max-w-7xl mx-auto'}`}>
         {/* Header Controls */}
         {showControls && !isFullscreen && (
           <div className="flex items-center justify-between mb-6 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
@@ -209,7 +233,7 @@ const PresentationViewer: React.FC = () => {
         )}
 
         {/* Slide Counter */}
-        {showControls && (
+        {showControls && !isFullscreen && (
           <div className="text-center mb-6">
             <div className="inline-block bg-white/10 backdrop-blur-md rounded-full px-6 py-2 border border-white/20">
               <span className="text-white text-lg font-medium">
@@ -220,9 +244,9 @@ const PresentationViewer: React.FC = () => {
         )}
 
         {/* Slide Display */}
-        <div className="space-y-6">
-          <Card className={`
-            ${isFullscreen ? 'h-screen w-screen rounded-none' : 'aspect-video rounded-2xl'}
+        <div className={`space-y-6 ${isFullscreen ? 'flex-1 flex flex-col items-stretch justify-start' : ''}`}>
+          <Card className={
+            `${isFullscreen ? 'h-full w-full rounded-none' : 'aspect-video rounded-2xl'}
             shadow-2xl overflow-hidden transition-all duration-300
           `}>
             {renderSlideContent(presentationState.slides[currentSlide])}
@@ -234,7 +258,7 @@ const PresentationViewer: React.FC = () => {
           </Card>
 
           {/* Navigation Controls */}
-          {showControls && (
+          {showControls && !isFullscreen && (
             <div className="flex justify-center gap-4">
               <Button
                 variant="outline"
