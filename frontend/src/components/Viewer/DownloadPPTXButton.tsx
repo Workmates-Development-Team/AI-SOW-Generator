@@ -2,7 +2,7 @@ import React from "react";
 import PptxGenJS from "pptxgenjs";
 import { toPng } from "html-to-image";
 import { Button } from "@/components/ui/button";
-import type { Slide, HtmlSlide, ChartSlide } from '@/types/presentation'
+import type { Slide, HtmlSlide } from '@/types/presentation'
 
 interface Props {
   slides: Slide[]

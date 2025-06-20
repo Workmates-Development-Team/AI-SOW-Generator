@@ -1,23 +1,20 @@
 import React, { useEffect, useRef } from 'react';
-import { AVAILABLE_TEMPLATES } from '@/types/template';
+import { PLAIN_TEMPLATE } from '@/types/template';
 
 interface TemplateApplierProps {
-  templateId: string;
   children: React.ReactNode;
   className?: string;
 }
 
 const TemplateApplier: React.FC<TemplateApplierProps> = ({
-  templateId,
   children,
   className = "",
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const template = PLAIN_TEMPLATE;
 
   useEffect(() => {
-    const template = AVAILABLE_TEMPLATES.find(t => t.id === templateId);
-    if (!template || !containerRef.current) return;
-
+    if (!containerRef.current) return;
     const container = containerRef.current;
     const styles = template.styles;
 
@@ -53,24 +50,19 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
     tables.forEach((table) => {
       const ths = table.querySelectorAll('th');
       const tds = table.querySelectorAll('td');
-      
       ths.forEach((th) => {
         Object.assign((th as HTMLElement).style, styles.slideTableTh);
       });
-      
       tds.forEach((td) => {
         Object.assign((td as HTMLElement).style, styles.slideTableTd);
       });
     });
-
-  }, [templateId, children]);
-
-  const template = AVAILABLE_TEMPLATES.find(t => t.id === templateId);
+  }, [children]);
 
   return (
     <div 
       ref={containerRef}
-      className={`w-full h-full ${template?.backgroundClass || ''} ${className}`}
+      className={`w-full h-full ${template.backgroundClass || ''} ${className}`}
     >
       {children}
     </div>

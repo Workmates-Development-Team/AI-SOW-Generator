@@ -11,7 +11,7 @@ const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
 export default function GeneratePPTPage() {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState('');GeneratePPTPage
   const navigate = useNavigate();
 
   const handleGenerate = async () => {
