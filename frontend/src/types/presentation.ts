@@ -1,18 +1,22 @@
-export interface BaseSlide {
+export interface Slide {
   id: string;
   type: string;
 }
 
-export interface HtmlSlide extends BaseSlide {
-  type: 'title' | 'content' | 'image' | 'quote' | 'list' | 'conclusion' | 'infograph';
+export interface HtmlSlide extends Slide {
   html: string;
 }
 
-export type Slide = HtmlSlide;
-
-export interface PresentationData {
+export interface SOWData {
   title: string;
   theme: string;
+  template?: string;
   slides: Slide[];
   totalSlides: number;
+}
+
+export interface SOWState {
+  presentation: SOWData | null;
+  loading: boolean;
+  error: string | null;
 }

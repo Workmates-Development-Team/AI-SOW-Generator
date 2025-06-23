@@ -1,17 +1,19 @@
 import React, { useEffect, useRef } from 'react';
-import { PLAIN_TEMPLATE } from '@/types/template';
+import { TEMPLATES } from '@/types/template';
 
 interface TemplateApplierProps {
   children: React.ReactNode;
   className?: string;
+  templateId?: string;
 }
 
 const TemplateApplier: React.FC<TemplateApplierProps> = ({
   children,
   className = "",
+  templateId = "plain",
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const template = PLAIN_TEMPLATE;
+  const template = TEMPLATES[templateId as keyof typeof TEMPLATES] || TEMPLATES.plain;
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -44,6 +46,8 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
     applyStyles('slide-stats', styles.slideStats);
     applyStyles('slide-keypoint', styles.slideKeypoint);
     applyStyles('slide-image', styles.slideImage);
+    applyStyles('slide-header', styles.slideHeader);
+    applyStyles('slide-footer', styles.slideFooter);
 
     // Apply table-specific styles
     const tables = container.querySelectorAll('#slide-table');
@@ -57,7 +61,18 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
         Object.assign((td as HTMLElement).style, styles.slideTableTd);
       });
     });
-  }, [children]);
+
+    // Apply custom CSS if available
+    if (template.customCSS) {
+      let styleElement = document.getElementById(`template-${templateId}-styles`);
+      if (!styleElement) {
+        styleElement = document.createElement('style');
+        styleElement.id = `template-${templateId}-styles`;
+        styleElement.textContent = template.customCSS;
+        document.head.appendChild(styleElement);
+      }
+    }
+  }, [children, templateId]);
 
   return (
     <div 

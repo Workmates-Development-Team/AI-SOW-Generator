@@ -1,7 +1,6 @@
 ## To add
 
 ### Viewer
-- Styles should be carried over when exported as ppt
 
 ### Inputs
 - Client requirements
