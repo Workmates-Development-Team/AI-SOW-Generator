@@ -73,7 +73,25 @@ const SOWViewer: React.FC = () => {
 
   // Define appended image numbers for image-only slides (6.svg to 10.svg)
   const appendedImages = [6, 7, 8, 9, 10];
-  const totalSlides = presentationState.slides.length + appendedImages.length;
+
+  // Filter out the Termination slide if the user did not fill the field
+  const filteredSlides = presentationState?.slides.filter(slide => {
+    const htmlSlide = slide as HtmlSlide;
+    if (
+      slide.template === 'generic' &&
+      htmlSlide.html &&
+      /<h1[^>]*id=["']slide-title["'][^>]*>\s*Termination\s*<\/h1>/i.test(htmlSlide.html)
+    ) {
+      // Try to detect if the slide has meaningful content (not just the title)
+      const descMatch = htmlSlide.html.match(/<div[^>]*id=["']slide-description["'][^>]*>([\s\S]*?)<\/div>/i);
+      if (descMatch && descMatch[1].replace(/<[^>]+>/g, '').trim().length === 0) {
+        return false; // Hide if no description content
+      }
+    }
+    return true;
+  }) || [];
+
+  const totalSlides = filteredSlides.length + appendedImages.length;
 
   return (
     <div className={`min-h-screen transition-all duration-300 ${getBackgroundClass()} p-6 h-screen w-screen overflow-hidden relative`}>
@@ -102,8 +120,8 @@ const SOWViewer: React.FC = () => {
       <div className="fixed left-0 top-0 h-full flex flex-col items-center justify-center py-8 pl-8 pr-4 z-10" style={{ width: 80, paddingTop: 80 }}>
         <div className="flex flex-col gap-3 overflow-y-auto max-h-[70vh] px-1 pt-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
           {[
-            ...presentationState.slides.map((_, index) => index),
-            ...appendedImages.map((_, i) => presentationState.slides.length + i)
+            ...filteredSlides.map((_, index) => index),
+            ...appendedImages.map((_, i) => filteredSlides.length + i)
           ].map((index) => (
             <button
               key={index}
@@ -141,12 +159,12 @@ const SOWViewer: React.FC = () => {
                 }}
               >
                 <Card className="w-full h-full rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 flex items-stretch bg-transparent border-0">
-                  {currentSlide < presentationState.slides.length ? (
-                    renderSlideContent(presentationState.slides[currentSlide])
+                  {currentSlide < filteredSlides.length ? (
+                    renderSlideContent(filteredSlides[currentSlide])
                   ) : (
                     <img
-                      src={`/${appendedImages[currentSlide - presentationState.slides.length]}.svg`}
-                      alt={`Slide Image ${appendedImages[currentSlide - presentationState.slides.length]}`}
+                      src={`/${appendedImages[currentSlide - filteredSlides.length]}.svg`}
+                      alt={`Slide Image ${appendedImages[currentSlide - filteredSlides.length]}`}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   )}
@@ -159,7 +177,7 @@ const SOWViewer: React.FC = () => {
 
       {/* Export container for PDF */}
       <div style={{ position: 'absolute', left: '-99999px', top: 0 }} id="all-slides-export-container">
-        {presentationState.slides.map((slide, idx) => (
+        {filteredSlides.map((slide, idx) => (
           <div key={idx} className="slide-content-export" style={{ width: '794px', height: '1123px' }}>
             {renderSlideContent(slide)}
           </div>

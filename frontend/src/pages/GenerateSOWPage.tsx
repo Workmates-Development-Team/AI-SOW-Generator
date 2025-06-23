@@ -19,6 +19,7 @@ export default function GenerateSOWPage() {
   const [supportService, setSupportService] = useState('');
   const [legalTerms, setLegalTerms] = useState('');
   const [deliverables, setDeliverables] = useState('');
+  const [terminationClause, setTerminationClause] = useState('');
   const navigate = useNavigate();
 
   const handleGenerate = async (e) => {
@@ -26,14 +27,15 @@ export default function GenerateSOWPage() {
     if (!projectDescription.trim()) return;
     setLoading(true);
     setError('');
-    // Compose a structured prompt for the AI
+
     const fullPrompt = `Project Description: ${projectDescription.trim()}
-Client Requirements: ${requirements.trim()}
-Project Duration: ${duration.trim()}
-Budget: ${budget.trim()}
-Support Service: ${supportService.trim()}
-Special Legal Terms: ${legalTerms.trim()}
-Deliverables: ${deliverables.trim()}`;
+    Client Requirements: ${requirements.trim()}
+    Project Duration: ${duration.trim()}
+    Budget: ${budget.trim()}
+    Support Service: ${supportService.trim()}
+    Special Legal Terms: ${legalTerms.trim()}
+    Deliverables: ${deliverables.trim()}
+    Termination Clause: ${terminationClause.trim()}`;
     try {
       const sowResponse = await fetch(`${API_URL}/api/generate-presentation`, {
         method: 'POST',
@@ -47,6 +49,7 @@ Deliverables: ${deliverables.trim()}`;
           supportService: supportService.trim(),
           legalTerms: legalTerms.trim(),
           deliverables: deliverables.trim(),
+          terminationClause: terminationClause.trim(),
         }),
       });
       const sowResult = await sowResponse.json();
@@ -119,6 +122,17 @@ Deliverables: ${deliverables.trim()}`;
               className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
               disabled={loading}
             />
+            <label htmlFor="deliverables" className="block text-sm font-medium text-white/80">
+              Instructions for the deliverables (Optional)
+            </label>
+            <Textarea
+              id="deliverables"
+              placeholder="Provide instructions or notes for the deliverables (optional)"
+              value={deliverables}
+              onChange={e => setDeliverables(e.target.value)}
+              className="min-h-[40px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+              disabled={loading}
+            />
             <label htmlFor="supportService" className="block text-sm font-medium text-white/80">
               Support Service (Optional)
             </label>
@@ -141,14 +155,14 @@ Deliverables: ${deliverables.trim()}`;
               className="min-h-[40px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
               disabled={loading}
             />
-            <label htmlFor="deliverables" className="block text-sm font-medium text-white/80">
-              Deliverables (Optional)
+            <label htmlFor="terminationClause" className="block text-sm font-medium text-white/80">
+              Termination Clause (Optional)
             </label>
             <Textarea
-              id="deliverables"
-              placeholder="List any specific deliverables"
-              value={deliverables}
-              onChange={e => setDeliverables(e.target.value)}
+              id="terminationClause"
+              placeholder="Describe any termination conditions or clauses (optional)"
+              value={terminationClause}
+              onChange={e => setTerminationClause(e.target.value)}
               className="min-h-[40px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
               disabled={loading}
             />

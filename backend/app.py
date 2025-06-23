@@ -37,6 +37,7 @@ def generate_presentation():
                 'supportService': data.get('supportService') or '',
                 'legalTerms': data.get('legalTerms') or '',
                 'deliverables': data.get('deliverables') or '',
+                'terminationClause': data.get('terminationClause') or '',
             }
             # If only prompt is present (old client), fallback to prompt
             if any(sow_fields.values()):

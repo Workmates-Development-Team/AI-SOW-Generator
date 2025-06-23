@@ -22,7 +22,7 @@ class AIService:
                 client=self.bedrock_client,
                 model_id=ConfigAI.BEDROCK_MODEL_ID,
                 model_kwargs={
-                    "max_tokens": 16000,
+                    "max_tokens": 20000,
                     "temperature": 0.7
                 }
             )
@@ -61,87 +61,88 @@ class AIService:
         
         TEMPLATE MAPPING REQUIREMENTS:
         You MUST create slides with these exact template mappings:
-        - template: "cover" -> Uses background image 1.png (Cover page)
-        - template: "scope" -> Uses background image 2.png (Scope of Work)  
-        - template: "deliverables" -> Uses background image 3.png (Deliverables)
-        - template: "generic" -> Uses background image 4.png (For other content like objectives, timeline, budget, etc.)
+        - template: \"cover\" -> Uses background image 1.png (Cover page)
+        - template: \"scope\" -> Uses background image 2.png (Scope of Work)  
+        - template: \"deliverables\" -> Uses background image 3.png (Deliverables)
+        - template: \"generic\" -> Uses background image 4.png (For other content like objectives, timeline, budget, etc.)
         
         REQUIRED SOW STRUCTURE (in this exact order with template assignments):
-        1. Cover/Title Page (template: "cover")
-        2. Introduction (template: "generic") 
-        3. Objectives (template: "generic")
-        4. Scope of Work (template: "scope")
-        5. Deliverables (template: "deliverables")
-        6. Timeline (template: "generic")
-        7. Budget (template: "generic")
-        8. Payment Terms (template: "generic")
-        9. Acceptance Criteria (template: "generic")
-        10. Assumptions and Constraints (template: "generic")
-        11. Support Services (template: "generic")
-        12. General Terms (template: "generic")
-        13. Project Terms (template: "generic")
-        14. Termination (template: "generic")
-        15. Signature Page (template: "generic")
+        1. Cover/Title Page (template: \"cover\")
+        2. Introduction (template: \"generic\") 
+        3. Objectives (template: \"generic\")
+        4. Scope of Work (template: \"scope\")
+        5. Deliverables (template: \"deliverables\") -- ALWAYS include this slide. If the user provides 'Instructions for the deliverables', use it as additional context for this slide; otherwise, generate the slide based on the rest of the SOW context.
+        6. Timeline (template: \"generic\")
+        7. Budget (template: \"generic\")
+        8. Payment Terms (template: \"generic\")
+        9. Acceptance Criteria (template: \"generic\")
+        10. Assumptions and Constraints (template: \"generic\")
+        11. Support Services (template: \"generic\") -- ONLY include this slide if Support Services are provided by the user; if not, skip this slide.
+        12. Special Legal Terms (template: \"generic\") -- ONLY include this slide if Special Legal Terms are provided by the user; if not, skip this slide.
+        13. General Terms (template: \"generic\")
+        14. Project Terms (template: \"generic\")
+        15. Termination (template: \"generic\") -- ONLY include this slide if a Termination Clause is provided by the user; if not, skip this slide.
+        16. Signature Page (template: \"generic\")
         
         HTML STRUCTURE REQUIREMENTS:
-        - EVERY slide MUST start with <div id="slide-content">
+        - EVERY slide MUST start with <div id=\"slide-content\">
         - Use minimal HTML as text will be overlaid on template images
         - Focus on clean, readable text content
         - Use these standardized IDs for proper positioning:
-          - id="slide-title" - Main headings
-          - id="slide-subtitle" - Section headings  
-          - id="slide-list" - Bullet points and lists
-          - id="slide-table" - Data tables
-          - id="slide-description" - Body text
-          - id="slide-highlight" - Important notes
+          - id=\"slide-title\" - Main headings
+          - id=\"slide-subtitle\" - Section headings  
+          - id=\"slide-list\" - Bullet points and lists
+          - id=\"slide-table\" - Data tables
+          - id=\"slide-description\" - Body text
+          - id=\"slide-highlight\" - Important notes
         
         Required JSON structure:
-        {
-          "title": "Statement of Work (SOW)",
-          "theme": "sow", 
-          "template": "sow",
-          "slides": [
-            {
-              "id": "string",
-              "type": "string", 
-              "template": "cover|scope|deliverables|generic",
-              "html": "string"
-            }
+        {{
+          \"title\": \"Statement of Work (SOW)\",
+          \"theme\": \"sow\", 
+          \"template\": \"sow\",
+          \"slides\": [
+            {{
+              \"id\": \"string\",
+              \"type\": \"string\", 
+              \"template\": \"cover|scope|deliverables|generic\",
+              \"html\": \"string\"
+            }}
           ],
-          "totalSlides": 15
-        }
+          \"totalSlides\": number
+        }}
         
         SAMPLE SOW SLIDES WITH TEMPLATES:
         
-        COVER SLIDE (template: "cover"):
-        <div id="slide-content">
-          <h1 id="slide-title">Statement of Work (SOW)</h1>
-          <h2 id="slide-subtitle">[Project Name from prompt]</h2>
-          <div id="slide-description">
+        COVER SLIDE (template: \"cover\"):
+        <div id=\"slide-content\">
+          <h1 id=\"slide-title\">Statement of Work (SOW)</h1>
+          <h2 id=\"slide-subtitle\">[Project Name from prompt]</h2>
+          <div id=\"slide-description\">
             <p>Prepared for: [Client Name]</p>
             <p>Date: June 23, 2025</p>
             <p>Version: 1.0</p>
           </div>
         </div>
         
-        SCOPE OF WORK SLIDE (template: "scope"):
-        <div id="slide-content">
-          <h1 id="slide-title">Scope of Work</h1>
-          <ul id="slide-list">
+        SCOPE OF WORK SLIDE (template: \"scope\"):
+        <div id=\"slide-content\">
+          <h1 id=\"slide-title\">Scope of Work</h1>
+          <ul id=\"slide-list\">
             <li>[Specific scope item 1 based on prompt]</li>
             <li>[Specific scope item 2 based on prompt]</li>
             <li>[Specific scope item 3 based on prompt]</li>
             <li>[Specific scope item 4 based on prompt]</li>
           </ul>
-          <div id="slide-highlight">
+          <div id=\"slide-highlight\">
             <p>This project will deliver [specific deliverable based on prompt]</p>
           </div>
         </div>
         
-        DELIVERABLES SLIDE (template: "deliverables"):
-        <div id="slide-content">
-          <h1 id="slide-title">Deliverables</h1>
-          <table id="slide-table">
+        DELIVERABLES SLIDE (template: \"deliverables\"):
+        <div id=\"slide-content\">
+          <h1 id=\"slide-title\">Deliverables</h1>
+          <table id=\"slide-table\">
             <thead>
               <tr>
                 <th>Deliverable</th>
@@ -167,13 +168,13 @@ class AIService:
           </table>
         </div>
         
-        GENERIC TEMPLATE SLIDES (template: "generic"):
-        <div id="slide-content">
-          <h1 id="slide-title">[Section Title]</h1>
-          <div id="slide-description">
+        GENERIC TEMPLATE SLIDES (template: \"generic\"):
+        <div id=\"slide-content\">
+          <h1 id=\"slide-title\">[Section Title]</h1>
+          <div id=\"slide-description\">
             <p>[Content based on prompt and section requirements]</p>
           </div>
-          <ul id="slide-list">
+          <ul id=\"slide-list\">
             <li>[Relevant bullet point 1]</li>
             <li>[Relevant bullet point 2]</li>
           </ul>
@@ -200,6 +201,8 @@ class AIService:
                 prompt_lines.append(f"Special Legal Terms: {sow_fields['legalTerms']}")
             if sow_fields.get('deliverables'):
                 prompt_lines.append(f"Deliverables: {sow_fields['deliverables']}")
+            if sow_fields.get('terminationClause'):
+                prompt_lines.append(f"Termination Clause: {sow_fields['terminationClause']}")
             structured_prompt = '\n'.join(prompt_lines)
         else:
             structured_prompt = str(sow_fields)

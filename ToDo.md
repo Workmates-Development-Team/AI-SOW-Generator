@@ -22,4 +22,4 @@
 - Legal sections
 
 ## Issues
-- Pages do not completely switch the theme until a few slides are changed. There is temporarily a thick border of the previous slide all around.
+- The constant pages that need to be appended are not being added in correct order and page number 5 is missing
