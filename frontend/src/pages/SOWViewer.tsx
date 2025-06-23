@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -6,15 +6,33 @@ import TemplateApplier from '@/components/Viewer/TemplateApplier';
 import { useTemplate } from '@/hooks/useTemplate';
 import { PLAIN_TEMPLATE } from '@/types/template';
 import type { PresentationData, Slide, HtmlSlide } from '@/types/presentation';
+import DownloadPDFButton from '@/components/Viewer/DownloadPDFButton';
 
-const PresentationViewer: React.FC = () => {
+const DocumentViewer: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const presentation: PresentationData | undefined = location.state?.presentation;
 
   const [presentationState, setPresentation] = useState<PresentationData | undefined>(presentation);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const { currentTemplate } = useTemplate();
+
+  // keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!presentationState) return;
+      if (e.key === 'ArrowUp') {
+        setCurrentSlide((prev) => (prev > 0 ? prev - 1 : prev));
+      } else if (e.key === 'ArrowDown') {
+        setCurrentSlide((prev) => (prev < presentationState.slides.length - 1 ? prev + 1 : prev));
+      } else if (e.key === 'ArrowLeft') {
+        setCurrentSlide(0);
+      } else if (e.key === 'ArrowRight') {
+        setCurrentSlide(presentationState.slides.length - 1);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [presentationState]);
 
   if (!presentationState) {
     navigate('/');
@@ -24,7 +42,6 @@ const PresentationViewer: React.FC = () => {
   const renderSlideContent = (slide: Slide) => {
     const template = PLAIN_TEMPLATE;
     const textColor = template.styles.slideContent.color || 'black';
-    // Only render HTML slides, ignore chart slides
     const htmlSlide = slide as HtmlSlide;
     return (
       <TemplateApplier className="w-full h-full">
@@ -77,8 +94,11 @@ const PresentationViewer: React.FC = () => {
               </Button>
             </div>
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white/80 text-sm font-medium select-none pointer-events-none bg-white/10 border border-white/20 px-4 py-1 rounded-full shadow-sm">
-              Slide {currentSlide + 1} of {presentationState.slides.length}
+              Page {currentSlide + 1} of {presentationState.slides.length}
             </span>
+            <div className="flex items-center gap-2 ml-auto">
+              <DownloadPDFButton slides={presentationState.slides} title={presentationState.title || 'Presentation'} />
+            </div>
           </div>
           {/* Main Slide Area (centered) */}
           <div className="flex-1 flex items-center justify-center h-full">
@@ -102,8 +122,15 @@ const PresentationViewer: React.FC = () => {
           </div>
         </div>
       </div>
+      <div style={{ position: 'absolute', left: '-99999px', top: 0 }} id="all-slides-export-container">
+        {presentationState.slides.map((slide, idx) => (
+          <div key={idx} className="slide-content-export" style={{ width: '794px', height: '1123px' }}>
+            {renderSlideContent(slide)}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
-export default PresentationViewer;
+export default DocumentViewer;

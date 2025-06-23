@@ -84,29 +84,7 @@ class AIService:
             {
               "id": "string",
               "type": "string",
-              "html": "string" (for regular slides)
-            },
-            {
-              "id": "string",
-              "type": "chart",
-              "chartConfig": {
-                "type": "bar|line|pie|doughnut|radar|polarArea",
-                "title": "string",
-                "description": "string",
-                "data": {
-                  "labels": ["string"],
-                  "datasets": [
-                    {
-                      "label": "string",
-                      "data": [numbers],
-                      "backgroundColor": ["string"] or "string",
-                      "borderColor": ["string"] or "string",
-                      "borderWidth": number
-                    }
-                  ]
-                },
-                "options": {}
-              }
+              "html": "string"
             }
           ],
           "totalSlides": number
@@ -210,15 +188,6 @@ class AIService:
           </div>
         </div>
         
-        IMAGE SLIDE:
-        <div id="slide-content">
-          <h2 id="slide-title">Visual Overview</h2>
-          <img id="slide-image" src="https://example.com/chart.jpg" alt="Market analysis chart" />
-          <div id="slide-description">
-            <p>Comprehensive market analysis showing growth trends</p>
-          </div>
-        </div>
-        
         WHEN TO INCLUDE TABLES:
         - Comparative data (features, prices, performance)
         - Financial information (budgets, revenue, costs)
@@ -238,25 +207,15 @@ class AIService:
         - Keep tables readable (max 6-8 columns)
         - Add descriptions below tables when needed
         
-        CHART TYPES AND WHEN TO USE:
-        - "bar": Comparing quantities across categories
-        - "line": Showing trends over time
-        - "pie": Showing parts of a whole (percentages)
-        - "doughnut": Similar to pie but with center space
-        - "radar": Comparing multiple variables
-        - "polarArea": Similar to pie but with variable radius
-        
         CONTENT SCALING RULES:
         - Always include tables when showing comparative data
-        - Always include charts when showing trends/statistics
-        - Simple topics: 5-8 slides (1-2 tables, 1-2 charts)
-        - Medium complexity: 8-12 slides (2-3 tables, 2-3 charts)
-        - Complex topics: 12-20+ slides (3-5 tables, 3-5 charts)
+        - Simple topics: 5-8 slides (1-2 tables)
+        - Medium complexity: 8-12 slides (2-3 tables)
+        - Complex topics: 12-20+ slides (3-5 tables)
         
         Generate slides that are:
         - Well-structured with proper HTML and standardized IDs
         - Include relevant data tables using proper HTML structure
-        - Include relevant data visualizations using charts
         - Professional and clear with consistent ID usage
         - Data-driven where appropriate
         - Template-ready with standardized element IDs
@@ -294,15 +253,8 @@ class AIService:
             slide['id'] = slide.get('id', f'slide-{i+1}')
             slide['type'] = slide.get('type', 'content')
             
-            # Validate chart slides
-            if slide['type'] == 'chart':
-                if 'chartConfig' not in slide:
-                    logger.warning(f"Chart slide {i} missing chartConfig, converting to content")
-                    slide['type'] = 'content'
-                    slide['html'] = '<div id="slide-content"><h2 id="slide-title">Data Visualization</h2><p id="slide-description">Chart data unavailable</p></div>'
-            
             # Validate HTML slides have proper slide-content wrapper
-            elif 'html' in slide and slide['html']:
+            if 'html' in slide and slide['html']:
                 html_content = slide['html'].strip()
                 if not html_content.startswith('<div id="slide-content">'):
                     # Wrap the content with slide-content div if missing
