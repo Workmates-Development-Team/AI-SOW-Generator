@@ -25,11 +25,28 @@ def generate_presentation():
             return jsonify({'error': 'Invalid JSON data'}), 400
             
         prompt = data.get('prompt')
+        document_type = data.get('documentType')
 
-        if not prompt:
-            return jsonify({'error': 'Prompt is required'}), 400
-       
-        presentation_data = ai.generate_presentation_structure(prompt)
+        if document_type == 'sow':
+            # Pass all fields for SOW
+            sow_fields = {
+                'projectDescription': data.get('projectDescription') or '',
+                'requirements': data.get('requirements') or '',
+                'duration': data.get('duration') or '',
+                'budget': data.get('budget') or '',
+                'supportService': data.get('supportService') or '',
+                'legalTerms': data.get('legalTerms') or '',
+                'deliverables': data.get('deliverables') or '',
+            }
+            # If only prompt is present (old client), fallback to prompt
+            if any(sow_fields.values()):
+                presentation_data = ai.generate_presentation_structure(sow_fields)
+            else:
+                presentation_data = ai.generate_presentation_structure(prompt)
+        else:
+            if not prompt:
+                return jsonify({'error': 'Prompt is required'}), 400
+            presentation_data = ai.generate_presentation_structure(prompt)
         
         return jsonify({
             'success': True,

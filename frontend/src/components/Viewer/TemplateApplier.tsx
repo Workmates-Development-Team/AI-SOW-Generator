@@ -5,15 +5,20 @@ interface TemplateApplierProps {
   children: React.ReactNode;
   className?: string;
   templateId?: string;
+  slideTemplate?: string;
 }
 
 const TemplateApplier: React.FC<TemplateApplierProps> = ({
   children,
   className = "",
   templateId = "plain",
+  slideTemplate = "generic",
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const template = TEMPLATES[templateId as keyof typeof TEMPLATES] || TEMPLATES.plain;
+  
+  // Use slide-specific template if provided, otherwise fall back to general template
+  const actualTemplateId = slideTemplate !== 'generic' ? slideTemplate : templateId;
+  const template = TEMPLATES[actualTemplateId as keyof typeof TEMPLATES] || TEMPLATES.generic;
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -64,20 +69,33 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
 
     // Apply custom CSS if available
     if (template.customCSS) {
-      let styleElement = document.getElementById(`template-${templateId}-styles`);
+      let styleElement = document.getElementById(`template-${actualTemplateId}-styles`);
       if (!styleElement) {
         styleElement = document.createElement('style');
-        styleElement.id = `template-${templateId}-styles`;
+        styleElement.id = `template-${actualTemplateId}-styles`;
         styleElement.textContent = template.customCSS;
         document.head.appendChild(styleElement);
       }
     }
-  }, [children, templateId]);
+  }, [children, actualTemplateId, slideTemplate]);
+
+  // Determine background image
+  const backgroundImage = template.backgroundImage;
 
   return (
     <div 
       ref={containerRef}
       className={`w-full h-full ${template.backgroundClass || ''} ${className}`}
+      style={
+        backgroundImage
+          ? {
+              backgroundImage: `url(${backgroundImage})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+            }
+          : {}
+      }
     >
       {children}
     </div>

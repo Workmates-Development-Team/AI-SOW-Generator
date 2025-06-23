@@ -1,6 +1,7 @@
 export interface Slide {
   id: string;
   type: string;
+  template?: string;
 }
 
 export interface HtmlSlide extends Slide {

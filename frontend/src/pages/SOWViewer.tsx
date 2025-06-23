@@ -15,19 +15,23 @@ const SOWViewer: React.FC = () => {
   const [presentationState, setPresentation] = useState<SOWData | undefined>(presentation);
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Determine template based on presentation data
   const getTemplateId = () => {
     if (!presentationState) return 'plain';
     return presentationState.template || 'plain';
   };
 
   const templateId = getTemplateId();
-  const template = TEMPLATES[templateId as keyof typeof TEMPLATES] || TEMPLATES.plain;
 
   const renderSlideContent = (slide: Slide) => {
     const htmlSlide = slide as HtmlSlide;
+    const slideTemplate = slide.template || 'generic';
+    
     return (
-      <TemplateApplier className="w-full h-full" templateId={templateId}>
+      <TemplateApplier 
+        className="w-full h-full" 
+        templateId={templateId} 
+        slideTemplate={slideTemplate}
+      >
         <div
           className="w-full h-full flex flex-col justify-center"
           dangerouslySetInnerHTML={{
@@ -39,18 +43,18 @@ const SOWViewer: React.FC = () => {
     );
   };
 
-  // keyboard navigation
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!presentationState) return;
       if (e.key === 'ArrowUp') {
         setCurrentSlide((prev) => (prev > 0 ? prev - 1 : prev));
       } else if (e.key === 'ArrowDown') {
-        setCurrentSlide((prev) => (prev < presentationState.slides.length - 1 ? prev + 1 : prev));
+        setCurrentSlide((prev) => (prev < presentationState.slides.length + 5 - 1 ? prev + 1 : prev));
       } else if (e.key === 'ArrowLeft') {
         setCurrentSlide(0);
       } else if (e.key === 'ArrowRight') {
-        setCurrentSlide(presentationState.slides.length - 1);
+        setCurrentSlide(presentationState.slides.length + 5 - 1);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -62,19 +66,45 @@ const SOWViewer: React.FC = () => {
     return null;
   }
 
-  // Dynamic background based on template
+  // Dynamic background
   const getBackgroundClass = () => {
-    if (templateId === 'sow') {
-      return 'bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900';
-    }
     return 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900';
   };
 
+  // Define appended image numbers for image-only slides (6.svg to 10.svg)
+  const appendedImages = [6, 7, 8, 9, 10];
+  const totalSlides = presentationState.slides.length + appendedImages.length;
+
   return (
-    <div className={`min-h-screen transition-all duration-300 ${getBackgroundClass()} p-0 flex flex-row h-screen w-screen overflow-hidden`}>
-      <div className="flex flex-col items-center justify-center h-full py-4 pl-6">
+    <div className={`min-h-screen transition-all duration-300 ${getBackgroundClass()} p-6 h-screen w-screen overflow-hidden relative`}>
+      {/* Top Toolbar */}
+      <div className="w-full flex justify-center" style={{ position: 'absolute', top: 0, left: 0, zIndex: 20, pointerEvents: 'none' }}>
+        <div className="mt-4 max-w-5xl w-full rounded-2xl shadow-lg bg-white/10 backdrop-blur-md border border-white/20 px-6 py-2 flex items-center justify-between relative" style={{ minHeight: 40, fontSize: '0.95rem', pointerEvents: 'auto' }}>
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={() => navigate('/')}
+              variant="outline"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            >
+              ← Back to Generator
+            </Button>
+          </div>
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white/80 text-sm font-medium select-none pointer-events-none bg-white/10 border border-white/20 px-4 py-1 rounded-full shadow-sm">
+            Page {currentSlide + 1} of {totalSlides}
+          </span>
+          <div className="flex items-center gap-2 ml-auto">
+            <DownloadPDFButton slides={presentationState.slides} title={presentationState.title || 'Presentation'} />
+          </div>
+        </div>
+      </div>
+
+      {/* Sidebar Thumbnails */}
+      <div className="fixed left-0 top-0 h-full flex flex-col items-center justify-center py-8 pl-8 pr-4 z-10" style={{ width: 80, paddingTop: 80 }}>
         <div className="flex flex-col gap-3 overflow-y-auto max-h-[70vh] px-1 pt-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-          {presentationState.slides.map((slide, index) => (
+          {[
+            ...presentationState.slides.map((_, index) => index),
+            ...appendedImages.map((_, i) => presentationState.slides.length + i)
+          ].map((index) => (
             <button
               key={index}
               data-slide-index={index}
@@ -82,75 +112,65 @@ const SOWViewer: React.FC = () => {
               className={
                 `w-14 h-20 border-2 rounded-xl flex-shrink-0 transition-all duration-300
                 ${currentSlide === index
-                  ? templateId === 'sow' 
-                    ? 'border-yellow-400 bg-yellow-400/20 shadow-lg shadow-yellow-400/25 scale-110'
-                    : 'border-blue-500 bg-blue-500/20 shadow-lg shadow-blue-500/25 scale-110'
+                  ? 'border-blue-900 bg-blue-900/80 shadow-lg shadow-blue-900/40 scale-110'
                   : 'border-white/20 bg-white/10 hover:border-white/40 hover:bg-white/20'
                 }
                 backdrop-blur-sm relative`
               }
             >
               <div className="w-full h-full flex items-center justify-center">
-                <span className="text-base text-white font-medium">{index + 1}</span>
+                <span className={`text-base font-medium ${currentSlide === index ? 'text-yellow-400' : 'text-white'}`}>{index + 1}</span>
               </div>
             </button>
           ))}
         </div>
       </div>
-      <div className="flex-1 flex flex-col h-full relative">
-        <div className="absolute left-1/2 top-0 transform -translate-x-1/2 w-full max-w-7xl h-full flex flex-col pt-3">
-          <div className="relative flex items-center justify-between bg-white/10 backdrop-blur-md rounded-2xl px-3 py-2 border border-white/20 flex-shrink-0" style={{ minHeight: 40, fontSize: '0.95rem' }}>
-            <div className="flex items-center gap-4">
-              <Button
-                onClick={() => navigate('/')}
-                variant="outline"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-              >
-                ← Back to Generator
-              </Button>
-              {templateId === 'sow' && (
-                <div className="text-yellow-400 text-sm font-medium">
-                  📄 Statement of Work Template
-                </div>
-              )}
-            </div>
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white/80 text-sm font-medium select-none pointer-events-none bg-white/10 border border-white/20 px-4 py-1 rounded-full shadow-sm">
-              Page {currentSlide + 1} of {presentationState.slides.length}
-            </span>
-            <div className="flex items-center gap-2 ml-auto">
-              <DownloadPDFButton slides={presentationState.slides} title={presentationState.title || 'Presentation'} />
-            </div>
-          </div>
-          {/* Main Slide Area (centered) */}
+
+      {/* Main Slide Area */}
+      <div className="flex-1 flex flex-col h-full relative py-8 pr-8 pl-4 items-center justify-center" style={{ paddingTop: 80, paddingLeft: 96 }}>
+        <div className="absolute left-1/2 top-0 transform -translate-x-1/2 w-full max-w-7xl h-full flex flex-col pt-16">
           <div className="flex-1 flex items-center justify-center h-full">
             <div className="flex items-center justify-center w-full h-full">
               <div
                 id={`slide-${currentSlide}`}
                 className="flex-shrink-0 flex items-center justify-center"
                 style={{
-                  width: '794px', // A4 width at 96dpi
-                  height: '1123px', // A4 height at 96dpi
+                  width: '794px',
+                  height: '1123px',
                   aspectRatio: '210/297',
                 }}
               >
-                <Card
-                  className="w-full h-full rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 flex items-stretch"
-                  style={{
-                    backgroundColor: templateId === 'sow' ? '#1e3a8a' : 'white',
-                    border: templateId === 'sow' ? '2px solid #fbbf24' : '1px solid #e5e7eb'
-                  }}
-                >
-                  {renderSlideContent(presentationState.slides[currentSlide])}
+                <Card className="w-full h-full rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 flex items-stretch bg-transparent border-0">
+                  {currentSlide < presentationState.slides.length ? (
+                    renderSlideContent(presentationState.slides[currentSlide])
+                  ) : (
+                    <img
+                      src={`/${appendedImages[currentSlide - presentationState.slides.length]}.svg`}
+                      alt={`Slide Image ${appendedImages[currentSlide - presentationState.slides.length]}`}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  )}
                 </Card>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Export container for PDF */}
       <div style={{ position: 'absolute', left: '-99999px', top: 0 }} id="all-slides-export-container">
         {presentationState.slides.map((slide, idx) => (
           <div key={idx} className="slide-content-export" style={{ width: '794px', height: '1123px' }}>
             {renderSlideContent(slide)}
+          </div>
+        ))}
+        {appendedImages.map((imgNum) => (
+          <div key={imgNum} className="slide-content-export" style={{ width: '794px', height: '1123px' }}>
+            <img
+              src={`/${imgNum}.svg`}
+              alt={`Slide Image ${imgNum}`}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
           </div>
         ))}
       </div>
