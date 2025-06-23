@@ -210,7 +210,6 @@ class AIService:
         return self._process_ai_response(messages)
 
     def _generate_standard_presentation(self, user_prompt: str) -> dict:
-        """Generate standard presentation structure"""
         system_prompt = """
         You are an expert presentation designer. Create comprehensive presentations with structured HTML, standardized IDs, data tables, and appropriate content.
         
@@ -278,7 +277,6 @@ class AIService:
         return self._process_ai_response(messages)
 
     def _process_ai_response(self, messages) -> dict:
-        """Process AI response and return structured data"""
         response = self.llm.invoke(messages)
         content = response.content.strip()
         
