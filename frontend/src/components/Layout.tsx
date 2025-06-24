@@ -8,7 +8,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <img
           src="/workmates_logo.png"
           alt="Workmates Logo"
-          className="h-10 w-auto max-w-xs object-contain drop-shadow-lg rounded-xl shadow-md transition-all duration-200"
+          className="h-10 w-auto max-w-xs object-contain transition-all duration-200"
           style={{ maxWidth: 'min(32vw, 240px)' }}
         />
       </Link>

@@ -21,29 +21,21 @@ def generate_presentation():
 
         if not data:
             return jsonify({'error': 'Invalid JSON data'}), 400
-            
-        prompt = data.get('prompt')
-        document_type = data.get('documentType')
-
-        if document_type == 'sow':
-            sow_fields = {
-                'projectDescription': data.get('projectDescription') or '',
-                'requirements': data.get('requirements') or '',
-                'duration': data.get('duration') or '',
-                'budget': data.get('budget') or '',
-                'supportService': data.get('supportService') or '',
-                'legalTerms': data.get('legalTerms') or '',
-                'deliverables': data.get('deliverables') or '',
-                'terminationClause': data.get('terminationClause') or '',
-            }
-            if any(sow_fields.values()):
-                presentation_data = ai.generate_sow_document(sow_fields)
-            else:
-                presentation_data = ai.generate_sow_document(prompt)
+        
+        sow_fields = {
+            'projectDescription': data.get('projectDescription') or '',
+            'requirements': data.get('requirements') or '',
+            'duration': data.get('duration') or '',
+            'budget': data.get('budget') or '',
+            'supportService': data.get('supportService') or '',
+            'legalTerms': data.get('legalTerms') or '',
+            'deliverables': data.get('deliverables') or '',
+            'terminationClause': data.get('terminationClause') or '',
+        }
+        if any(sow_fields.values()):
+            presentation_data = ai.generate_sow_document(sow_fields)
         else:
-            if not prompt:
-                return jsonify({'error': 'Prompt is required'}), 400
-            presentation_data = ai.generate_sow_document(prompt)
+            return jsonify({'error': 'At least one SOW field is required'}), 400
         
         return jsonify({
             'success': True,

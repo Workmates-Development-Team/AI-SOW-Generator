@@ -56,7 +56,6 @@ export default function GenerateSOWPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          documentType: 'sow',
           projectDescription: form.projectDescription.trim(),
           requirements: form.requirements.trim(),
           duration: form.duration.trim(),
@@ -119,7 +118,7 @@ export default function GenerateSOWPage() {
                   onChange={handleChange}
                   onKeyDown={handleTextareaKeyDown}
                   onInput={handleAutoResize}
-                  className="min-h-[60px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+                  className="min-h-[80px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
                   disabled={loading}
                 />
                 <label htmlFor="duration" className="block text-sm font-medium text-white/80">
@@ -131,7 +130,7 @@ export default function GenerateSOWPage() {
                   value={form.duration}
                   onChange={handleChange}
                   onInput={handleAutoResize}
-                  className="min-h-[32px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+                  className="min-h-[80px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
                   disabled={loading}
                 />
                 <label htmlFor="budget" className="block text-sm font-medium text-white/80">
@@ -143,7 +142,7 @@ export default function GenerateSOWPage() {
                   value={form.budget}
                   onChange={handleChange}
                   onInput={handleAutoResize}
-                  className="min-h-[32px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+                  className="min-h-[80px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
                   disabled={loading}
                 />
               </div>
@@ -161,7 +160,7 @@ export default function GenerateSOWPage() {
                   onChange={handleChange}
                   onKeyDown={handleTextareaKeyDown}
                   onInput={handleAutoResize}
-                  className="min-h-[40px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+                  className="min-h-[80px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
                   disabled={loading}
                 />
                 <label htmlFor="supportService" className="block text-sm font-medium text-white/80">
@@ -173,7 +172,7 @@ export default function GenerateSOWPage() {
                   value={form.supportService}
                   onChange={handleChange}
                   onInput={handleAutoResize}
-                  className="min-h-[32px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+                  className="min-h-[80px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
                   disabled={loading}
                 />
                 <label htmlFor="legalTerms" className="block text-sm font-medium text-white/80">
@@ -186,7 +185,7 @@ export default function GenerateSOWPage() {
                   onChange={handleChange}
                   onKeyDown={handleTextareaKeyDown}
                   onInput={handleAutoResize}
-                  className="min-h-[40px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+                  className="min-h-[80px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
                   disabled={loading}
                 />
                 <label htmlFor="terminationClause" className="block text-sm font-medium text-white/80">
@@ -199,7 +198,7 @@ export default function GenerateSOWPage() {
                   onChange={handleChange}
                   onKeyDown={handleTextareaKeyDown}
                   onInput={handleAutoResize}
-                  className="min-h-[40px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+                  className="min-h-[80px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
                   disabled={loading}
                 />
               </div>

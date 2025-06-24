@@ -26,7 +26,7 @@ const SOWViewer: React.FC = () => {
   const filteredSlides = presentationState.slides || [];
 
   // Append images 5-9
-  const appendedImageSlides: Slide[] = [5,6,7,8,9].map((num, idx) => ({
+  const appendedImageSlides: Slide[] = [5,6,7,8,9].map((num) => ({
     id: `image${num}`,
     type: 'image',
     template: `image${num}`,
