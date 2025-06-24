@@ -3,8 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import TemplateApplier from '@/components/Viewer/TemplateApplier';
-import { TEMPLATES } from '@/types/template';
-import type { SOWData, Slide, HtmlSlide } from '@/types/presentation';
+import type { SOWData, Slide } from '@/types/presentation';
 import DownloadPDFButton from '@/components/Viewer/DownloadPDFButton';
 
 const SOWViewer: React.FC = () => {
@@ -15,33 +14,28 @@ const SOWViewer: React.FC = () => {
   const [presentationState, setPresentation] = useState<SOWData | undefined>(presentation);
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const getTemplateId = () => {
-    if (!presentationState) return 'plain';
-    return presentationState.template || 'plain';
-  };
-
-  const templateId = getTemplateId();
-
   const renderSlideContent = (slide: Slide) => {
-    const htmlSlide = slide as HtmlSlide;
-    const slideTemplate = slide.template || 'generic';
-    
     return (
       <TemplateApplier 
-        className="w-full h-full" 
-        templateId={templateId} 
-        slideTemplate={slideTemplate}
-      >
-        <div
-          className="w-full h-full flex flex-col justify-center"
-          dangerouslySetInnerHTML={{
-            __html: htmlSlide.html || 
-              '<div id="slide-content"><p id="slide-description">No content available</p></div>',
-          }}
-        />
-      </TemplateApplier>
+        slide={slide}
+        className="w-full h-full"
+      />
     );
   };
+
+  const filteredSlides = presentationState.slides || [];
+
+  // Append images 5-9
+  const appendedImageSlides: Slide[] = [5,6,7,8,9].map((num, idx) => ({
+    id: `image${num}`,
+    type: 'image',
+    template: `image${num}`,
+    title: '',
+    content: '',
+    contentType: 'text',
+  }));
+  const allSlides = [...filteredSlides, ...appendedImageSlides];
+  const totalSlides = allSlides.length;
 
   // Keyboard navigation
   useEffect(() => {
@@ -50,48 +44,25 @@ const SOWViewer: React.FC = () => {
       if (e.key === 'ArrowUp') {
         setCurrentSlide((prev) => (prev > 0 ? prev - 1 : prev));
       } else if (e.key === 'ArrowDown') {
-        setCurrentSlide((prev) => (prev < presentationState.slides.length + 5 - 1 ? prev + 1 : prev));
+        setCurrentSlide((prev) => (prev < allSlides.length - 1 ? prev + 1 : prev));
       } else if (e.key === 'ArrowLeft') {
         setCurrentSlide(0);
       } else if (e.key === 'ArrowRight') {
-        setCurrentSlide(presentationState.slides.length + 5 - 1);
+        setCurrentSlide(allSlides.length - 1);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [presentationState]);
+  }, [presentationState, allSlides.length]);
 
   if (!presentationState) {
     navigate('/');
     return null;
   }
 
-  // Dynamic background
   const getBackgroundClass = () => {
     return 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900';
   };
-
-  // Define appended image numbers for image-only slides (6.svg to 10.svg)
-  const appendedImages = [6, 7, 8, 9, 10];
-
-  // Filter out the Termination slide if the user did not fill the field
-  const filteredSlides = presentationState?.slides.filter(slide => {
-    const htmlSlide = slide as HtmlSlide;
-    if (
-      slide.template === 'generic' &&
-      htmlSlide.html &&
-      /<h1[^>]*id=["']slide-title["'][^>]*>\s*Termination\s*<\/h1>/i.test(htmlSlide.html)
-    ) {
-      // Try to detect if the slide has meaningful content (not just the title)
-      const descMatch = htmlSlide.html.match(/<div[^>]*id=["']slide-description["'][^>]*>([\s\S]*?)<\/div>/i);
-      if (descMatch && descMatch[1].replace(/<[^>]+>/g, '').trim().length === 0) {
-        return false; // Hide if no description content
-      }
-    }
-    return true;
-  }) || [];
-
-  const totalSlides = filteredSlides.length + appendedImages.length;
 
   return (
     <div className={`min-h-screen transition-all duration-300 ${getBackgroundClass()} p-6 h-screen w-screen overflow-hidden relative`}>
@@ -119,10 +90,7 @@ const SOWViewer: React.FC = () => {
       {/* Sidebar Thumbnails */}
       <div className="fixed left-0 top-0 h-full flex flex-col items-center justify-center py-8 pl-8 pr-4 z-10" style={{ width: 80, paddingTop: 80 }}>
         <div className="flex flex-col gap-3 overflow-y-auto max-h-[70vh] px-1 pt-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-          {[
-            ...filteredSlides.map((_, index) => index),
-            ...appendedImages.map((_, i) => filteredSlides.length + i)
-          ].map((index) => (
+          {allSlides.map((_, index) => (
             <button
               key={index}
               data-slide-index={index}
@@ -159,15 +127,7 @@ const SOWViewer: React.FC = () => {
                 }}
               >
                 <Card className="w-full h-full rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 flex items-stretch bg-transparent border-0">
-                  {currentSlide < filteredSlides.length ? (
-                    renderSlideContent(filteredSlides[currentSlide])
-                  ) : (
-                    <img
-                      src={`/${appendedImages[currentSlide - filteredSlides.length]}.svg`}
-                      alt={`Slide Image ${appendedImages[currentSlide - filteredSlides.length]}`}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  )}
+                  {renderSlideContent(allSlides[currentSlide])}
                 </Card>
               </div>
             </div>
@@ -177,18 +137,9 @@ const SOWViewer: React.FC = () => {
 
       {/* Export container for PDF */}
       <div style={{ position: 'absolute', left: '-99999px', top: 0 }} id="all-slides-export-container">
-        {filteredSlides.map((slide, idx) => (
+        {allSlides.map((slide, idx) => (
           <div key={idx} className="slide-content-export" style={{ width: '794px', height: '1123px' }}>
             {renderSlideContent(slide)}
-          </div>
-        ))}
-        {appendedImages.map((imgNum) => (
-          <div key={imgNum} className="slide-content-export" style={{ width: '794px', height: '1123px' }}>
-            <img
-              src={`/${imgNum}.svg`}
-              alt={`Slide Image ${imgNum}`}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
           </div>
         ))}
       </div>

@@ -1,103 +1,120 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
+import ReactMarkdown from 'react-markdown';
 import { TEMPLATES } from '@/types/template';
+import type { Slide } from '@/types/presentation';
 
 interface TemplateApplierProps {
-  children: React.ReactNode;
+  slide: Slide;
   className?: string;
   templateId?: string;
-  slideTemplate?: string;
 }
 
 const TemplateApplier: React.FC<TemplateApplierProps> = ({
-  children,
+  slide,
   className = "",
   templateId = "plain",
-  slideTemplate = "generic",
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  // Use slide-specific template if provided, otherwise fall back to general template
-  const actualTemplateId = slideTemplate !== 'generic' ? slideTemplate : templateId;
+  const actualTemplateId = slide.template || templateId;
   const template = TEMPLATES[actualTemplateId as keyof typeof TEMPLATES] || TEMPLATES.generic;
 
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const container = containerRef.current;
-    const styles = template.styles;
-
-    // Apply styles to elements with specific IDs
-    const applyStyles = (id: string, elementStyles: React.CSSProperties) => {
-      const elements = container.querySelectorAll(`#${id}`);
-      elements.forEach((element) => {
-        const htmlElement = element as HTMLElement;
-        Object.assign(htmlElement.style, elementStyles);
-      });
+  const renderContent = () => {
+    const customComponents = {
+      table: ({ children }: any) => (
+        <table style={{
+          width: '100%',
+          borderCollapse: 'collapse',
+          marginTop: '1rem',
+          fontSize: 'inherit',
+          backgroundColor: 'inherit',
+          borderRadius: '8px',
+          overflow: 'hidden',
+        }}>
+          {children}
+        </table>
+      ),
+      th: ({ children }: any) => (
+        <th style={{
+          backgroundColor: '#1e3a8a',
+          color: '#fbbf24',
+          padding: '12px',
+          textAlign: 'left',
+          fontWeight: 'bold',
+        }}>
+          {children}
+        </th>
+      ),
+      td: ({ children }: any) => (
+        <td style={{
+          padding: '10px 12px',
+          borderBottom: '1px solid #ddd',
+          color: '#000',
+        }}>
+          {children}
+        </td>
+      ),
+      ul: ({ children }: any) => (
+        <ul style={{
+          paddingLeft: '1.5rem',
+          lineHeight: '1.8',
+        }}>
+          {children}
+        </ul>
+      ),
+      ol: ({ children }: any) => (
+        <ol style={{
+          paddingLeft: '1.5rem',
+          lineHeight: '1.8',
+        }}>
+          {children}
+        </ol>
+      ),
+      p: ({ children }: any) => (
+        <p style={{
+          marginBottom: '1rem',
+          lineHeight: '1.6',
+        }}>
+          {children}
+        </p>
+      ),
     };
 
-    // Apply all template styles
-    applyStyles('slide-content', {
-      ...styles.slideContent,
-      width: '100%',
-      height: '100%',
-      boxSizing: 'border-box',
-    });
-    applyStyles('slide-title', styles.slideTitle);
-    applyStyles('slide-subtitle', styles.slideSubtitle);
-    applyStyles('slide-list', styles.slideList);
-    applyStyles('slide-table', styles.slideTable);
-    applyStyles('slide-quote', styles.slideQuote);
-    applyStyles('slide-description', styles.slideDescription);
-    applyStyles('slide-highlight', styles.slideHighlight);
-    applyStyles('slide-stats', styles.slideStats);
-    applyStyles('slide-keypoint', styles.slideKeypoint);
-    applyStyles('slide-image', styles.slideImage);
-    applyStyles('slide-header', styles.slideHeader);
-    applyStyles('slide-footer', styles.slideFooter);
-
-    // Apply table-specific styles
-    const tables = container.querySelectorAll('#slide-table');
-    tables.forEach((table) => {
-      const ths = table.querySelectorAll('th');
-      const tds = table.querySelectorAll('td');
-      ths.forEach((th) => {
-        Object.assign((th as HTMLElement).style, styles.slideTableTh);
-      });
-      tds.forEach((td) => {
-        Object.assign((td as HTMLElement).style, styles.slideTableTd);
-      });
-    });
-
-    // Apply custom CSS if available
-    if (template.customCSS) {
-      let styleElement = document.getElementById(`template-${actualTemplateId}-styles`);
-      if (!styleElement) {
-        styleElement = document.createElement('style');
-        styleElement.id = `template-${actualTemplateId}-styles`;
-        styleElement.textContent = template.customCSS;
-        document.head.appendChild(styleElement);
-      }
-    }
-  }, [children, actualTemplateId, slideTemplate]);
-
-  // Determine background image
-  const backgroundImage = template.backgroundImage;
+    return (
+      <ReactMarkdown components={customComponents}>
+        {slide.content}
+      </ReactMarkdown>
+    );
+  };
 
   return (
     <div 
-      ref={containerRef}
-      className={`w-full h-full ${template.backgroundClass || ''} ${className}`}
+      className={`w-full h-full ${className}`}
       style={
-        backgroundImage
+        template.backgroundImage
           ? {
-              backgroundImage: `url(${backgroundImage})`,
+              backgroundImage: `url(${template.backgroundImage})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
+              position: 'relative',
             }
-          : {}
+          : { backgroundColor: '#ffffff' }
       }
     >
-      {children}
+      {/* Title */}
+      <div style={{
+        ...template.layout.title.position,
+        ...template.layout.title.style,
+      }}>
+        {slide.title}
+      </div>
+
+      {/* Content */}
+      <div style={{
+        ...template.layout.content.position,
+        ...template.layout.content.style,
+      }}>
+        {renderContent()}
+      </div>
     </div>
   );
 };

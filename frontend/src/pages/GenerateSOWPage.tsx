@@ -10,46 +10,57 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
 
 export default function GenerateSOWPage() {
-  const [projectDescription, setProjectDescription] = useState('');
+  const [form, setForm] = useState({
+    projectDescription: '',
+    requirements: '',
+    duration: '',
+    budget: '',
+    supportService: '',
+    legalTerms: '',
+    deliverables: '',
+    terminationClause: '',
+    
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [requirements, setRequirements] = useState('');
-  const [duration, setDuration] = useState('');
-  const [budget, setBudget] = useState('');
-  const [supportService, setSupportService] = useState('');
-  const [legalTerms, setLegalTerms] = useState('');
-  const [deliverables, setDeliverables] = useState('');
-  const [terminationClause, setTerminationClause] = useState('');
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setForm((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleTextareaKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      // Find the closest form and submit it
+      let form = e.target.form;
+      if (form) {
+        form.requestSubmit();
+      }
+    }
+  };
 
   const handleGenerate = async (e) => {
     e.preventDefault();
-    if (!projectDescription.trim()) return;
+    if (!form.projectDescription.trim()) return;
     setLoading(true);
     setError('');
 
-    const fullPrompt = `Project Description: ${projectDescription.trim()}
-    Client Requirements: ${requirements.trim()}
-    Project Duration: ${duration.trim()}
-    Budget: ${budget.trim()}
-    Support Service: ${supportService.trim()}
-    Special Legal Terms: ${legalTerms.trim()}
-    Deliverables: ${deliverables.trim()}
-    Termination Clause: ${terminationClause.trim()}`;
     try {
-      const sowResponse = await fetch(`${API_URL}/api/generate-presentation`, {
+      const sowResponse = await fetch(`${API_URL}/api/generate-document`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           documentType: 'sow',
-          projectDescription: projectDescription.trim(),
-          requirements: requirements.trim(),
-          duration: duration.trim(),
-          budget: budget.trim(),
-          supportService: supportService.trim(),
-          legalTerms: legalTerms.trim(),
-          deliverables: deliverables.trim(),
-          terminationClause: terminationClause.trim(),
+          projectDescription: form.projectDescription.trim(),
+          requirements: form.requirements.trim(),
+          duration: form.duration.trim(),
+          budget: form.budget.trim(),
+          supportService: form.supportService.trim(),
+          legalTerms: form.legalTerms.trim(),
+          deliverables: form.deliverables.trim(),
+          terminationClause: form.terminationClause.trim(),
         }),
       });
       const sowResult = await sowResponse.json();
@@ -83,8 +94,9 @@ export default function GenerateSOWPage() {
             <Textarea
               id="projectDescription"
               placeholder="Describe your project for the SOW"
-              value={projectDescription}
-              onChange={e => setProjectDescription(e.target.value)}
+              value={form.projectDescription}
+              onChange={handleChange}
+              onKeyDown={handleTextareaKeyDown}
               className="min-h-[80px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
               disabled={loading}
               required
@@ -95,8 +107,9 @@ export default function GenerateSOWPage() {
             <Textarea
               id="requirements"
               placeholder="List any specific client requirements"
-              value={requirements}
-              onChange={e => setRequirements(e.target.value)}
+              value={form.requirements}
+              onChange={handleChange}
+              onKeyDown={handleTextareaKeyDown}
               className="min-h-[60px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
               disabled={loading}
             />
@@ -106,8 +119,8 @@ export default function GenerateSOWPage() {
             <Input
               id="duration"
               placeholder="e.g. 3 months, Q1 2025, etc."
-              value={duration}
-              onChange={e => setDuration(e.target.value)}
+              value={form.duration}
+              onChange={handleChange}
               className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
               disabled={loading}
             />
@@ -117,8 +130,8 @@ export default function GenerateSOWPage() {
             <Input
               id="budget"
               placeholder="e.g. $10,000, 5 lakh INR, etc."
-              value={budget}
-              onChange={e => setBudget(e.target.value)}
+              value={form.budget}
+              onChange={handleChange}
               className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
               disabled={loading}
             />
@@ -128,8 +141,9 @@ export default function GenerateSOWPage() {
             <Textarea
               id="deliverables"
               placeholder="Provide instructions or notes for the deliverables (optional)"
-              value={deliverables}
-              onChange={e => setDeliverables(e.target.value)}
+              value={form.deliverables}
+              onChange={handleChange}
+              onKeyDown={handleTextareaKeyDown}
               className="min-h-[40px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
               disabled={loading}
             />
@@ -139,8 +153,8 @@ export default function GenerateSOWPage() {
             <Input
               id="supportService"
               placeholder="e.g. 24/7 support, 1 year maintenance, etc."
-              value={supportService}
-              onChange={e => setSupportService(e.target.value)}
+              value={form.supportService}
+              onChange={handleChange}
               className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
               disabled={loading}
             />
@@ -150,8 +164,9 @@ export default function GenerateSOWPage() {
             <Textarea
               id="legalTerms"
               placeholder="e.g. NDA, IP ownership, etc."
-              value={legalTerms}
-              onChange={e => setLegalTerms(e.target.value)}
+              value={form.legalTerms}
+              onChange={handleChange}
+              onKeyDown={handleTextareaKeyDown}
               className="min-h-[40px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
               disabled={loading}
             />
@@ -161,14 +176,15 @@ export default function GenerateSOWPage() {
             <Textarea
               id="terminationClause"
               placeholder="Describe any termination conditions or clauses (optional)"
-              value={terminationClause}
-              onChange={e => setTerminationClause(e.target.value)}
+              value={form.terminationClause}
+              onChange={handleChange}
+              onKeyDown={handleTextareaKeyDown}
               className="min-h-[40px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
               disabled={loading}
             />
             <Button
               type="submit"
-              disabled={loading || !projectDescription.trim()}
+              disabled={loading || !form.projectDescription.trim()}
               className="w-full bg-gradient-to-r from-blue-600 via-blue-700 to-yellow-500 hover:from-blue-700 hover:via-blue-800 hover:to-yellow-600 text-white border-0"
               size="lg"
             >

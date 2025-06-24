@@ -23,3 +23,9 @@
 
 ## Issues
 - The constant pages that need to be appended are not being added in correct order and page number 5 is missing
+- Make the deliverable section be a point-wise paragraph
+- 
+
+## Pending Removal
+- Heading from the deliverable section
+- Get rid of the current signature page, general terms page, support services page

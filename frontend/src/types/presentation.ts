@@ -2,10 +2,9 @@ export interface Slide {
   id: string;
   type: string;
   template?: string;
-}
-
-export interface HtmlSlide extends Slide {
-  html: string;
+  title: string;
+  content: string;
+  contentType: 'text' | 'list' | 'table' | 'mixed';
 }
 
 export interface SOWData {
