@@ -23,7 +23,7 @@ class AIService:
                 model_id=ConfigAI.BEDROCK_MODEL_ID,
                 model_kwargs={
                     "max_tokens": 20000,
-                    "temperature": 0.3
+                    "temperature": 0.5
                 }
             )
             logger.info("AI Service initialized successfully")
@@ -70,10 +70,7 @@ class AIService:
         10. Assumptions and Constraints (template: "generic")
         11. Support Services (template: "generic") -- ONLY include if provided by user
         12. Special Legal Terms (template: "generic") -- ONLY include if provided by user
-        13. General Terms (template: "generic")
-        14. Project Terms (template: "generic")
         15. Termination (template: "generic") -- ONLY include if provided by user
-        16. Signature Page (template: "generic")
         
         CONTENT STRUCTURE:
         Each slide should have:
@@ -89,7 +86,6 @@ class AIService:
         Required JSON structure:
         {{
           "title": "[Project Title from Project Description]",
-          "theme": "sow", 
           "template": "sow",
           "slides": [
             {{

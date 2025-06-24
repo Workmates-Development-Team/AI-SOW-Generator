@@ -9,7 +9,6 @@ export interface Slide {
 
 export interface SOWData {
   title: string;
-  theme: string;
   template?: string;
   slides: Slide[];
   totalSlides: number;
