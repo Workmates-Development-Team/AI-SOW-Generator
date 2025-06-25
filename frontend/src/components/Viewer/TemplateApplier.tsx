@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { TEMPLATES } from '@/types/template';
 import type { Slide } from '@/types/presentation';
 
@@ -79,8 +80,8 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
     };
 
     return (
-      <ReactMarkdown components={customComponents}>
-        {slide.content}
+      <ReactMarkdown components={customComponents} remarkPlugins={[remarkGfm]}>
+        {slide.content.replace(/\\n/g, '\n')}
       </ReactMarkdown>
     );
   };

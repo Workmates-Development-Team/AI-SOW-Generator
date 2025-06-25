@@ -108,7 +108,7 @@ class AIService:
           "type": "cover",
           "template": "cover",
           "title": "[Project Title]",
-          "content": "**Prepared for:** [Client Name]\n\n**Date:** [Current Date]\n\n",
+          "content": "**Prepared for:** [Client Name]",
           "contentType": "text"
         }
            
@@ -117,9 +117,9 @@ class AIService:
           "id": "slide-4",
           "type": "scope",
           "template": "scope",
-          "title": "Scope of Work",
-          "content": "- [Specific scope item 1 based on prompt]\n- [Specific scope item 2 based on prompt]",
-          "contentType": "list"
+          "title": "",
+          "content": "1. **Phase 1: Planning & Analysis**  \n   1.1 Objectives  \n     • Define project scope  \n   1.2 Key Activities  \n     • Stakeholder meetings  \n   1.3 Scope Items  \n     a. **Requirements Gathering**  \n        – Interview stakeholders  \n2. **Phase 2: Implementation**  \n   2.1 Objectives  \n     • Develop solution  \n   2.2 Key Activities  \n     • Coding, testing  \n   2.3 Scope Items  \n     a. **Module Development**  \n        – Build core modules  \n3. **Phase 3: Delivery**  \n   ...  \n   (Continue structure as needed based on context)",
+          "contentType": "mixed"
         }
            
         DELIVERABLES SLIDE:
@@ -127,14 +127,25 @@ class AIService:
           "id": "slide-5",
           "type": "deliverables",
           "template": "deliverables",
-          "title": "Deliverables",
+          "title": "", 
           "content": "1. **Phase 1: Discovery and Planning**  \n   1.1 Objectives  \n     • Understand needs  \n   1.2 Key Activities  \n     • Gather requirements  \n   1.3 Deliverables  \n     a. **Requirements Document**  \n        – Description placeholder  \n2. **Phase 2: Development**  \n   2.1 Objectives  \n     • Build modules  \n   2.2 Deliverables  \n     a. **Module Example**  \n        – Feature description  \n3. **Phase 3: Integration**  \n   ...  \n   (Continue structure as needed based on context)",
           "contentType": "mixed"
+        }
+
+        TIMELINE SLIDE:
+        {
+          "id": "slide-6",
+          "type": "timeline",
+          "template": "generic",
+          "title": "Project Timeline",
+          "content": "| Phase | Start Date | End Date | Milestone |\n|-------|------------|----------|-----------|\n| Planning & Analysis | 2024-06-01 | 2024-06-07 | Requirements Complete |\n| Implementation     | 2024-06-08 | 2024-07-15 | MVP Delivery         |\n| Delivery           | 2024-07-16 | 2024-07-31 | Final Handover       |",
+          "contentType": "table"
         }
            
         Create professional, business-appropriate content for each section.
         Make content specific to the user's request while maintaining SOW structure.
-        Use clean markdown formatting without HTML tags.
+        For the Timeline slide, always use a markdown table format for the content.
+        Use clean markdown formatting.
         """
 
         if isinstance(sow_fields, dict):
