@@ -42,21 +42,21 @@ class AIService:
         system_prompt = """
         You are an expert business consultant creating professional Statement of Work (SOW) documents. 
         Create a comprehensive SOW with structured markdown content for each section.
-        
+           
         CRITICAL JSON FORMATTING RULES:
         1. The response MUST be a single, valid JSON object
         2. NO additional text, markdown, or code blocks before or after the JSON
         3. ALL strings must be properly escaped and enclosed in double quotes
         4. NO trailing commas
         5. Content should be in clean markdown format
-        
+           
         TEMPLATE MAPPING REQUIREMENTS:
         You MUST create slides with these exact template mappings:
         - template: "cover" -> Cover page content
         - template: "scope" -> Scope of Work content  
         - template: "deliverables" -> Deliverables content
         - template: "generic" -> For other content like objectives, timeline, budget, etc.
-        
+           
         REQUIRED SOW STRUCTURE (in this exact order with template assignments):
         1. Cover/Title Page (template: "cover")
         2. Introduction (template: "generic") 
@@ -71,67 +71,67 @@ class AIService:
         11. Support Services (template: "generic") -- ONLY include if provided by user
         12. Special Legal Terms (template: "generic") -- ONLY include if provided by user
         15. Termination (template: "generic") -- ONLY include if provided by user
-        
+           
         CONTENT STRUCTURE:
         Each slide should have:
         - title: Main heading for the slide
         - content: Markdown formatted content
         - contentType: Type of content (text, list, table, etc.)
-        
+           
         For different content types, use appropriate markdown:
         - Lists: Use markdown bullet points (- item) or numbered lists (1. item)
         - Tables: Use markdown table syntax
         - Text: Use markdown paragraphs and formatting
-        
+           
         Required JSON structure:
-        {{
+        {
           "title": "[Project Title from Project Description]",
           "template": "sow",
           "slides": [
-            {{
+            {
               "id": "string",
               "type": "string", 
               "template": "cover|scope|deliverables|generic",
               "title": "string",
               "content": "markdown_content_string",
               "contentType": "text|list|table|mixed"
-            }}
+            }
           ],
           "totalSlides": number
-        }}
-        
+        }
+           
         SAMPLE SLIDE CONTENT:
-        
+           
         COVER SLIDE:
-        {{
+        {
           "id": "slide-1",
           "type": "cover",
           "template": "cover",
           "title": "[Project Title]",
           "content": "**Prepared for:** [Client Name]\n\n**Date:** [Current Date]\n\n",
           "contentType": "text"
-        }}
-        
+        }
+           
         SCOPE OF WORK SLIDE:
-        {{
+        {
           "id": "slide-4",
           "type": "scope",
           "template": "scope",
           "title": "Scope of Work",
-          "content": "- [Specific scope item 1 based on prompt]\n- [Specific scope item 2 based on prompt]\n- [Specific scope item 3 based on prompt]\n- [Specific scope item 4 based on prompt]",
+          "content": "- [Specific scope item 1 based on prompt]\n- [Specific scope item 2 based on prompt]",
           "contentType": "list"
-        }}
-        
+        }
+           
         DELIVERABLES SLIDE:
-        {{
+        {
           "id": "slide-5",
           "type": "deliverables",
           "template": "deliverables",
           "title": "Deliverables",
-          "content": "| Deliverable | Description | Due Date | Owner | [Deliverable 1] | [Description based on prompt] | Week 1 | Project Manager |\n| [Deliverable 2] | [Description based on prompt] | Week 3 | Technical Lead |",
-          "contentType": "table"
-        }}
-        
+          "content": "1. **Phase 1: Discovery and Planning**  \n   1.1 Objectives  \n     • Understand needs  \n   1.2 Key Activities  \n     • Gather requirements  \n   1.3 Deliverables  \n     a. **Requirements Document**  \n        – Description placeholder  \n2. **Phase 2: Development**  \n   2.1 Objectives  \n     • Build modules  \n   2.2 Deliverables  \n     a. **Module Example**  \n        – Feature description  \n3. **Phase 3: Integration**  \n   ...  \n   (Continue structure as needed based on context)",
+          "contentType": "mixed"
+        }
+           
         Create professional, business-appropriate content for each section.
         Make content specific to the user's request while maintaining SOW structure.
         Use clean markdown formatting without HTML tags.
