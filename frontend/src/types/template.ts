@@ -40,13 +40,13 @@ export const COVER_TEMPLATE: Template = {
     content: {
       position: {
         position: 'absolute',
-        top: '45%',
+        top: '85%',
         left: '3%',
-        width: '70%',
+        width: '80%',
       },
       style: {
-        fontSize: '1.2rem',
-        color: '#ffffff',
+        fontSize: '2rem',
+        color: '#000000',
         lineHeight: '1.6',
       }
     }
@@ -59,7 +59,6 @@ export const SCOPE_TEMPLATE: Template = {
   backgroundImage: '/2.svg',
   layout: {
     title: {
-      // By setting display: 'none', the heading will not render at all
       position: {},
       style: {
         display: 'none',
@@ -71,12 +70,12 @@ export const SCOPE_TEMPLATE: Template = {
         left: '8%',
         width: '80%',
         marginTop: '2rem',
+        top: '35%',
       },
       style: {
         fontSize: '1rem',
         lineHeight: '1.8',
         color: '#333',
-        backgroundColor: 'rgba(255,255,255,0.8)',
         padding: '20px',
         borderRadius: '8px',
       }
@@ -90,7 +89,6 @@ export const DELIVERABLES_TEMPLATE: Template = {
   backgroundImage: '/3.svg',
   layout: {
     title: {
-      // By setting display: 'none', the heading will not render at all
       position: {},
       style: {
         display: 'none',
@@ -102,11 +100,11 @@ export const DELIVERABLES_TEMPLATE: Template = {
         left: '8%',
         width: '80%',
         marginTop: '2rem',
+        top: '40%',
       },
       style: {
-        fontSize: '0.9rem',
+        fontSize: '1.1rem',
         color: '#333',
-        backgroundColor: 'rgba(255,255,255,0.9)',
         padding: '20px',
         borderRadius: '8px',
       }
@@ -144,10 +142,9 @@ export const GENERIC_TEMPLATE: Template = {
         marginTop: '8rem',
       },
       style: {
-        fontSize: '1rem',
-        lineHeight: '1.6',
+        fontSize: '1.2rem',
+        lineHeight: '1.8',
         color: '#333',
-        backgroundColor: 'rgba(255,255,255,0.8)',
         padding: '20px',
         borderRadius: '8px',
       }
@@ -172,7 +169,7 @@ export const PLAIN_TEMPLATE: Template = {
     content: {
       position: {},
       style: {
-        fontSize: '1.2rem',
+        fontSize: '1.4rem',
         lineHeight: '1.6',
         color: '#333333',
       }
@@ -191,7 +188,7 @@ export const IMAGE5_TEMPLATE: Template = {
     },
     content: {
       position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
-      style: { fontSize: '1.2rem', color: '#fff', textAlign: 'center' }
+      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center' }
     }
   }
 };
@@ -207,7 +204,7 @@ export const IMAGE6_TEMPLATE: Template = {
     },
     content: {
       position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
-      style: { fontSize: '1.2rem', color: '#fff', textAlign: 'center' }
+      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center' }
     }
   }
 };
@@ -223,7 +220,7 @@ export const IMAGE7_TEMPLATE: Template = {
     },
     content: {
       position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
-      style: { fontSize: '1.2rem', color: '#fff', textAlign: 'center' }
+      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center' }
     }
   }
 };
@@ -239,7 +236,7 @@ export const IMAGE8_TEMPLATE: Template = {
     },
     content: {
       position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
-      style: { fontSize: '1.2rem', color: '#fff', textAlign: 'center' }
+      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center' }
     }
   }
 };
@@ -255,7 +252,7 @@ export const IMAGE9_TEMPLATE: Template = {
     },
     content: {
       position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
-      style: { fontSize: '1.2rem', color: '#fff', textAlign: 'center' }
+      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center' }
     }
   }
 };

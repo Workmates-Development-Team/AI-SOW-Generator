@@ -107,6 +107,71 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
         ...template.layout.title.style,
       }}>
         {slide.title}
+        {/* Show date only for cover template */}
+        {actualTemplateId === 'cover' && (() => {
+          const date = new Date();
+          const locale = undefined;
+          const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+          const parts = new Intl.DateTimeFormat(locale, options).formatToParts(date);
+
+          const monthPart = parts.find((part) => part.type === 'month');
+          const dayPart = parts.find((part) => part.type === 'day');
+          const yearPart = parts.find((part) => part.type === 'year');
+
+          return (
+            <div
+              style={{
+                marginTop: '19rem',
+                marginRight: '-10rem',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-end',
+                opacity: 0.85,
+              }}
+            >
+              <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-end' }}>
+                {monthPart && (
+                  <span
+                    style={{
+                      fontSize: '1.4rem',
+                      color: 'red',
+                      fontWeight: 400,
+                      marginRight: '0.15rem',
+                      lineHeight: 1,
+                    }}
+                  >
+                    {monthPart.value}
+                  </span>
+                )}
+                {dayPart && (
+                  <span
+                    style={{
+                      fontSize: '1.4rem',
+                      color: 'red',
+                      fontWeight: 400,
+                      marginRight: '0.15rem',
+                      lineHeight: 1,
+                    }}
+                  >
+                    {dayPart.value}
+                  </span>
+                )}
+              </div>
+              {yearPart && (
+                <span
+                  style={{
+                    fontSize: '3.5rem',
+                    fontWeight: 700,
+                    color: '#000',
+                    lineHeight: 1,
+                  }}
+                >
+                  {yearPart.value}
+                </span>
+              )}
+            </div>
+          );
+        })()}
       </div>
 
       {/* Content */}

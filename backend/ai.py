@@ -100,9 +100,11 @@ class AIService:
           "totalSlides": number
         }
            
-        SAMPLE SLIDE CONTENT:
-           
-        COVER SLIDE:
+        COVER SLIDE STRICT RULE:
+        The cover slide's content field MUST contain ONLY the line: **Prepared for:** [Client Name].
+        Do NOT include any other text, such as title, date, 'Statement of Work', 'Confidential Document', or anything else. No blank lines, no extra formatting, no additional information. Just the 'Prepared for' line.
+        
+        SAMPLE COVER SLIDE:
         {
           "id": "slide-1",
           "type": "cover",
