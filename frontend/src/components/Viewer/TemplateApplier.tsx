@@ -69,6 +69,15 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
           {children}
         </ol>
       ),
+      li: ({ children }: any) => (
+        <li style={{
+          listStyleType: 'disc',
+          marginLeft: '1.2em',
+          marginBottom: '0.3em',
+        }}>
+          {children}
+        </li>
+      ),
       p: ({ children }: any) => (
         <p style={{
           marginBottom: '1rem',
