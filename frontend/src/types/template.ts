@@ -59,20 +59,10 @@ export const SCOPE_TEMPLATE: Template = {
   backgroundImage: '/2.svg',
   layout: {
     title: {
-      position: {
-        position: 'relative',
-        top: '6%',
-        left: '8%',
-        width: '80%',
-      },
+      // By setting display: 'none', the heading will not render at all
+      position: {},
       style: {
-        fontSize: '1.75rem',
-        fontWeight: '300',
-        marginBottom: '1.5rem',
-        color: '#000',
-        backgroundColor: '#fddc0d',
-        padding: '10px 20px',
-        display: 'inline-block',
+        display: 'none',
       }
     },
     content: {
@@ -100,20 +90,10 @@ export const DELIVERABLES_TEMPLATE: Template = {
   backgroundImage: '/3.svg',
   layout: {
     title: {
-      position: {
-        position: 'relative',
-        top: '6%',
-        left: '8%',
-        width: '80%',
-      },
+      // By setting display: 'none', the heading will not render at all
+      position: {},
       style: {
-        fontSize: '1.75rem',
-        fontWeight: '300',
-        marginBottom: '1.5rem',
-        color: '#000',
-        backgroundColor: '#fddc0d',
-        padding: '10px 20px',
-        display: 'inline-block',
+        display: 'none',
       }
     },
     content: {
@@ -142,17 +122,17 @@ export const GENERIC_TEMPLATE: Template = {
     title: {
       position: {
         position: 'relative',
-        top: '6%',
-        left: '8%',
-        width: '80%',
+        top: '10.3%',
+        left: '12.8%',
+        width: '77%',
       },
       style: {
-        fontSize: '1.75rem',
+        fontSize: '1.5rem',
         fontWeight: '300',
         marginBottom: '1.5rem',
         color: '#000',
         backgroundColor: '#fddc0d',
-        padding: '10px 20px',
+        padding: '7.3px 20px',
         display: 'inline-block',
       }
     },
@@ -161,7 +141,7 @@ export const GENERIC_TEMPLATE: Template = {
         position: 'relative',
         left: '8%',
         width: '80%',
-        marginTop: '2rem',
+        marginTop: '8rem',
       },
       style: {
         fontSize: '1rem',
