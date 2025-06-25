@@ -59,8 +59,8 @@ class AIService:
            
         REQUIRED SOW STRUCTURE (in this exact order with template assignments):
         1. Cover/Title Page (template: "cover")
-        2. Introduction (template: "generic") 
-        3. Objectives (template: "generic")
+        2. Introduction (template: "generic") -- The title should ALWAYS be just 'Introduction'
+        3. Objectives (template: "generic") -- The title should ALWAYS be just 'Objectives'
         4. Scope of Work (template: "scope")
         5. Deliverables (template: "deliverables") -- ALWAYS include this slide
         6. Timeline (template: "generic")
