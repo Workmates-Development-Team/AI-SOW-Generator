@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { TEMPLATES } from '@/types/template';
 import type { Slide } from '@/types/presentation';
+import { v4 as uuidv4 } from 'uuid';
 
 interface TemplateApplierProps {
   slide: Slide;
@@ -17,6 +18,16 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
 }) => {
   const actualTemplateId = slide.template || templateId;
   const template = TEMPLATES[actualTemplateId as keyof typeof TEMPLATES] || TEMPLATES.generic;
+
+  const sowNumber = React.useMemo(() => {
+    // Format: CWM + DDMMYYYY + short uuid (first 5 chars)
+    const date = new Date();
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const shortUuid = uuidv4().replace(/-/g, '').slice(0, 5).toUpperCase();
+    return `CWM${day}${month}${year}${shortUuid}`;
+  }, []);
 
   const renderContent = () => {
     const customComponents = {
@@ -116,11 +127,11 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
         ...template.layout.title.style,
       }}>
         {slide.title}
-        {/* Show date only for cover template */}
+        {/* Show date on cover template */}
         {actualTemplateId === 'cover' && (() => {
           const date = new Date();
-          const locale = undefined;
-          const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+          const locale = 'en-IN';
+          const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Kolkata' };
           const parts = new Intl.DateTimeFormat(locale, options).formatToParts(date);
 
           const monthPart = parts.find((part) => part.type === 'month');
@@ -189,6 +200,22 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
         ...template.layout.content.style,
       }}>
         {renderContent()}
+      </div>
+
+      {/* SOW Number using UUID */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '1rem',
+          right: '1.5rem',
+          color: '#1e3a8a',
+          fontWeight: 600,
+          fontSize: '1.3rem',
+          padding: '0.5rem 1.2rem',
+          zIndex: 10,
+        }}
+      >
+        SOW Number: {sowNumber}
       </div>
     </div>
   );
