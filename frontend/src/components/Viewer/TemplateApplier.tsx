@@ -203,20 +203,22 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
       </div>
 
       {/* SOW Number using UUID */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '1rem',
-          right: '1.5rem',
-          color: '#1e3a8a',
-          fontWeight: 600,
-          fontSize: '1.3rem',
-          padding: '0.5rem 1.2rem',
-          zIndex: 10,
-        }}
-      >
-        SOW Number: {sowNumber}
-      </div>
+      {actualTemplateId === 'cover' && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '1rem',
+            right: '1.5rem',
+            color: '#1e3a8a',
+            fontWeight: 600,
+            fontSize: '1.3rem',
+            padding: '0.5rem 1.2rem',
+            zIndex: 10,
+          }}
+        >
+          SOW Number: {sowNumber}
+        </div>
+      )}
     </div>
   );
 };
