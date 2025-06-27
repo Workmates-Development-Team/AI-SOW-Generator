@@ -1,14 +1,17 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import GeneratePPTPage from "./pages/GeneratePPTPage";
-import PresentationViewer from "./pages/PresentationViewer";
+import GeneratePPTPage from "./pages/GenerateSOWPage";
+import SOWViewer from "./pages/SOWViewer";
+import Layout from "./components/Layout";
 
 export default function App() {
   return(
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<GeneratePPTPage />} />
-        <Route path="/presentation" element={<PresentationViewer />} />
-      </Routes>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<GeneratePPTPage />} />
+          <Route path="/presentation" element={<SOWViewer />} />
+        </Routes>
+      </Layout>
     </BrowserRouter>
   )
 }

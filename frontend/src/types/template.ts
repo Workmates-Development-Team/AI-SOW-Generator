@@ -1,648 +1,284 @@
-// export interface Template {
-//   id: string;
-//   name: string;
-//   description: string;
-//   cssFile: string;
-//   thumbnail?: string;
-// }
-
-// export const AVAILABLE_TEMPLATES: Template[] = [
-//   {
-//     id: 'modern-dark',
-//     name: 'Modern Dark',
-//     description: 'Sleek dark theme with blue accents',
-//     cssFile: 'modern-dark.css',
-//   },
-//   {
-//     id: 'corporate-blue',
-//     name: 'Corporate Blue',
-//     description: 'Professional blue corporate theme',
-//     cssFile: 'corporate-blue.css',
-//   },
-//   {
-//     id: 'minimalist',
-//     name: 'Minimalist',
-//     description: 'Clean and minimal design',
-//     cssFile: 'minimalist.css',
-//   },
-//   {
-//     id: 'gradient-purple',
-//     name: 'Gradient Purple',
-//     description: 'Modern gradient design with purple tones',
-//     cssFile: 'gradient-purple.css',
-//   },
-//   {
-//     id: 'nature-green',
-//     name: 'Nature Green',
-//     description: 'Eco-friendly green theme',
-//     cssFile: 'nature-green.css',
-//   },
-// ];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export interface TemplateStyles {
-  slideContent: React.CSSProperties;
-  slideTitle: React.CSSProperties;
-  slideSubtitle: React.CSSProperties;
-  slideList: React.CSSProperties;
-  slideTable: React.CSSProperties;
-  slideTableTh: React.CSSProperties;
-  slideTableTd: React.CSSProperties;
-  slideQuote: React.CSSProperties;
-  slideDescription: React.CSSProperties;
-  slideHighlight: React.CSSProperties;
-  slideStats: React.CSSProperties;
-  slideKeypoint: React.CSSProperties;
-  slideImage: React.CSSProperties;
-}
+import React from 'react';
 
 export interface Template {
   id: string;
   name: string;
-  description: string;
-  styles: TemplateStyles;
+  backgroundImage?: string;
+  layout: {
+    title: {
+      position: React.CSSProperties;
+      style: React.CSSProperties;
+    };
+    content: {
+      position: React.CSSProperties;
+      style: React.CSSProperties;
+    };
+  };
   backgroundClass?: string;
 }
 
-export const AVAILABLE_TEMPLATES: Template[] = [
-  {
-    id: 'modern-dark',
-    name: 'Modern Dark',
-    description: 'Sleek dark theme with blue accents',
-    backgroundClass: 'bg-gradient-to-br from-slate-900 to-slate-800',
-    styles: {
-      slideContent: {
-        width: '100%',
-        height: '100%',
-        padding: '2rem',
-        background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-        color: 'white',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        boxSizing: 'border-box',
+export const COVER_TEMPLATE: Template = {
+  id: 'cover',
+  name: 'Cover Template', 
+  backgroundImage: '/1.svg',
+  layout: {
+    title: {
+      position: {
+        position: 'absolute',
+        top: '25%',
+        left: '3%',
+        width: '70%',
       },
-      slideTitle: {
-        fontSize: '2.5rem',
-        fontWeight: 700,
-        color: '#3b82f6',
-        marginBottom: '1rem',
-        textAlign: 'center',
-      },
-      slideSubtitle: {
-        fontSize: '1.5rem',
-        fontWeight: 500,
-        color: '#94a3b8',
-        marginBottom: '2rem',
-        textAlign: 'center',
-      },
-      slideList: {
-        fontSize: '1.2rem',
-        lineHeight: 1.8,
-        margin: '1.5rem 0',
-        paddingLeft: '2rem',
-        color: '#e2e8f0',
-        listStyleType: 'disc',
-        listStylePosition: 'outside',
-      },
-      slideTable: {
-        width: '100%',
-        borderCollapse: 'collapse',
-        margin: '2rem 0',
-        background: 'rgba(255, 255, 255, 0.05)',
-        borderRadius: '8px',
-        overflow: 'hidden',
-      },
-      slideTableTh: {
-        background: '#3b82f6',
-        color: 'white',
-        padding: '1rem',
-        textAlign: 'left',
-        fontWeight: 600,
-      },
-      slideTableTd: {
-        padding: '0.8rem 1rem',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        color: '#e2e8f0',
-      },
-      slideQuote: {
-        fontSize: '1.8rem',
-        fontStyle: 'italic',
-        color: '#3b82f6',
-        textAlign: 'center',
-        margin: '2rem 0',
-        padding: '1.5rem',
-        borderLeft: '4px solid #3b82f6',
-        background: 'rgba(59, 130, 246, 0.1)',
-      },
-      slideDescription: {
-        color: '#94a3b8',
-        fontSize: '1.1rem',
-        lineHeight: 1.6,
-        textAlign: 'center',
-        marginTop: '1rem',
-      },
-      slideHighlight: {
-        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-        color: 'white',
-        padding: '1.5rem',
-        borderRadius: '8px',
-        margin: '1.5rem 0',
-        textAlign: 'center',
-      },
-      slideStats: {
-        display: 'flex',
-        justifyContent: 'space-around',
-        margin: '2rem 0',
-      },
-      slideKeypoint: {
-        textAlign: 'center',
-        padding: '1rem',
-      },
-      slideImage: {
-        maxWidth: '100%',
-        height: 'auto',
-        borderRadius: '8px',
-        margin: '1rem auto',
-        display: 'block',
-      },
-    },
-  },
-  {
-    id: 'corporate-blue',
-    name: 'Corporate Blue',
-    description: 'Professional blue corporate theme',
-    backgroundClass: 'bg-gradient-to-br from-blue-50 to-blue-100',
-    styles: {
-      slideContent: {
-        width: '100%',
-        height: '100%',
-        padding: '3rem',
-        background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-        color: '#1e293b',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        boxSizing: 'border-box',
-      },
-      slideTitle: {
-        fontSize: '2.8rem',
-        fontWeight: 700,
-        color: '#1e40af',
-        marginBottom: '1rem',
-        textAlign: 'center',
-        borderBottom: '3px solid #3b82f6',
-        paddingBottom: '1rem',
-      },
-      slideSubtitle: {
-        fontSize: '1.6rem',
-        fontWeight: 500,
-        color: '#475569',
-        marginBottom: '2rem',
-        textAlign: 'center',
-      },
-      slideList: {
-        fontSize: '1.2rem',
-        lineHeight: 1.8,
-        margin: '1.5rem 0',
-        background: 'white',
-        padding: '2rem',
-        borderRadius: '8px',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        listStyleType: 'disc',
-        listStylePosition: 'outside',
-      },
-      slideTable: {
-        width: '100%',
-        borderCollapse: 'collapse',
-        margin: '2rem 0',
-        background: 'white',
-        borderRadius: '8px',
-        overflow: 'hidden',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      },
-      slideTableTh: {
-        background: '#1e40af',
-        color: 'white',
-        padding: '1.2rem',
-        textAlign: 'left',
-        fontWeight: 600,
-        fontSize: '1.1rem',
-      },
-      slideTableTd: {
-        padding: '1rem 1.2rem',
-        borderBottom: '1px solid #e2e8f0',
-        color: '#334155',
-      },
-      slideQuote: {
-        fontSize: '1.8rem',
-        fontStyle: 'italic',
-        color: '#1e40af',
-        textAlign: 'center',
-        margin: '2rem 0',
-        padding: '2rem',
-        background: 'white',
-        borderRadius: '8px',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        borderLeft: '6px solid #3b82f6',
-      },
-      slideDescription: {
-        color: '#64748b',
-        fontSize: '1.1rem',
-        lineHeight: 1.6,
-        textAlign: 'center',
-        marginTop: '1rem',
-      },
-      slideHighlight: {
-        background: 'linear-gradient(135deg, #3b82f6, #1e40af)',
-        color: 'white',
-        padding: '2rem',
-        borderRadius: '12px',
-        margin: '1.5rem 0',
-        textAlign: 'center',
-        boxShadow: '0 8px 16px rgba(59, 130, 246, 0.3)',
-      },
-      slideStats: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '2rem',
-        margin: '2rem 0',
-      },
-      slideKeypoint: {
-        background: 'white',
-        padding: '2rem',
-        borderRadius: '8px',
-        textAlign: 'center',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      },
-      slideImage: {
-        maxWidth: '100%',
-        height: 'auto',
-        borderRadius: '12px',
-        margin: '1rem auto',
-        display: 'block',
-        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
-      },
-    },
-  },
-  {
-    id: 'minimalist',
-    name: 'Minimalist',
-    description: 'Clean and minimal design',
-    backgroundClass: 'bg-white',
-    styles: {
-      slideContent: {
-        width: '100%',
-        height: '100%',
-        padding: '4rem',
-        background: '#ffffff',
-        color: '#2d3748',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        boxSizing: 'border-box',
-        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-      },
-      slideTitle: {
+      style: {
         fontSize: '3rem',
-        fontWeight: 300,
-        color: '#2d3748',
-        marginBottom: '1rem',
-        textAlign: 'center',
-        letterSpacing: '-0.02em',
-      },
-      slideSubtitle: {
-        fontSize: '1.4rem',
-        fontWeight: 400,
-        color: '#718096',
-        marginBottom: '3rem',
-        textAlign: 'center',
-      },
-      slideList: {
-        fontSize: '1.2rem',
-        lineHeight: 1.8,
-        margin: '1.5rem 0',
-        paddingLeft: '2rem',
-        color: '#2d3748',
-        listStyleType: 'disc',
-        listStylePosition: 'outside',
-      },
-      slideTable: {
-        width: '100%',
-        borderCollapse: 'collapse',
-        margin: '3rem 0',
-        fontSize: '1rem',
-      },
-      slideTableTh: {
-        background: 'none',
-        color: '#2d3748',
-        padding: '1rem 0',
+        fontWeight: 'bold',
+        color: '#ffffff',
         textAlign: 'left',
-        fontWeight: 600,
-        borderBottom: '2px solid #e2e8f0',
+        lineHeight: '1.2',
+      }
+    },
+    content: {
+      position: {
+        position: 'absolute',
+        top: '85%',
+        left: '3%',
+        width: '80%',
       },
-      slideTableTd: {
-        padding: '1rem 0',
-        borderBottom: '1px solid #f7fafc',
-        color: '#4a5568',
-      },
-      slideQuote: {
-        fontSize: '2rem',
-        fontWeight: 300,
-        color: '#2d3748',
-        textAlign: 'center',
-        margin: '3rem 0',
-        padding: 0,
-        border: 'none',
-        background: 'none',
-        fontStyle: 'normal',
-        lineHeight: 1.4,
-      },
-      slideDescription: {
-        color: '#718096',
-        fontSize: '1.1rem',
-        lineHeight: 1.6,
-        textAlign: 'center',
+      style: {
+        fontSize: '1.75rem',
+        color: '#000000',
+        lineHeight: '1.6',
+      }
+    }
+  }
+};
+
+export const SCOPE_TEMPLATE: Template = {
+  id: 'scope',
+  name: 'Scope of Work Template',
+  backgroundImage: '/2.svg',
+  layout: {
+    title: {
+      position: {},
+      style: {
+        display: 'none',
+      }
+    },
+    content: {
+      position: {
+        position: 'relative',
+        left: '8%',
+        width: '80%',
         marginTop: '2rem',
+        top: '35%',
       },
-      slideHighlight: {
-        background: '#f7fafc',
-        color: '#2d3748',
-        padding: '2rem',
-        margin: '2rem 0',
-        textAlign: 'center',
-        borderLeft: '4px solid #4299e1',
-      },
-      slideStats: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        margin: '3rem 0',
-      },
-      slideKeypoint: {
-        textAlign: 'center',
-        padding: '1rem',
-      },
-      slideImage: {
-        maxWidth: '100%',
-        height: 'auto',
-        margin: '2rem auto',
-        display: 'block',
-      },
+      style: {
+        fontSize: '1rem',
+        lineHeight: '1',
+        color: '#333',
+        padding: '4px',
+        borderRadius: '8px',
+      }
+    }
+  }
+};
+
+export const DELIVERABLES_TEMPLATE: Template = {
+  id: 'deliverables',
+  name: 'Deliverables Template',
+  backgroundImage: '/3.svg',
+  layout: {
+    title: {
+      position: {},
+      style: {
+        display: 'none',
+      }
     },
-  },
-  {
-    id: 'gradient-purple',
-    name: 'Gradient Purple',
-    description: 'Modern gradient design with purple tones',
-    backgroundClass: 'bg-gradient-to-br from-purple-600 to-purple-800',
-    styles: {
-      slideContent: {
-        width: '100%',
-        height: '100%',
-        padding: '3rem',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        boxSizing: 'border-box',
+    content: {
+      position: {
+        position: 'relative',
+        left: '8%',
+        width: '80%',
+        marginTop: '2rem',
+        top: '40%',
       },
-      slideTitle: {
-        fontSize: '2.8rem',
-        fontWeight: 700,
-        color: '#ffffff',
-        marginBottom: '1rem',
-        textAlign: 'center',
-        textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+      style: {
+        fontSize: '1.1rem',
+        lineHeight: '1',
+        color: '#333',
+        padding: '4px',
+        borderRadius: '8px',
+      }
+    }
+  }
+};
+
+export const GENERIC_TEMPLATE: Template = {
+  id: 'generic',
+  name: 'Generic Template',
+  backgroundImage: '/4.svg',
+  layout: {
+    title: {
+      position: {
+        position: 'relative',
+        top: '10.3%',
+        left: '12.8%',
+        width: '77%',
       },
-      slideSubtitle: {
-        fontSize: '1.6rem',
-        fontWeight: 500,
-        color: '#e2e8f0',
-        marginBottom: '2rem',
-        textAlign: 'center',
+      style: {
+        fontSize: '1.5rem',
+        fontWeight: '300',
+        marginBottom: '1.5rem',
+        color: '#000',
+        backgroundColor: '#fddc0d',
+        padding: '7.3px 20px',
+        display: 'inline-block',
+      }
+    },
+    content: {
+      position: {
+        position: 'relative',
+        left: '8%',
+        width: '80%',
+        marginTop: '8rem',
       },
-      slideList: {
+      style: {
         fontSize: '1.2rem',
-        lineHeight: 1.8,
-        margin: '1.5rem 0',
-        background: 'rgba(255, 255, 255, 0.1)',
-        padding: '2rem',
-        borderRadius: '12px',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        listStyleType: 'disc',
-        listStylePosition: 'outside',
-      },
-      slideTable: {
-        width: '100%',
-        borderCollapse: 'collapse',
-        margin: '2rem 0',
-        background: 'rgba(255, 255, 255, 0.1)',
-        borderRadius: '12px',
-        overflow: 'hidden',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-      },
-      slideTableTh: {
-        background: 'rgba(168, 85, 247, 0.8)',
-        color: 'white',
-        padding: '1.2rem',
-        textAlign: 'left',
-        fontWeight: 600,
-        fontSize: '1.1rem',
-      },
-      slideTableTd: {
-        padding: '1rem 1.2rem',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        color: '#f1f5f9',
-      },
-      slideQuote: {
-        fontSize: '1.8rem',
-        fontStyle: 'italic',
-        color: '#ffffff',
-        textAlign: 'center',
-        margin: '2rem 0',
-        padding: '2rem',
-        background: 'rgba(255, 255, 255, 0.1)',
-        borderRadius: '12px',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        borderLeft: '6px solid #a855f7',
-      },
-      slideDescription: {
-        color: '#e2e8f0',
-        fontSize: '1.1rem',
-        lineHeight: 1.6,
-        textAlign: 'center',
-        marginTop: '1rem',
-      },
-      slideHighlight: {
-        background: 'linear-gradient(135deg, #a855f7, #7c3aed)',
-        color: 'white',
-        padding: '2rem',
-        borderRadius: '12px',
-        margin: '1.5rem 0',
-        textAlign: 'center',
-        boxShadow: '0 8px 16px rgba(168, 85, 247, 0.3)',
-      },
-      slideStats: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '2rem',
-        margin: '2rem 0',
-      },
-      slideKeypoint: {
-        background: 'rgba(255, 255, 255, 0.1)',
-        padding: '2rem',
-        borderRadius: '12px',
-        textAlign: 'center',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-      },
-      slideImage: {
-        maxWidth: '100%',
-        height: 'auto',
-        borderRadius: '12px',
-        margin: '1rem auto',
-        display: 'block',
-        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.3)',
-      },
-    },
-  },
-  {
-    id: 'nature-green',
-    name: 'Nature Green',
-    description: 'Eco-friendly green theme',
-    backgroundClass: 'bg-gradient-to-br from-green-50 to-green-100',
-    styles: {
-      slideContent: {
-        width: '100%',
-        height: '100%',
-        padding: '3rem',
-        background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-        color: '#1f2937',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        boxSizing: 'border-box',
-      },
-      slideTitle: {
-        fontSize: '2.8rem',
-        fontWeight: 700,
-        color: '#166534',
-        marginBottom: '1rem',
-        textAlign: 'center',
-      },
-      slideSubtitle: {
-        fontSize: '1.6rem',
-        fontWeight: 500,
-        color: '#374151',
+        lineHeight: '1',
+        color: '#333',
+        padding: '4px',
+        borderRadius: '8px',
+      }
+    }
+  }
+};
+
+export const PLAIN_TEMPLATE: Template = {
+  id: 'plain',
+  name: 'Plain Template',
+  layout: {
+    title: {
+      position: {
         marginBottom: '2rem',
-        textAlign: 'center',
       },
-      slideList: {
-        fontSize: '1.2rem',
-        lineHeight: 1.8,
-        margin: '1.5rem 0',
-        background: 'white',
-        padding: '2rem',
-        borderRadius: '12px',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-        listStyleType: 'disc',
-        listStylePosition: 'outside',
-      },
-      slideTable: {
-        width: '100%',
-        borderCollapse: 'collapse',
-        margin: '2rem 0',
-        background: 'white',
-        borderRadius: '12px',
-        overflow: 'hidden',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-      },
-      slideTableTh: {
-        background: '#22c55e',
-        color: 'white',
-        padding: '1.2rem',
-        textAlign: 'left',
-        fontWeight: 600,
-        fontSize: '1.1rem',
-      },
-      slideTableTd: {
-        padding: '1rem 1.2rem',
-        borderBottom: '1px solid #f3f4f6',
-        color: '#374151',
-      },
-      slideQuote: {
-        fontSize: '1.8rem',
-        fontStyle: 'italic',
-        color: '#166534',
-        textAlign: 'center',
-        margin: '2rem 0',
-        padding: '2rem',
-        background: 'white',
-        borderRadius: '12px',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-        borderLeft: '6px solid #22c55e',
-      },
-      slideDescription: {
-        color: '#6b7280',
-        fontSize: '1.1rem',
-        lineHeight: 1.6,
-        textAlign: 'center',
-        marginTop: '1rem',
-      },
-      slideHighlight: {
-        background: 'linear-gradient(135deg, #22c55e, #16a34a)',
-        color: 'white',
-        padding: '2rem',
-        borderRadius: '12px',
-        margin: '1.5rem 0',
-        textAlign: 'center',
-        boxShadow: '0 8px 16px rgba(34, 197, 94, 0.3)',
-      },
-      slideStats: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '2rem',
-        margin: '2rem 0',
-      },
-      slideKeypoint: {
-        background: 'white',
-        padding: '2rem',
-        borderRadius: '12px',
-        textAlign: 'center',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-        border: '2px solid #dcfce7',
-      },
-      slideImage: {
-        maxWidth: '100%',
-        height: 'auto',
-        borderRadius: '12px',
-        margin: '1rem auto',
-        display: 'block',
-        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
-      },
+      style: {
+        fontSize: '2.5rem',
+        fontWeight: 'bold',
+        color: '#000000',
+      }
     },
-  },
-];
+    content: {
+      position: {},
+      style: {
+        fontSize: '1.4rem',
+        lineHeight: '1',
+        color: '#333333',
+      }
+    }
+  }
+};
+
+export const IMAGE5_TEMPLATE: Template = {
+  id: 'image5',
+  name: 'Image 5 Template',
+  backgroundImage: '/5.svg',
+  layout: {
+    title: {
+      position: { position: 'absolute', top: '40%', left: '10%', width: '80%' },
+      style: { fontSize: '2rem', color: '#fff', textAlign: 'center', fontWeight: 'bold' }
+    },
+    content: {
+      position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
+      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
+    }
+  }
+};
+
+export const IMAGE6_TEMPLATE: Template = {
+  id: 'image6',
+  name: 'Image 6 Template',
+  backgroundImage: '/6.svg',
+  layout: {
+    title: {
+      position: { position: 'absolute', top: '40%', left: '10%', width: '80%' },
+      style: { fontSize: '2rem', color: '#fff', textAlign: 'center', fontWeight: 'bold' }
+    },
+    content: {
+      position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
+      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
+    }
+  }
+};
+
+export const IMAGE7_TEMPLATE: Template = {
+  id: 'image7',
+  name: 'Image 7 Template',
+  backgroundImage: '/7.svg',
+  layout: {
+    title: {
+      position: { position: 'absolute', top: '40%', left: '10%', width: '80%' },
+      style: { fontSize: '2rem', color: '#fff', textAlign: 'center', fontWeight: 'bold' }
+    },
+    content: {
+      position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
+      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
+    }
+  }
+};
+
+export const IMAGE8_TEMPLATE: Template = {
+  id: 'image8',
+  name: 'Image 8 Template',
+  backgroundImage: '/8.svg',
+  layout: {
+    title: {
+      position: { position: 'absolute', top: '40%', left: '10%', width: '80%' },
+      style: { fontSize: '2rem', color: '#fff', textAlign: 'center', fontWeight: 'bold' }
+    },
+    content: {
+      position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
+      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
+    }
+  }
+};
+
+export const IMAGE9_TEMPLATE: Template = {
+  id: 'image9',
+  name: 'Image 9 Template',
+  backgroundImage: '/9.svg',
+  layout: {
+    title: {
+      position: { position: 'absolute', top: '40%', left: '10%', width: '80%' },
+      style: { fontSize: '2rem', color: '#fff', textAlign: 'center', fontWeight: 'bold' }
+    },
+    content: {
+      position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
+      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
+    }
+  }
+};
+
+export const SIGNATURE_TEMPLATE: Template = {
+  id: 'signature',
+  name: 'Signature Template',
+  backgroundImage: '/5.svg',
+  layout: {
+    title: {
+      position: {},
+      style: { display: 'none' }
+    },
+    content: {
+      position: { position: 'absolute', top: '6.8%', left: '25%', width: '20%' },
+      style: { fontSize: '1.3rem', color: '#000', textAlign: 'left', lineHeight: '1.2', fontWeight: 'bold' }
+    }
+  }
+};
+
+export const TEMPLATES = {
+  cover: COVER_TEMPLATE,
+  scope: SCOPE_TEMPLATE,
+  deliverables: DELIVERABLES_TEMPLATE,
+  generic: GENERIC_TEMPLATE,
+  plain: PLAIN_TEMPLATE,
+  signature: SIGNATURE_TEMPLATE,
+};
