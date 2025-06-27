@@ -22,7 +22,7 @@ class AIService:
                 client=self.bedrock_client,
                 model_id=ConfigAI.BEDROCK_MODEL_ID,
                 model_kwargs={
-                    "max_tokens": 20000,
+                    "max_tokens": 32000,
                     "temperature": 0.5
                 }
             )
@@ -56,6 +56,7 @@ class AIService:
         - template: "scope" -> Scope of Work content  
         - template: "deliverables" -> Deliverables content
         - template: "generic" -> For other content like objectives, timeline, budget, etc.
+        - template: "signature" -> For the final signature page
            
         REQUIRED SOW STRUCTURE (in this exact order with template assignments):
         1. Cover/Title Page (template: "cover")
@@ -68,9 +69,11 @@ class AIService:
         8. Payment Terms (template: "generic")
         9. Acceptance Criteria (template: "generic")
         10. Assumptions and Constraints (template: "generic")
-        11. Support Services (template: "generic") -- ONLY include if provided by user
-        12. Special Legal Terms (template: "generic") -- ONLY include if provided by user
-        15. Termination (template: "generic") -- ONLY include if provided by user
+        11. Support Services (template: "generic") -- ALWAYS include this slide
+        12. General Terms (template: "generic") -- The title should ALWAYS be just 'General Terms' and ALWAYS include this slide
+        13. Project Terms (template: "generic") -- The title should ALWAYS be just 'Project Terms' and ALWAYS include this slide
+        14. Termination (template: "generic") -- The title should ALWAYS be just 'Termination' and ALWAYS include this slide
+        15. Signature Page (template: "signature") -- The title should ALWAYS be just 'Signature' and the content should be ONLY the client name
            
         CONTENT STRUCTURE:
         Each slide should have:

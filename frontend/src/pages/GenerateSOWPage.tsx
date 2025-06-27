@@ -12,6 +12,7 @@ const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
 
 export default function GenerateSOWPage() {
   const [form, setForm] = useState({
+    clientName: '',
     projectDescription: '',
     requirements: '',
     duration: '',
@@ -20,7 +21,6 @@ export default function GenerateSOWPage() {
     legalTerms: '',
     deliverables: '',
     terminationClause: '',
-    
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -50,7 +50,7 @@ export default function GenerateSOWPage() {
 
   const handleGenerate = async (e) => {
     e.preventDefault();
-    if (!form.projectDescription.trim()) return;
+    if (!form.clientName.trim() || !form.projectDescription.trim()) return;
     setLoading(true);
     setError('');
 
@@ -67,6 +67,7 @@ export default function GenerateSOWPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          clientName: form.clientName.trim(),
           projectDescription: form.projectDescription.trim(),
           requirements: form.requirements.trim(),
           duration: form.duration.trim(),
@@ -82,9 +83,8 @@ export default function GenerateSOWPage() {
         setError(sowResult.error || 'Failed to generate SOW document');
         return;
       }
-      // Attaching sowNumber to the presentation data
-      const presentationWithSOW = { ...sowResult.data, sowNumber };
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Attaching sowNumber and clientName
+      const presentationWithSOW = { ...sowResult.data, sowNumber, clientName: form.clientName.trim() };
       navigate('/presentation', { state: { presentation: presentationWithSOW } });
     } catch (err) {
       setError(`Error: ${err.message || err}`);
@@ -93,9 +93,22 @@ export default function GenerateSOWPage() {
     }
   };
 
+  const totalInputLength = Object.values(form).reduce((acc, val) => acc + val.length, 0);
+  const minWidth = 60;
+  const maxWidth = 80;
+  const maxInputLength = 500; 
+  const widthPercent = Math.min(
+    maxWidth,
+    minWidth + ((maxWidth - minWidth) * Math.min(totalInputLength, maxInputLength)) / maxInputLength
+  );
+  const cardWidth = `${widthPercent}vw`;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8 flex items-center justify-center">
-      <Card className="w-full max-w-5xl shadow-2xl border border-white/20 bg-white/10 backdrop-blur-md p-0 md:p-2">
+      <Card
+        className="shadow-2xl border border-white/20 bg-white/10 backdrop-blur-md p-0 md:p-2"
+        style={{ width: cardWidth, minWidth: '400px', maxWidth: '80vw', transition: 'width 0.3s cubic-bezier(0.4,0,0.2,1)' }}
+      >
         <CardHeader className="px-8 pt-8 pb-4">
           <CardTitle className="flex items-center gap-2 text-white">
             <FileText className="h-5 w-5" />
@@ -107,6 +120,20 @@ export default function GenerateSOWPage() {
             <div className="flex flex-col md:flex-row gap-16">
               {/* Left column: Required fields */}
               <div className="flex-1 space-y-6">
+                <label htmlFor="clientName" className="block text-sm font-medium text-white/80">
+                  Client Name
+                </label>
+                <Textarea
+                  id="clientName"
+                  placeholder="Enter the client's name"
+                  value={form.clientName}
+                  onChange={handleChange}
+                  onKeyDown={handleTextareaKeyDown}
+                  onInput={handleAutoResize}
+                  className="min-h-[40px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+                  disabled={loading}
+                  required
+                />
                 <label htmlFor="projectDescription" className="block text-sm font-medium text-white/80">
                   Project Description
                 </label>

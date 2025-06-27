@@ -74,9 +74,9 @@ export const SCOPE_TEMPLATE: Template = {
       },
       style: {
         fontSize: '1rem',
-        lineHeight: '1.8',
+        lineHeight: '1',
         color: '#333',
-        padding: '20px',
+        padding: '4px',
         borderRadius: '8px',
       }
     }
@@ -104,8 +104,9 @@ export const DELIVERABLES_TEMPLATE: Template = {
       },
       style: {
         fontSize: '1.1rem',
+        lineHeight: '1',
         color: '#333',
-        padding: '20px',
+        padding: '4px',
         borderRadius: '8px',
       }
     }
@@ -143,9 +144,9 @@ export const GENERIC_TEMPLATE: Template = {
       },
       style: {
         fontSize: '1.2rem',
-        lineHeight: '1.8',
+        lineHeight: '1',
         color: '#333',
-        padding: '20px',
+        padding: '4px',
         borderRadius: '8px',
       }
     }
@@ -170,7 +171,7 @@ export const PLAIN_TEMPLATE: Template = {
       position: {},
       style: {
         fontSize: '1.4rem',
-        lineHeight: '1.6',
+        lineHeight: '1',
         color: '#333333',
       }
     }
@@ -188,7 +189,7 @@ export const IMAGE5_TEMPLATE: Template = {
     },
     content: {
       position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
-      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center' }
+      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
     }
   }
 };
@@ -204,7 +205,7 @@ export const IMAGE6_TEMPLATE: Template = {
     },
     content: {
       position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
-      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center' }
+      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
     }
   }
 };
@@ -220,7 +221,7 @@ export const IMAGE7_TEMPLATE: Template = {
     },
     content: {
       position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
-      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center' }
+      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
     }
   }
 };
@@ -236,7 +237,7 @@ export const IMAGE8_TEMPLATE: Template = {
     },
     content: {
       position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
-      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center' }
+      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
     }
   }
 };
@@ -252,7 +253,23 @@ export const IMAGE9_TEMPLATE: Template = {
     },
     content: {
       position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
-      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center' }
+      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
+    }
+  }
+};
+
+export const SIGNATURE_TEMPLATE: Template = {
+  id: 'signature',
+  name: 'Signature Template',
+  backgroundImage: '/5.svg',
+  layout: {
+    title: {
+      position: {},
+      style: { display: 'none' }
+    },
+    content: {
+      position: { position: 'absolute', top: '6.8%', left: '25%', width: '20%' },
+      style: { fontSize: '1.3rem', color: '#000', textAlign: 'left', lineHeight: '1.2', fontWeight: 'bold' }
     }
   }
 };
@@ -263,9 +280,5 @@ export const TEMPLATES = {
   deliverables: DELIVERABLES_TEMPLATE,
   generic: GENERIC_TEMPLATE,
   plain: PLAIN_TEMPLATE,
-  image5: IMAGE5_TEMPLATE,
-  image6: IMAGE6_TEMPLATE,
-  image7: IMAGE7_TEMPLATE,
-  image8: IMAGE8_TEMPLATE,
-  image9: IMAGE9_TEMPLATE,
+  signature: SIGNATURE_TEMPLATE,
 };

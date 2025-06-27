@@ -209,8 +209,8 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
         <div
           style={{
             position: 'absolute',
-            bottom: '1rem',
-            right: '1.5rem',
+            bottom: '0.2rem',
+            right: '0.5rem',
             color: '#1e3a8a',
             fontWeight: 600,
             fontSize: '1.3rem',

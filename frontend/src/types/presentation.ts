@@ -13,6 +13,7 @@ export interface SOWData {
   slides: Slide[];
   totalSlides: number;
   sowNumber?: string;
+  clientName?: string;
 }
 
 export interface SOWState {
