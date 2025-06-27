@@ -1,10 +1,12 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, FileText } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
+import { v4 as uuidv4 } from 'uuid';
 
 const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
 
@@ -29,12 +31,13 @@ export default function GenerateSOWPage() {
     setForm((prev) => ({ ...prev, [id]: value }));
   };
 
-  // Auto-resize handler for textareas
+  // Resize handler for textareas
   const handleAutoResize = (e) => {
     e.target.style.height = 'auto';
     e.target.style.height = e.target.scrollHeight + 'px';
   };
 
+  // Enter to submit
   const handleTextareaKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -50,6 +53,14 @@ export default function GenerateSOWPage() {
     if (!form.projectDescription.trim()) return;
     setLoading(true);
     setError('');
+
+    // Generate SOW number here
+    const date = new Date();
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const shortUuid = uuidv4().replace(/\D/g, '').slice(0, 5);
+    const sowNumber = `CWM${day}${month}${year}${shortUuid}`;
 
     try {
       const sowResponse = await fetch(`${API_URL}/api/generate-document`, {
@@ -71,8 +82,10 @@ export default function GenerateSOWPage() {
         setError(sowResult.error || 'Failed to generate SOW document');
         return;
       }
+      // Attaching sowNumber to the presentation data
+      const presentationWithSOW = { ...sowResult.data, sowNumber };
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      navigate('/presentation', { state: { presentation: sowResult.data } });
+      navigate('/presentation', { state: { presentation: presentationWithSOW } });
     } catch (err) {
       setError(`Error: ${err.message || err}`);
     } finally {
@@ -147,7 +160,9 @@ export default function GenerateSOWPage() {
                 />
               </div>
               {/* Separator */}
-              <div className="hidden md:flex w-px bg-white/20 mx-2" />
+              <div className="hidden md:flex items-stretch mx-2">
+                <Separator orientation="vertical" className="h-full bg-white/20" />
+              </div>
               {/* Right column: Optional fields */}
               <div className="flex-1 space-y-6">
                 <label htmlFor="deliverables" className="block text-sm font-medium text-white/80">

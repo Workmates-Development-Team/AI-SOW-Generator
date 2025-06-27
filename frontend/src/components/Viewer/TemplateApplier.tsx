@@ -9,18 +9,20 @@ interface TemplateApplierProps {
   slide: Slide;
   className?: string;
   templateId?: string;
+  sowNumber?: string;
 }
 
 const TemplateApplier: React.FC<TemplateApplierProps> = ({
   slide,
   className = "",
   templateId = "plain",
+  sowNumber,
 }) => {
   const actualTemplateId = slide.template || templateId;
   const template = TEMPLATES[actualTemplateId as keyof typeof TEMPLATES] || TEMPLATES.generic;
 
-  const sowNumber = React.useMemo(() => {
-    // Format: CWM + DDMMYYYY + short uuid (first 5 chars)
+  // Use the provided sowNumber, or generate one as fallback
+  const generatedSowNumber = React.useMemo(() => {
     const date = new Date();
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -28,6 +30,7 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
     const shortUuid = uuidv4().replace(/-/g, '').slice(0, 5).toUpperCase();
     return `CWM${day}${month}${year}${shortUuid}`;
   }, []);
+  const displaySowNumber = sowNumber || generatedSowNumber;
 
   const renderContent = () => {
     const customComponents = {
@@ -141,12 +144,11 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
           return (
             <div
               style={{
-                marginTop: '19rem',
-                marginRight: '-10rem',
+                marginTop: '22rem',
+                marginRight: '-11rem',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'flex-end',
-                opacity: 0.85,
               }}
             >
               <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-end' }}>
@@ -216,7 +218,7 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
             zIndex: 10,
           }}
         >
-          SOW Number: {sowNumber}
+          SOW Number: {displaySowNumber}
         </div>
       )}
     </div>

@@ -19,12 +19,14 @@ const SOWViewer: React.FC = () => {
       <TemplateApplier 
         slide={slide}
         className="w-full h-full"
+        sowNumber={presentationState?.sowNumber}
       />
     );
   };
 
   const filteredSlides = presentationState.slides || [];
 
+  // Just a placeholder till more definite implementation can be found
   // Append images 5-9
   const appendedImageSlides: Slide[] = [5,6,7,8,9].map((num) => ({
     id: `image${num}`,

@@ -12,6 +12,7 @@ export interface SOWData {
   template?: string;
   slides: Slide[];
   totalSlides: number;
+  sowNumber?: string;
 }
 
 export interface SOWState {

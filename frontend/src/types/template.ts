@@ -45,7 +45,7 @@ export const COVER_TEMPLATE: Template = {
         width: '80%',
       },
       style: {
-        fontSize: '2rem',
+        fontSize: '1.75rem',
         color: '#000000',
         lineHeight: '1.6',
       }
