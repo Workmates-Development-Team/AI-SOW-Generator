@@ -199,9 +199,11 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
       {/* Content */}
       <div style={{
         ...template.layout.content.position,
-        ...template.layout.content.style,
+        ...Object.fromEntries(Object.entries(template.layout.content.style).filter(([key]) => key !== 'padding')),
       }}>
-        {renderContent()}
+        <div style={{ padding: template.layout.content.style?.padding || undefined, height: '100%', width: '100%' }}>
+          {renderContent()}
+        </div>
       </div>
 
       {/* SOW Number using UUID */}

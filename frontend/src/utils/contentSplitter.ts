@@ -1,4 +1,5 @@
 import type { Slide } from '@/types/presentation';
+import { PLAIN_IMAGE6_TEMPLATE } from '@/types/template';
 
 export interface ContentMeasurement {
   fits: boolean;
@@ -11,9 +12,9 @@ export class ContentSplitter {
     content: string,
     template: any,
     containerWidth: number = 794,
-    containerHeight: number = 1123
+    containerHeight: number = 1123,
+    availableHeightRatio: number = 0.6
   ): ContentMeasurement {
-    // Create a temporary container to measure content
     const tempContainer = document.createElement('div');
     tempContainer.style.position = 'absolute';
     tempContainer.style.left = '-9999px';
@@ -22,7 +23,6 @@ export class ContentSplitter {
     tempContainer.style.height = `${containerHeight}px`;
     tempContainer.style.visibility = 'hidden';
     
-    // Apply template styles
     const contentDiv = document.createElement('div');
     Object.assign(contentDiv.style, {
       ...template.layout.content.position,
@@ -34,17 +34,15 @@ export class ContentSplitter {
     document.body.appendChild(tempContainer);
 
     try {
-      // Set content and measure
       contentDiv.innerHTML = this.markdownToHtml(content);
       
-      const availableHeight = this.calculateAvailableHeight(template, containerHeight);
+      const availableHeight = containerHeight * availableHeightRatio;
       const contentHeight = contentDiv.scrollHeight;
       
       if (contentHeight <= availableHeight) {
         return { fits: true, fittingContent: content };
       }
 
-      // Content overflows, need to split
       const { fittingContent, overflowContent } = this.splitContentToFit(
         content,
         contentDiv,
@@ -62,7 +60,6 @@ export class ContentSplitter {
   }
 
   private static calculateAvailableHeight(template: any, containerHeight: number): number {
-    // Calculate available height based on template layout
     const contentPosition = template.layout.content.position;
     const topOffset = this.parsePositionValue(contentPosition.top, containerHeight);
     const bottomOffset = this.parsePositionValue(contentPosition.bottom, containerHeight) || 50;
@@ -82,7 +79,7 @@ export class ContentSplitter {
         return parseFloat(value);
       }
       if (value.includes('rem')) {
-        return parseFloat(value) * 16; // Assuming 1rem = 16px
+        return parseFloat(value) * 16; 
       }
     }
     
@@ -117,7 +114,6 @@ export class ContentSplitter {
   }
 
   private static markdownToHtml(markdown: string): string {
-    // Simple markdown to HTML conversion for measurement
     return markdown
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
@@ -126,8 +122,9 @@ export class ContentSplitter {
       .replace(/\n/g, '<br>');
   }
 
-  static splitSlideContent(slide: Slide, template: any): Slide[] {
-    const measurement = this.measureContent(slide.content, template);
+  static splitSlideContent(slide: Slide, template: any, isFirstSlide: boolean = true): Slide[] {
+    const availableHeightRatio = 0.6;
+    const measurement = this.measureContent(slide.content, template, 794, 1123, availableHeightRatio);
     
     if (measurement.fits) {
       return [slide];
@@ -145,11 +142,12 @@ export class ContentSplitter {
       const overflowSlide: Slide = {
         ...slide,
         id: `${slide.id}_overflow_${slides.length}`,
-        title: '', // Remove title for continuation pages
-        content: measurement.overflowContent
+        title: '',
+        content: measurement.overflowContent,
+        template: 'plainImage6',
       };
 
-      const additionalSlides = this.splitSlideContent(overflowSlide, template);
+      const additionalSlides = this.splitSlideContent(overflowSlide, PLAIN_IMAGE6_TEMPLATE, false);
       slides.push(...additionalSlides);
     }
 

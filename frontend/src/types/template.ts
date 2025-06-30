@@ -71,6 +71,7 @@ export const SCOPE_TEMPLATE: Template = {
         width: '80%',
         marginTop: '2rem',
         top: '35%',
+        maxHeight: '60vh',
       },
       style: {
         fontSize: '1rem',
@@ -101,6 +102,7 @@ export const DELIVERABLES_TEMPLATE: Template = {
         width: '80%',
         marginTop: '2rem',
         top: '40%',
+        maxHeight: '60vh',
       },
       style: {
         fontSize: '1.1rem',
@@ -141,6 +143,7 @@ export const GENERIC_TEMPLATE: Template = {
         left: '8%',
         width: '80%',
         marginTop: '8rem',
+        maxHeight: '60vh',
       },
       style: {
         fontSize: '1.2rem',
@@ -148,31 +151,6 @@ export const GENERIC_TEMPLATE: Template = {
         color: '#333',
         padding: '4px',
         borderRadius: '8px',
-      }
-    }
-  }
-};
-
-export const PLAIN_TEMPLATE: Template = {
-  id: 'plain',
-  name: 'Plain Template',
-  layout: {
-    title: {
-      position: {
-        marginBottom: '2rem',
-      },
-      style: {
-        fontSize: '2.5rem',
-        fontWeight: 'bold',
-        color: '#000000',
-      }
-    },
-    content: {
-      position: {},
-      style: {
-        fontSize: '1.4rem',
-        lineHeight: '1',
-        color: '#333333',
       }
     }
   }
@@ -188,7 +166,7 @@ export const IMAGE5_TEMPLATE: Template = {
       style: { fontSize: '2rem', color: '#fff', textAlign: 'center', fontWeight: 'bold' }
     },
     content: {
-      position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
+      position: { position: 'absolute', top: '60%', left: '10%', width: '80%', maxHeight: '60vh' },
       style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
     }
   }
@@ -204,7 +182,7 @@ export const IMAGE6_TEMPLATE: Template = {
       style: { fontSize: '2rem', color: '#fff', textAlign: 'center', fontWeight: 'bold' }
     },
     content: {
-      position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
+      position: { position: 'absolute', top: '60%', left: '10%', width: '80%', maxHeight: '60vh' },
       style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
     }
   }
@@ -220,7 +198,7 @@ export const IMAGE7_TEMPLATE: Template = {
       style: { fontSize: '2rem', color: '#fff', textAlign: 'center', fontWeight: 'bold' }
     },
     content: {
-      position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
+      position: { position: 'absolute', top: '60%', left: '10%', width: '80%', maxHeight: '60vh' },
       style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
     }
   }
@@ -236,7 +214,7 @@ export const IMAGE8_TEMPLATE: Template = {
       style: { fontSize: '2rem', color: '#fff', textAlign: 'center', fontWeight: 'bold' }
     },
     content: {
-      position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
+      position: { position: 'absolute', top: '60%', left: '10%', width: '80%', maxHeight: '60vh' },
       style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
     }
   }
@@ -252,7 +230,7 @@ export const IMAGE9_TEMPLATE: Template = {
       style: { fontSize: '2rem', color: '#fff', textAlign: 'center', fontWeight: 'bold' }
     },
     content: {
-      position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
+      position: { position: 'absolute', top: '60%', left: '10%', width: '80%', maxHeight: '60vh' },
       style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
     }
   }
@@ -274,11 +252,39 @@ export const SIGNATURE_TEMPLATE: Template = {
   }
 };
 
+export const PLAIN_IMAGE6_TEMPLATE: Template = {
+  id: 'plainImage6',
+  name: 'Plain Template with Image 6',
+  backgroundImage: '/6.svg',
+  layout: {
+    title: {
+      position: {
+        marginBottom: '2rem',
+      },
+      style: {
+        fontSize: '2.5rem',
+        fontWeight: 'bold',
+        color: '#000000',
+      }
+    },
+    content: {
+      position: {},
+      style: {
+        fontSize: '1.2rem',
+        lineHeight: '1',
+        color: '#333333',
+        padding: '64px',
+      }
+    }
+  }
+};
+
 export const TEMPLATES = {
   cover: COVER_TEMPLATE,
   scope: SCOPE_TEMPLATE,
   deliverables: DELIVERABLES_TEMPLATE,
   generic: GENERIC_TEMPLATE,
-  plain: PLAIN_TEMPLATE,
+  plain: PLAIN_IMAGE6_TEMPLATE,
   signature: SIGNATURE_TEMPLATE,
+  plainImage6: PLAIN_IMAGE6_TEMPLATE,
 };

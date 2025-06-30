@@ -2,6 +2,15 @@
 
 ### Viewer
 
+### Generator
+- Points to be added in the SOW as per customer's requirement:
+1) document information
+2) Contact information
+3) Index/Table of Contents
+4) About the company
+5) Executive Summary
+6) Success Criterion
+7) Urgency and Impact
+8) Service level agreement if any
+
 ## Issues
-- The constant pages that need to be appended are not being added in correct order and page number 9 is missing
-- Make a dynamic signature page
