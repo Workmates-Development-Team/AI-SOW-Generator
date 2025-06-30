@@ -40,6 +40,18 @@ def generate_presentation():
                     'error': f'Invalid JSON format: {str(e)}',
                     'raw_llm_output': raw_llm_output
                 }), 400
+            except ValueError as e:
+                error_msg = str(e)
+                raw_llm_output = None
+                if 'Raw LLM response:' in error_msg:
+                    parts = error_msg.split('Raw LLM response:')
+                    error_msg = parts[0].strip()
+                    raw_llm_output = parts[1].strip()
+                return jsonify({
+                    'success': False,
+                    'error': error_msg,
+                    'raw_llm_output': raw_llm_output
+                }), 400
         else:
             return jsonify({'error': 'At least one SOW field is required'}), 400
         

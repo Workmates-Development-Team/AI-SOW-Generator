@@ -7,6 +7,12 @@ import re
 import json
 import logging
 from config import ConfigAI
+from botocore.config import Config as BotoConfig
+from builtins import TimeoutError
+from botocore.exceptions import EndpointConnectionError, ConnectionClosedError, ReadTimeoutError
+import time
+import requests
+import random
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -14,18 +20,20 @@ logger = logging.getLogger(__name__)
 class AIService:
     def __init__(self):
         try:
+            boto_config = BotoConfig(read_timeout=600)
             self.bedrock_client = boto3.client(
                 'bedrock-runtime',
                 aws_access_key_id=ConfigAI.AWS_ACCESS_KEY_ID,
                 aws_secret_access_key=ConfigAI.AWS_SECRET_ACCESS_KEY,
-                region_name=ConfigAI.AWS_REGION
+                region_name=ConfigAI.AWS_REGION,
+                config=boto_config
             )
             
             self.llm = ChatBedrock(
                 client=self.bedrock_client,
-                model_id='anthropic.claude-3-5-haiku-20241022-v1:0',#ConfigAI.BEDROCK_MODEL_ID,
+                model_id=ConfigAI.BEDROCK_MODEL_ID,#'anthropic.claude-3-5-haiku-20241022-v1:0',
                 model_kwargs={
-                    "max_tokens": 30000,
+                    "max_tokens": 25000,
                     "temperature": 0.5
                 }
             )
@@ -63,7 +71,10 @@ class AIService:
            
         REQUIRED SOW STRUCTURE (in this exact order with template assignments):
         1. Cover/Title Page (template: "cover")
-        2. Introduction (template: "generic") -- The title should ALWAYS be just 'Introduction'
+        2. Introduction (template: "generic") -- The title should ALWAYS be just 'Introduction'. The Introduction section MUST include:
+           - A fixed description of the service provider as follows:
+             "Workmates Core2cloud is a cloud managed services company focused on AWS services, the fastest growing AWS Premier Consulting Partner in India. We focus on Managed services, Cloud Migration and Implementation of various value-added services on the cloud including but not limited to Cyber Security and Analytics. Our skills cut across various workloads like SAP, Media Solutions, E-commerce, Analytics, IOT, Machine Learning, VR, AR etc. Our VR services are transforming many businesses."
+           - A description of the service recruiting company (the client) based on the project description and any provided client information.
         3. Objectives (template: "generic") -- The title should ALWAYS be just 'Objectives'
         4. Scope of Work (template: "scope")
         5. Deliverables (template: "deliverables") -- ALWAYS include this slide
@@ -166,12 +177,14 @@ class AIService:
                 prompt_lines.append(f"Project Duration: {sow_fields['duration']}")
             if sow_fields.get('budget'):
                 prompt_lines.append(f"Budget: {sow_fields['budget']}")
+            if sow_fields.get('deliverables'):
+               prompt_lines.append(f"Deliverables: {sow_fields['deliverables']}")   
+
+            # Staged for removal
             if sow_fields.get('supportService'):
                 prompt_lines.append(f"Support Service: {sow_fields['supportService']}")
             if sow_fields.get('legalTerms'):
                 prompt_lines.append(f"Special Legal Terms: {sow_fields['legalTerms']}")
-            if sow_fields.get('deliverables'):
-                prompt_lines.append(f"Deliverables: {sow_fields['deliverables']}")
             if sow_fields.get('terminationClause'):
                 prompt_lines.append(f"Termination Clause: {sow_fields['terminationClause']}")
             structured_prompt = '\n'.join(prompt_lines)
@@ -185,33 +198,69 @@ class AIService:
         return self._process_ai_response(messages)
 
     def _process_ai_response(self, messages) -> dict:
-        response = self.llm.invoke(messages)
-        content = response.content.strip()
-        try:
-            parsed_content = self._extract_json_from_response(content)
-        except ValueError as e:
-            logger.error(f"Failed to extract JSON from LLM response: {e}")
-            # Log the raw response for debugging
-            logger.debug(f"Raw LLM response: {content}")
-            raise
-        if 'slides' in parsed_content:
-            parsed_content['totalSlides'] = len(parsed_content['slides'])
-        if len(parsed_content['slides']) == 0:
-            raise ValueError("No slides generated")
-        if 'slides' not in parsed_content:
-            raise ValueError("Invalid presentation structure")
-        for i, slide in enumerate(parsed_content['slides']):
-            if not isinstance(slide, dict):
-                logger.warning(f"Invalid slide {i}, skipping")
-                continue
-            slide['id'] = slide.get('id', f'slide-{i+1}')
-            slide['type'] = slide.get('type', 'content')
-            slide['template'] = slide.get('template', 'generic')
-            slide['title'] = slide.get('title', f'Slide {i+1}')
-            slide['content'] = slide.get('content', '')
-            slide['contentType'] = slide.get('contentType', 'text')
-        print(f"Generated {len(parsed_content['slides'])} slides successfully")
-        return parsed_content
+        max_retries = 5
+        backoff = 4
+        last_exception = None
+        for attempt in range(1, max_retries + 1):
+            try:
+                # Simulate the original request again on each retry
+                response = self.llm.invoke(messages)
+                content = response.content.strip()
+                try:
+                    parsed_content = self._extract_json_from_response(content)
+                except ValueError as e:
+                    logger.error(f"Failed to extract JSON from LLM response: {e}")
+                    logger.debug(f"Raw LLM response: {content}")
+                    raise
+                if 'slides' in parsed_content:
+                    parsed_content['totalSlides'] = len(parsed_content['slides'])
+                if 'slides' not in parsed_content:
+                    logger.error(f"Invalid presentation structure. Raw LLM response: {content}")
+                    raise ValueError(f"Invalid presentation structure. Raw LLM response: {content}")
+                if len(parsed_content['slides']) == 0:
+                    logger.error(f"No slides generated. Raw LLM response: {content}")
+                    raise ValueError(f"No slides generated. Raw LLM response: {content}")
+                for i, slide in enumerate(parsed_content['slides']):
+                    if not isinstance(slide, dict):
+                        logger.warning(f"Invalid slide {i}, skipping")
+                        continue
+                    slide['id'] = slide.get('id', f'slide-{i+1}')
+                    slide['type'] = slide.get('type', 'content')
+                    slide['template'] = slide.get('template', 'generic')
+                    slide['title'] = slide.get('title', f'Slide {i+1}')
+                    slide['content'] = slide.get('content', '')
+                    slide['contentType'] = slide.get('contentType', 'text')
+                print(f"Generated {len(parsed_content['slides'])} slides successfully")
+                return parsed_content
+            except (EndpointConnectionError, ConnectionClosedError, ReadTimeoutError, TimeoutError, requests.exceptions.RequestException) as e:
+                logger.warning(f"Network/timeout error on attempt {attempt}: {e}")
+                last_exception = e
+                if attempt == max_retries:
+                    logger.error("Max retries reached. Raising error.")
+                    break
+                sleep_time = backoff ** attempt + random.uniform(0, 1)
+                logger.info(f"Retrying in {sleep_time:.2f} seconds...")
+                time.sleep(sleep_time)
+            except Exception as e:
+                # Retry on generic network errors
+                if (
+                    'NetworkError' in str(e)
+                ) or (
+                    'NetworkError' in type(e).__name__ or 'NetworkError' in str(e)
+                ):
+                    logger.warning(f"Generic network error on attempt {attempt}: {e}")
+                    last_exception = e
+                    if attempt == max_retries:
+                        logger.error("Max retries reached. Raising error.")
+                        break
+                    sleep_time = backoff ** attempt + random.uniform(0, 1)
+                    logger.info(f"Retrying in {sleep_time:.2f} seconds...")
+                    time.sleep(sleep_time)
+                else:
+                    raise
+        if last_exception:
+            raise last_exception
+        raise RuntimeError("Unknown error in _process_ai_response: no response and no exception captured.")
 
     @staticmethod
     def _extract_json_from_response(content: str) -> dict:
