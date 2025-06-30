@@ -33,7 +33,7 @@ export default function GenerateSOWPage() {
     {
       id: 'deliverables',
       label: 'Instructions for the deliverables (Optional)',
-      placeholder: 'Provide instructions or notes for the deliverables (optional)',
+      placeholder: 'Provide instructions or notes for the deliverables',
     },
     {
       id: 'supportService',
@@ -155,9 +155,9 @@ export default function GenerateSOWPage() {
         </CardHeader>
         <CardContent className="space-y-8 px-8 pb-10 pt-2">
           <form onSubmit={handleGenerate} className="space-y-8">
-            <div className="flex flex-col md:flex-row gap-16">
+            <div className="flex flex-col md:flex-row gap-2 max-h-[70vh] items-stretch">
               {/* Left column: Required fields */}
-              <div className="flex-1 space-y-6">
+              <div className="flex-1 space-y-6 overflow-y-auto min-h-0 pr-10">
                 <label htmlFor="clientName" className="block text-sm font-medium text-white/80">
                   Client Name
                 </label>
@@ -229,7 +229,7 @@ export default function GenerateSOWPage() {
                 <Separator orientation="vertical" className="h-full bg-white/20" />
               </div>
               {/* Right column: Optional fields */}
-              <div className="flex-1 space-y-6">
+              <div className="flex-1 space-y-6 overflow-y-auto min-h-0 pl-10">
                 {addedOptionalFields.map((fieldId) => {
                   const field = optionalFields.find(f => f.id === fieldId);
                   return (
@@ -268,9 +268,11 @@ export default function GenerateSOWPage() {
                       <SelectTrigger className="bg-white/10 border-white/20 text-white focus:border-white/40">
                         <span className="text-white/50">Add Optional Field</span>
                       </SelectTrigger>
-                      <SelectContent className="bg-white/10 text-white">
+                      <SelectContent className="bg-white/10 border border-white/20 text-white shadow-xl">
                         {availableOptionalFields.map((field) => (
-                          <SelectItem key={field.id} value={field.id} className="text-white focus:bg-blue-800">{field.label}</SelectItem>
+                          <SelectItem key={field.id} value={field.id} className="text-white hover:bg-white/10 focus:bg-white/20">
+                            {field.label}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

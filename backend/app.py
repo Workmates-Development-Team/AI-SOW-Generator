@@ -3,16 +3,13 @@ from flask_cors import CORS
 from ai import AIService
 import json
 
-app = Flask(
-    __name__,
-    static_folder="public",
-    static_url_path="/public"
-)
+app = Flask(__name__)
 CORS(app)
 ai = AIService()
 
 @app.route('/api/generate-document', methods=['POST'])
 def generate_presentation():
+    raw_llm_output = None
     try:
         if not request.is_json:
             return jsonify({'error': 'Content-Type must be JSON'}), 400
@@ -33,7 +30,16 @@ def generate_presentation():
             'terminationClause': data.get('terminationClause') or '',
         }
         if any(sow_fields.values()):
-            presentation_data = ai.generate_sow_document(sow_fields)
+            try:
+                presentation_data = ai.generate_sow_document(sow_fields)
+            except json.JSONDecodeError as e:
+                if hasattr(e, 'doc'):
+                    raw_llm_output = e.doc
+                return jsonify({
+                    'success': False,
+                    'error': f'Invalid JSON format: {str(e)}',
+                    'raw_llm_output': raw_llm_output
+                }), 400
         else:
             return jsonify({'error': 'At least one SOW field is required'}), 400
         
@@ -43,9 +49,12 @@ def generate_presentation():
         })
         
     except json.JSONDecodeError as e:
+        if hasattr(e, 'doc'):
+            raw_llm_output = e.doc
         return jsonify({
             'success': False,
-            'error': f'Invalid JSON format: {str(e)}'
+            'error': f'Invalid JSON format: {str(e)}',
+            'raw_llm_output': raw_llm_output
         }), 400
 
     except Exception as e:

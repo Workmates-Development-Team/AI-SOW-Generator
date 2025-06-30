@@ -3,6 +3,9 @@ import json
 import logging
 from langchain_aws import ChatBedrock
 from langchain.schema import HumanMessage, SystemMessage
+import re
+import json
+import logging
 from config import ConfigAI
 
 logging.basicConfig(level=logging.INFO)
@@ -22,7 +25,7 @@ class AIService:
                 client=self.bedrock_client,
                 model_id='anthropic.claude-3-5-haiku-20241022-v1:0',#ConfigAI.BEDROCK_MODEL_ID,
                 model_kwargs={
-                    "max_tokens": 16000,
+                    "max_tokens": 30000,
                     "temperature": 0.5
                 }
             )
@@ -184,23 +187,19 @@ class AIService:
     def _process_ai_response(self, messages) -> dict:
         response = self.llm.invoke(messages)
         content = response.content.strip()
-        
-        if content.startswith('```json'):
-            content = content.replace('```json', '').replace('```', '').strip()
-        elif content.startswith('```'):
-            content = content.replace('```', '').strip()
-        
-        parsed_content = json.loads(content)
-        
+        try:
+            parsed_content = self._extract_json_from_response(content)
+        except ValueError as e:
+            logger.error(f"Failed to extract JSON from LLM response: {e}")
+            # Log the raw response for debugging
+            logger.debug(f"Raw LLM response: {content}")
+            raise
         if 'slides' in parsed_content:
             parsed_content['totalSlides'] = len(parsed_content['slides'])
-
         if len(parsed_content['slides']) == 0:
             raise ValueError("No slides generated")
-        
         if 'slides' not in parsed_content:
             raise ValueError("Invalid presentation structure")
-
         for i, slide in enumerate(parsed_content['slides']):
             if not isinstance(slide, dict):
                 logger.warning(f"Invalid slide {i}, skipping")
@@ -211,6 +210,53 @@ class AIService:
             slide['title'] = slide.get('title', f'Slide {i+1}')
             slide['content'] = slide.get('content', '')
             slide['contentType'] = slide.get('contentType', 'text')
-        
         print(f"Generated {len(parsed_content['slides'])} slides successfully")
         return parsed_content
+
+    @staticmethod
+    def _extract_json_from_response(content: str) -> dict:
+        """
+        Robustly extract JSON from LLM response, handling various formats.
+        """
+        content = content.strip()
+        # Remove markdown code blocks if present
+        if content.startswith('```json'):
+            content = content.replace('```json', '').replace('```', '').strip()
+        elif content.startswith('```'):
+            content = content.replace('```', '').strip()
+        # Try to find JSON object boundaries
+        try:
+            # Method 1: Look for the first { and try to parse from there
+            start_idx = content.find('{')
+            if start_idx != -1:
+                # Find the matching closing brace
+                brace_count = 0
+                end_idx = start_idx
+                for i in range(start_idx, len(content)):
+                    if content[i] == '{':
+                        brace_count += 1
+                    elif content[i] == '}':
+                        brace_count -= 1
+                        if brace_count == 0:
+                            end_idx = i + 1
+                            break
+                json_str = content[start_idx:end_idx]
+                return json.loads(json_str)
+        except (json.JSONDecodeError, IndexError):
+            pass
+        # Method 2: Use regex to find JSON-like structure
+        try:
+            json_pattern = r'\{(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*\}'
+            matches = re.findall(json_pattern, content, re.DOTALL)
+            for match in matches:
+                try:
+                    return json.loads(match)
+                except json.JSONDecodeError:
+                    continue
+        except Exception:
+            pass
+        # Method 3: Try parsing the entire content as JSON (fallback)
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError:
+            raise ValueError(f"Could not extract valid JSON from response: {content[:200]}...")
