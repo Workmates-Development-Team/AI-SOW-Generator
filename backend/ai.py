@@ -20,9 +20,9 @@ class AIService:
             
             self.llm = ChatBedrock(
                 client=self.bedrock_client,
-                model_id=ConfigAI.BEDROCK_MODEL_ID,
+                model_id='anthropic.claude-3-5-haiku-20241022-v1:0',#ConfigAI.BEDROCK_MODEL_ID,
                 model_kwargs={
-                    "max_tokens": 32000,
+                    "max_tokens": 16000,
                     "temperature": 0.5
                 }
             )

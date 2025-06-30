@@ -7,6 +7,8 @@ import { Loader2, FileText } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { v4 as uuidv4 } from 'uuid';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 
 const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
 
@@ -25,6 +27,32 @@ export default function GenerateSOWPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  // Optional fields config
+  const optionalFields = [
+    {
+      id: 'deliverables',
+      label: 'Instructions for the deliverables (Optional)',
+      placeholder: 'Provide instructions or notes for the deliverables (optional)',
+    },
+    {
+      id: 'supportService',
+      label: 'Support Service (Optional)',
+      placeholder: 'e.g. 24/7 support, 1 year maintenance, etc.',
+    },
+    {
+      id: 'legalTerms',
+      label: 'Special Legal Terms (Optional)',
+      placeholder: 'e.g. NDA, IP ownership, etc.',
+    },
+    {
+      id: 'terminationClause',
+      label: 'Termination Clause (Optional)',
+      placeholder: 'Describe any termination conditions or clauses (optional)',
+    },
+  ];
+  const [addedOptionalFields, setAddedOptionalFields] = useState([]);
+  const availableOptionalFields = optionalFields.filter(f => !addedOptionalFields.includes(f.id));
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -46,6 +74,16 @@ export default function GenerateSOWPage() {
         form.requestSubmit();
       }
     }
+  };
+
+  const handleAddOptionalField = (fieldId) => {
+    if (!addedOptionalFields.includes(fieldId)) {
+      setAddedOptionalFields(prev => [...prev, fieldId]);
+    }
+  };
+  const handleRemoveOptionalField = (fieldId) => {
+    setAddedOptionalFields(prev => prev.filter(id => id !== fieldId));
+    setForm(prev => ({ ...prev, [fieldId]: '' }));
   };
 
   const handleGenerate = async (e) => {
@@ -192,57 +230,52 @@ export default function GenerateSOWPage() {
               </div>
               {/* Right column: Optional fields */}
               <div className="flex-1 space-y-6">
-                <label htmlFor="deliverables" className="block text-sm font-medium text-white/80">
-                  Instructions for the deliverables (Optional)
-                </label>
-                <Textarea
-                  id="deliverables"
-                  placeholder="Provide instructions or notes for the deliverables (optional)"
-                  value={form.deliverables}
-                  onChange={handleChange}
-                  onKeyDown={handleTextareaKeyDown}
-                  onInput={handleAutoResize}
-                  className="min-h-[80px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
-                  disabled={loading}
-                />
-                <label htmlFor="supportService" className="block text-sm font-medium text-white/80">
-                  Support Service (Optional)
-                </label>
-                <Textarea
-                  id="supportService"
-                  placeholder="e.g. 24/7 support, 1 year maintenance, etc."
-                  value={form.supportService}
-                  onChange={handleChange}
-                  onInput={handleAutoResize}
-                  className="min-h-[80px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
-                  disabled={loading}
-                />
-                <label htmlFor="legalTerms" className="block text-sm font-medium text-white/80">
-                  Special Legal Terms (Optional)
-                </label>
-                <Textarea
-                  id="legalTerms"
-                  placeholder="e.g. NDA, IP ownership, etc."
-                  value={form.legalTerms}
-                  onChange={handleChange}
-                  onKeyDown={handleTextareaKeyDown}
-                  onInput={handleAutoResize}
-                  className="min-h-[80px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
-                  disabled={loading}
-                />
-                <label htmlFor="terminationClause" className="block text-sm font-medium text-white/80">
-                  Termination Clause (Optional)
-                </label>
-                <Textarea
-                  id="terminationClause"
-                  placeholder="Describe any termination conditions or clauses (optional)"
-                  value={form.terminationClause}
-                  onChange={handleChange}
-                  onKeyDown={handleTextareaKeyDown}
-                  onInput={handleAutoResize}
-                  className="min-h-[80px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
-                  disabled={loading}
-                />
+                {addedOptionalFields.map((fieldId) => {
+                  const field = optionalFields.find(f => f.id === fieldId);
+                  return (
+                    <div key={fieldId} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor={fieldId} className="text-sm font-medium text-white/80">
+                          {field.label}
+                        </Label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveOptionalField(fieldId)}
+                          className="text-white hover:bg-white/20 focus:bg-white/30 ml-2"
+                          aria-label={`Remove ${field.label}`}
+                        >
+                          ×
+                        </Button>
+                      </div>
+                      <Textarea
+                        id={fieldId}
+                        placeholder={field.placeholder}
+                        value={form[fieldId]}
+                        onChange={handleChange}
+                        onKeyDown={handleTextareaKeyDown}
+                        onInput={handleAutoResize}
+                        className="min-h-[80px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40 flex-1"
+                        disabled={loading}
+                      />
+                    </div>
+                  );
+                })}
+                {availableOptionalFields.length > 0 && (
+                  <div className="space-y-2">
+                    <Select onValueChange={handleAddOptionalField}>
+                      <SelectTrigger className="bg-white/10 border-white/20 text-white focus:border-white/40">
+                        <span className="text-white/50">Add Optional Field</span>
+                      </SelectTrigger>
+                      <SelectContent className="bg-white/10 text-white">
+                        {availableOptionalFields.map((field) => (
+                          <SelectItem key={field.id} value={field.id} className="text-white focus:bg-blue-800">{field.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
             </div>
             {/* Submit button below the columns */}
