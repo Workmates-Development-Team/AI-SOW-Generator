@@ -1,22 +1,35 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardTitle } from '@/components/ui/card';
 import TemplateApplier from '@/components/Viewer/TemplateApplier';
 import type { SOWData, Slide } from '@/types/presentation';
 import DownloadPDFButton from '@/components/Viewer/DownloadPDFButton';
 import { ContentSplitter } from '@/utils/contentSplitter';
 import { TEMPLATES } from '@/types/template';
+import { useQuery } from 'convex/react';
+import { api } from "../../../convex/_generated/api";
 
 const SOWViewer: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const presentation: SOWData | undefined = location.state?.presentation;
+  const initialPresentation: SOWData | undefined = location.state?.presentation;
 
-  const [presentationState, setPresentation] = useState<SOWData | undefined>(presentation);
+  const allSows = useQuery(api.sows.getSows);
+
+  const [presentationState, setPresentation] = useState<SOWData | undefined>(initialPresentation);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const thumbnailRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  useEffect(() => {
+    if (initialPresentation) {
+      setPresentation({ ...initialPresentation, totalSlides: initialPresentation.slides.length });
+    } else if (allSows && allSows.length > 0) {
+      // Display the most recent SOW if no initial one is provided
+      setPresentation({ ...allSows[0], totalSlides: allSows[0].slides.length });
+    }
+  }, [initialPresentation, allSows]);
 
   const processedSlides = useMemo(() => {
     if (!presentationState?.slides) return [];
@@ -121,8 +134,32 @@ const SOWViewer: React.FC = () => {
   }, [currentSlide]);
 
   if (!presentationState) {
-    navigate('/');
-    return null;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-6 h-screen w-screen overflow-hidden relative flex items-center justify-center text-white">
+        {allSows === undefined ? (
+          <div>Loading SOWs...</div>
+        ) : allSows.length === 0 ? (
+          <div>No SOWs generated yet.</div>
+        ) : (
+          <div className="flex flex-col items-center gap-4">
+            <h2 className="text-2xl font-bold">Your Generated SOWs</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {allSows.map((sow) => (
+                <Card
+                  key={sow._id}
+                  className="bg-white/10 border-white/20 text-white p-4 cursor-pointer hover:bg-white/20 transition-colors"
+                  onClick={() => setPresentation({ ...sow, totalSlides: sow.slides.length })}
+                >
+                  <CardTitle>{sow.title}</CardTitle>
+                  <p className="text-sm text-white/70">Client: {sow.clientName}</p>
+                  <p className="text-sm text-white/70">SOW Number: {sow.sowNumber}</p>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
   }
 
   const getBackgroundClass = () => {
@@ -141,6 +178,13 @@ const SOWViewer: React.FC = () => {
               className="bg-white/10 border-white/20 text-white hover:bg-white/20"
             >
               ← Back to Generator
+            </Button>
+            <Button
+              onClick={() => setPresentation(undefined)} // Go back to SOW list
+              variant="outline"
+              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+            >
+              ← Back to SOWs
             </Button>
           </div>
           <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white/80 text-sm font-medium select-none pointer-events-none bg-white/10 border border-white/20 px-4 py-1 rounded-full shadow-sm">

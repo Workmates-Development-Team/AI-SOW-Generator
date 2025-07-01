@@ -1,5 +1,5 @@
 import type { Slide } from '@/types/presentation';
-import { PLAIN_IMAGE6_TEMPLATE } from '@/types/template';
+import { PLAIN_TEMPLATE } from '@/types/template';
 
 export interface ContentMeasurement {
   fits: boolean;
@@ -36,7 +36,7 @@ export class ContentSplitter {
     try {
       contentDiv.innerHTML = this.markdownToHtml(content);
       
-      const availableHeight = containerHeight * availableHeightRatio;
+      const availableHeight = this.calculateAvailableHeight(template, containerHeight) * availableHeightRatio;
       const contentHeight = contentDiv.scrollHeight;
       
       if (contentHeight <= availableHeight) {
@@ -114,12 +114,18 @@ export class ContentSplitter {
   }
 
   private static markdownToHtml(markdown: string): string {
-    return markdown
+    let html = markdown
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/^- (.+)$/gm, '<li>$1</li>')
-      .replace(/(<li>[\s\S]*?<\/li>)/, '<ul>$1</ul>')
-      .replace(/\n/g, '<br>');
+      .replace(/^- (.+)$/gm, '<li>$1</li>');
+
+    html = html.replace(/(<li>[\s\S]*?<\/li>)/g, function(match) {
+      if (/^<ul>[\s\S]*<\/ul>$/.test(match)) return match;
+      return `<ul>${match}</ul>`;
+    });
+
+    html = html.replace(/<\/ul>\s*<ul>/g, '');
+    return html;
   }
 
   static splitSlideContent(slide: Slide, template: any, isFirstSlide: boolean = true): Slide[] {
@@ -144,10 +150,10 @@ export class ContentSplitter {
         id: `${slide.id}_overflow_${slides.length}`,
         title: '',
         content: measurement.overflowContent,
-        template: 'plainImage6',
+        template: slide.template,
       };
 
-      const additionalSlides = this.splitSlideContent(overflowSlide, PLAIN_IMAGE6_TEMPLATE, false);
+      const additionalSlides = this.splitSlideContent(overflowSlide, template, false);
       slides.push(...additionalSlides);
     }
 

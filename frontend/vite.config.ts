@@ -5,4 +5,9 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
+  server: {
+    fs: {
+      allow: ['..'], // Allow serving files from the parent directory (project root)
+    },
+  },
 })

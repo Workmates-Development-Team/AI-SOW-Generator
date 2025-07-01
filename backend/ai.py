@@ -9,7 +9,7 @@ import logging
 from config import ConfigAI
 from botocore.config import Config as BotoConfig
 from builtins import TimeoutError
-from botocore.exceptions import EndpointConnectionError, ConnectionClosedError, ReadTimeoutError
+from botocore.exceptions import EndpointConnectionError, ConnectionClosedError, ReadTimeoutError, ClientError
 import time
 import requests
 import random
@@ -31,7 +31,7 @@ class AIService:
             
             self.llm = ChatBedrock(
                 client=self.bedrock_client,
-                model_id=ConfigAI.BEDROCK_MODEL_ID,#'anthropic.claude-3-5-haiku-20241022-v1:0',
+                model_id=ConfigAI.BEDROCK_MODEL_ID,
                 model_kwargs={
                     "max_tokens": 25000,
                     "temperature": 0.5
@@ -71,10 +71,13 @@ class AIService:
            
         REQUIRED SOW STRUCTURE (in this exact order with template assignments):
         1. Cover/Title Page (template: "cover")
-        2. Introduction (template: "generic") -- The title should ALWAYS be just 'Introduction'. The Introduction section MUST include:
-           - A fixed description of the service provider as follows:
-             "Workmates Core2cloud is a cloud managed services company focused on AWS services, the fastest growing AWS Premier Consulting Partner in India. We focus on Managed services, Cloud Migration and Implementation of various value-added services on the cloud including but not limited to Cyber Security and Analytics. Our skills cut across various workloads like SAP, Media Solutions, E-commerce, Analytics, IOT, Machine Learning, VR, AR etc. Our VR services are transforming many businesses."
-           - A description of the service recruiting company (the client) based on the project description and any provided client information.
+        2. Introduction (template: "generic") -- The title should ALWAYS be just 'Introduction'. The Introduction section MUST be a well-written paragraph that introduces the Statement of Work as a whole. It should include:
+           - Mention the service provider (using the fixed description below) in a paragraph,
+           - Mention the client (based on the project description and any provided client information) in the same paragraph as the service provider,
+           - And a summary of the project, its context, goals, and any other relevant introductory information.
+           The paragraph should flow naturally and not be a list of facts about the parties. It should set the stage for the rest of the document.
+           The fixed description of the service provider is:
+           "Workmates Core2cloud is a cloud managed services company focused on AWS services, the fastest growing AWS Premier Consulting Partner in India. We focus on Managed services, Cloud Migration and Implementation of various value-added services on the cloud including but not limited to Cyber Security and Analytics. Our skills cut across various workloads like SAP, Media Solutions, E-commerce, Analytics, IOT, Machine Learning, VR, AR etc. Our VR services are transforming many businesses."
         3. Objectives (template: "generic") -- The title should ALWAYS be just 'Objectives'
         4. Scope of Work (template: "scope")
         5. Deliverables (template: "deliverables") -- ALWAYS include this slide
@@ -203,7 +206,6 @@ class AIService:
         last_exception = None
         for attempt in range(1, max_retries + 1):
             try:
-                # Simulate the original request again on each retry
                 response = self.llm.invoke(messages)
                 content = response.content.strip()
                 try:
@@ -241,6 +243,19 @@ class AIService:
                 sleep_time = backoff ** attempt + random.uniform(0, 1)
                 logger.info(f"Retrying in {sleep_time:.2f} seconds...")
                 time.sleep(sleep_time)
+            except ClientError as e:
+                error_code = e.response.get("Error", {}).get("Code")
+                if error_code in ["ServiceUnavailableException", "ThrottlingException"]:
+                    logger.warning(f"AWS Bedrock service error ({error_code}) on attempt {attempt}: {e}")
+                    last_exception = e
+                    if attempt == max_retries:
+                        logger.error("Max retries reached. Raising error.")
+                        break
+                    sleep_time = backoff ** attempt + random.uniform(0, 1)
+                    logger.info(f"Retrying in {sleep_time:.2f} seconds...")
+                    time.sleep(sleep_time)
+                else:
+                    raise
             except Exception as e:
                 # Retry on generic network errors
                 if (

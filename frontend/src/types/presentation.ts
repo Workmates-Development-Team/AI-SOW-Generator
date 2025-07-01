@@ -4,7 +4,7 @@ export interface Slide {
   template?: string;
   title: string;
   content: string;
-  contentType: 'text' | 'list' | 'table' | 'mixed';
+  contentType: string;
 }
 
 export interface SOWData {

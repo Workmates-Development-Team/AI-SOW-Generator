@@ -3,17 +3,38 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, FileText } from 'lucide-react';
+import { Loader2, FileText, X } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { v4 as uuidv4 } from 'uuid';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 
 const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
 
-export default function GenerateSOWPage() {
-  const [form, setForm] = useState({
+interface FormState {
+  clientName: string;
+  projectDescription: string;
+  requirements: string;
+  duration: string;
+  budget: string;
+  supportService: string;
+  legalTerms: string;
+  deliverables: string;
+  terminationClause: string;
+}
+
+interface OptionalField {
+  id: keyof FormState;
+  label: string;
+  placeholder: string;
+}
+
+export default function GenerateSOWPage({ isAuthenticated }: { isAuthenticated: boolean }) {
+  const [form, setForm] = useState<FormState>({
     clientName: '',
     projectDescription: '',
     requirements: '',
@@ -27,68 +48,84 @@ export default function GenerateSOWPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  
+  const createSow = useMutation(api.sows.createSow);
+  const logout = useMutation(api.auth.logout);
 
-  // Optional fields config
-  const optionalFields = [
+  const handleLogout = async () => {
+    await logout();
+    localStorage.removeItem('convex_token_identifier');
+    navigate('/login');
+  };
+
+  // Optional fields list
+  const optionalFields: OptionalField[] = [
     {
       id: 'deliverables',
-      label: 'Instructions for the deliverables (Optional)',
-      placeholder: 'Provide instructions or notes for the deliverables',
+      label: 'Additional instructions for deliverables',
+      placeholder: 'Provide additional instructions or notes for the deliverables',
     },
     {
       id: 'supportService',
-      label: 'Support Service (Optional)',
+      label: 'Additional instructions for Support Service',
       placeholder: 'e.g. 24/7 support, 1 year maintenance, etc.',
     },
     {
       id: 'legalTerms',
-      label: 'Special Legal Terms (Optional)',
+      label: 'Special Legal Terms',
       placeholder: 'e.g. NDA, IP ownership, etc.',
     },
     {
       id: 'terminationClause',
-      label: 'Termination Clause (Optional)',
-      placeholder: 'Describe any termination conditions or clauses (optional)',
+      label: 'Special Termination Clauses',
+      placeholder: 'Describe any additional termination conditions or clauses',
     },
   ];
-  const [addedOptionalFields, setAddedOptionalFields] = useState([]);
+  const [addedOptionalFields, setAddedOptionalFields] = useState<Array<keyof FormState>>([]);
   const availableOptionalFields = optionalFields.filter(f => !addedOptionalFields.includes(f.id));
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setForm((prev) => ({ ...prev, [id]: value }));
   };
 
   // Resize handler for textareas
-  const handleAutoResize = (e) => {
-    e.target.style.height = 'auto';
-    e.target.style.height = e.target.scrollHeight + 'px';
+  const handleAutoResize = (e: React.FormEvent<HTMLTextAreaElement>) => {
+    e.currentTarget.style.height = 'auto';
+    e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
   };
 
   // Enter to submit
-  const handleTextareaKeyDown = (e) => {
+  const handleTextareaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      let form = e.target.form;
-      if (form) {
-        form.requestSubmit();
+      const formElement = e.currentTarget.form;
+      if (formElement) {
+        formElement.requestSubmit();
       }
     }
   };
 
-  const handleAddOptionalField = (fieldId) => {
+  const handleAddOptionalField = (fieldId: keyof FormState) => {
     if (!addedOptionalFields.includes(fieldId)) {
       setAddedOptionalFields(prev => [...prev, fieldId]);
     }
   };
-  const handleRemoveOptionalField = (fieldId) => {
+  const handleRemoveOptionalField = (fieldId: keyof FormState) => {
     setAddedOptionalFields(prev => prev.filter(id => id !== fieldId));
     setForm(prev => ({ ...prev, [fieldId]: '' }));
   };
 
-  const handleGenerate = async (e) => {
+  const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.clientName.trim() || !form.projectDescription.trim()) return;
+    if (!form.clientName.trim() || !form.projectDescription.trim()) {
+      setError('Client Name and Project Description are required.');
+      return;
+    }
+    if (!isAuthenticated) {
+      setError('You must be logged in to generate an SOW.');
+      return;
+    }
     setLoading(true);
     setError('');
 
@@ -122,10 +159,17 @@ export default function GenerateSOWPage() {
         return;
       }
       // Attaching sowNumber and clientName
-      const presentationWithSOW = { ...sowResult.data, sowNumber, clientName: form.clientName.trim() };
+      const { template, totalSlides, ...sowDataToSave } = sowResult.data;
+      const presentationWithSOW = { ...sowDataToSave, sowNumber, clientName: form.clientName.trim() };
+      const storedTokenIdentifier = localStorage.getItem('convex_token_identifier');
+      if (!storedTokenIdentifier) {
+        setError('Authentication token not found. Please log in again.');
+        return;
+      }
+      await createSow({ ...presentationWithSOW, tokenIdentifier: storedTokenIdentifier });
       navigate('/presentation', { state: { presentation: presentationWithSOW } });
-    } catch (err) {
-      setError(`Error: ${err.message || err}`);
+    } catch (err: unknown) {
+      setError(`Error: ${(err as Error).message || err}`);
     } finally {
       setLoading(false);
     }
@@ -161,16 +205,17 @@ export default function GenerateSOWPage() {
                 <label htmlFor="clientName" className="block text-sm font-medium text-white/80">
                   Client Name
                 </label>
-                <Textarea
+                <Input
                   id="clientName"
+                  type="text"
                   placeholder="Enter the client's name"
                   value={form.clientName}
                   onChange={handleChange}
-                  onKeyDown={handleTextareaKeyDown}
-                  onInput={handleAutoResize}
-                  className="min-h-[40px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+                  className="text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40 resize-none"
                   disabled={loading}
                   required
+                  autoComplete="off"
+                  spellCheck={false}
                 />
                 <label htmlFor="projectDescription" className="block text-sm font-medium text-white/80">
                   Project Description
@@ -204,7 +249,7 @@ export default function GenerateSOWPage() {
                 </label>
                 <Textarea
                   id="duration"
-                  placeholder="e.g. 3 months, Q1 2025, etc."
+                  placeholder="e.g. 3 months, Q1 2025, etc." 
                   value={form.duration}
                   onChange={handleChange}
                   onInput={handleAutoResize}
@@ -224,14 +269,17 @@ export default function GenerateSOWPage() {
                   disabled={loading}
                 />
               </div>
+
               {/* Separator */}
               <div className="hidden md:flex items-stretch mx-2">
                 <Separator orientation="vertical" className="h-full bg-white/20" />
               </div>
+
               {/* Right column: Optional fields */}
-              <div className="flex-1 space-y-6 overflow-y-auto min-h-0 pl-10">
+              <div className="flex-1 space-y-6 overflow-y-auto min-h-0 pl-10 max-h-[70vh]">
                 {addedOptionalFields.map((fieldId) => {
                   const field = optionalFields.find(f => f.id === fieldId);
+                  if (!field) return null; // Add this check
                   return (
                     <div key={fieldId} className="space-y-2">
                       <div className="flex items-center justify-between">
@@ -246,7 +294,7 @@ export default function GenerateSOWPage() {
                           className="text-white hover:bg-white/20 focus:bg-white/30 ml-2"
                           aria-label={`Remove ${field.label}`}
                         >
-                          ×
+                          <X className="w-4 h-4" />
                         </Button>
                       </div>
                       <Textarea
@@ -315,3 +363,4 @@ export default function GenerateSOWPage() {
     </div>
   );
 }
+
