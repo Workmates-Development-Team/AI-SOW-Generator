@@ -2,9 +2,11 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from ai import AIService
 import json
+from jwt_utils import create_jwt, decode_jwt
 
 app = Flask(__name__)
-CORS(app)
+from config import ConfigAI
+CORS(app, resources={r"/api/*": {"origins": ConfigAI.CORS_ORIGINS.split(',') if ConfigAI.CORS_ORIGINS else "*"}})
 ai = AIService()
 
 @app.route('/api/generate-document', methods=['POST'])
@@ -74,6 +76,28 @@ def generate_presentation():
             'success': False,
             'error': str(e)
         }), 500
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    # Mock user validation: accept any non-empty email/password
+    if not email or not password:
+        return jsonify({'error': 'Email and password required'}), 400
+    # In production, validate user from DB here
+    token = create_jwt(email)
+    return jsonify({'token': token})
+
+@app.route('/api/refresh', methods=['POST'])
+def refresh_token():
+    data = request.get_json()
+    token = data.get('token')
+    payload = decode_jwt(token)
+    if not payload:
+        return jsonify({'error': 'Invalid or expired token'}), 401
+    new_token = create_jwt(payload['email'])
+    return jsonify({'token': new_token})
 
 if __name__ == '__main__':
     app.run(debug=True)

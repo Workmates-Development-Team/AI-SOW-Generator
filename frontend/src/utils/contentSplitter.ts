@@ -5,155 +5,124 @@ export interface ContentMeasurement {
   fits: boolean;
   overflowContent?: string;
   fittingContent: string;
+  totalLines?: number;
+  maxLines?: number;
 }
 
 export class ContentSplitter {
-  private static measureContent(
-    content: string,
-    template: any,
-    containerWidth: number = 794,
-    containerHeight: number = 1123,
-    availableHeightRatio: number = 0.6
-  ): ContentMeasurement {
-    const tempContainer = document.createElement('div');
-    tempContainer.style.position = 'absolute';
-    tempContainer.style.left = '-9999px';
-    tempContainer.style.top = '0';
-    tempContainer.style.width = `${containerWidth}px`;
-    tempContainer.style.height = `${containerHeight}px`;
-    tempContainer.style.visibility = 'hidden';
+  private static readonly MAX_LINES_FIRST_PAGE = 18;
+  private static readonly MAX_LINES_OVERFLOW_PAGE = 28;
+
+  private static measureContent(content: string, maxLines: number): ContentMeasurement {
+    const allLines = content.split('\n');
+    const nonEmptyLines = allLines.filter(line => line.trim() !== '');
     
-    const contentDiv = document.createElement('div');
-    Object.assign(contentDiv.style, {
-      ...template.layout.content.position,
-      ...template.layout.content.style,
-      position: 'absolute',
-    });
-    
-    tempContainer.appendChild(contentDiv);
-    document.body.appendChild(tempContainer);
-
-    try {
-      contentDiv.innerHTML = this.markdownToHtml(content);
-      
-      const availableHeight = this.calculateAvailableHeight(template, containerHeight) * availableHeightRatio;
-      const contentHeight = contentDiv.scrollHeight;
-      
-      if (contentHeight <= availableHeight) {
-        return { fits: true, fittingContent: content };
-      }
-
-      const { fittingContent, overflowContent } = this.splitContentToFit(
-        content,
-        contentDiv,
-        availableHeight
-      );
-
+    if (nonEmptyLines.length <= maxLines) {
       return {
-        fits: false,
-        fittingContent,
-        overflowContent
+        fits: true,
+        fittingContent: content,
+        totalLines: nonEmptyLines.length,
+        maxLines
       };
-    } finally {
-      document.body.removeChild(tempContainer);
     }
-  }
 
-  private static calculateAvailableHeight(template: any, containerHeight: number): number {
-    const contentPosition = template.layout.content.position;
-    const topOffset = this.parsePositionValue(contentPosition.top, containerHeight);
-    const bottomOffset = this.parsePositionValue(contentPosition.bottom, containerHeight) || 50;
-    
-    return containerHeight - topOffset - bottomOffset;
-  }
+    // Split while preserving structure and respecting the line limit
+    const { fittingContent, overflowContent } = this.splitContentByNonEmptyLines(
+      allLines, 
+      maxLines
+    );
 
-  private static parsePositionValue(value: string | number | undefined, containerSize: number): number {
-    if (!value) return 0;
-    if (typeof value === 'number') return value;
-    
-    if (typeof value === 'string') {
-      if (value.includes('%')) {
-        return (parseFloat(value) / 100) * containerSize;
-      }
-      if (value.includes('px')) {
-        return parseFloat(value);
-      }
-      if (value.includes('rem')) {
-        return parseFloat(value) * 16; 
-      }
-    }
-    
-    return 0;
-  }
-
-  private static splitContentToFit(
-    content: string,
-    contentDiv: HTMLElement,
-    maxHeight: number
-  ): { fittingContent: string; overflowContent: string } {
-    const lines = content.split('\n');
-    let fittingLines: string[] = [];
-    let overflowLines: string[] = [];
-    
-    for (let i = 0; i < lines.length; i++) {
-      const testContent = [...fittingLines, lines[i]].join('\n');
-      contentDiv.innerHTML = this.markdownToHtml(testContent);
-      
-      if (contentDiv.scrollHeight <= maxHeight) {
-        fittingLines.push(lines[i]);
-      } else {
-        overflowLines = lines.slice(i);
-        break;
-      }
-    }
-    
     return {
-      fittingContent: fittingLines.join('\n'),
-      overflowContent: overflowLines.join('\n')
+      fits: false,
+      fittingContent,
+      overflowContent,
+      totalLines: nonEmptyLines.length,
+      maxLines
     };
   }
 
-  private static markdownToHtml(markdown: string): string {
-    let html = markdown
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/^- (.+)$/gm, '<li>$1</li>');
+  private static splitContentByNonEmptyLines(
+    allLines: string[], 
+    maxNonEmptyLines: number
+  ): { fittingContent: string; overflowContent: string } {
+    const fittingLines: string[] = [];
+    const overflowLines: string[] = [];
+    let nonEmptyCount = 0;
+    let overflowStarted = false;
 
-    html = html.replace(/(<li>[\s\S]*?<\/li>)/g, function(match) {
-      if (/^<ul>[\s\S]*<\/ul>$/.test(match)) return match;
-      return `<ul>${match}</ul>`;
-    });
+    for (let i = 0; i < allLines.length; i++) {
+      const line = allLines[i];
+      
+      if (!overflowStarted) {
+        // Check if adding this line would exceed the limit
+        if (line.trim() !== '') {
+          if (nonEmptyCount >= maxNonEmptyLines) {
+            // Start overflow from this line
+            overflowStarted = true;
+            overflowLines.push(line);
+          } else {
+            fittingLines.push(line);
+            nonEmptyCount++;
+          }
+        } else {
+          // Empty line - add to fitting content
+          fittingLines.push(line);
+        }
+      } else {
+        // Already in overflow mode
+        overflowLines.push(line);
+      }
+    }
 
-    html = html.replace(/<\/ul>\s*<ul>/g, '');
-    return html;
+    return {
+      fittingContent: fittingLines.join('\n').trim(),
+      overflowContent: overflowLines.join('\n').trim()
+    };
   }
 
-  static splitSlideContent(slide: Slide, template: any, isFirstSlide: boolean = true): Slide[] {
-    const availableHeightRatio = 0.6;
-    const measurement = this.measureContent(slide.content, template, 794, 1123, availableHeightRatio);
+  static splitSlideContent(
+    slide: Slide, 
+    template: any, 
+    isFirstSlide: boolean = true
+  ): Slide[] {
+    const maxLines = isFirstSlide ? this.MAX_LINES_FIRST_PAGE : this.MAX_LINES_OVERFLOW_PAGE;
+    const measurement = this.measureContent(slide.content, maxLines);
+    
+    console.log(`Slide ${slide.id} (${isFirstSlide ? 'FIRST' : 'OVERFLOW'}):`, {
+      maxLines,
+      totalLines: measurement.totalLines,
+      fits: measurement.fits,
+      fittingContentLines: measurement.fittingContent.split('\n').filter(l => l.trim() !== '').length,
+    });
     
     if (measurement.fits) {
       return [slide];
     }
 
-    const slides: Slide[] = [
-      {
+    const slides: Slide[] = [];
+    
+    if (measurement.fittingContent.trim()) {
+      slides.push({
         ...slide,
         content: measurement.fittingContent
-      }
-    ];
+      });
+    }
 
-    // Recursively split overflow content
     if (measurement.overflowContent && measurement.overflowContent.trim()) {
       const overflowSlide: Slide = {
         ...slide,
-        id: `${slide.id}_overflow_${slides.length}`,
+        id: `${slide.id}_overflow_${Date.now()}`,
         title: '',
         content: measurement.overflowContent,
-        template: slide.template,
+        template: "plain",
       };
 
-      const additionalSlides = this.splitSlideContent(overflowSlide, template, false);
+      const additionalSlides = this.splitSlideContent(
+        overflowSlide,
+        template,
+        false
+      );
+
       slides.push(...additionalSlides);
     }
 

@@ -50,7 +50,7 @@ export default function App() {
     <ConvexProvider client={convex}>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Layout><LoginPage /></Layout>} />
+          <Route path="/login" element={<Layout showLogout={false}><LoginPage /></Layout>} />
           <Route path="/*" element={<AuthenticatedRoutes />} />
         </Routes>
       </BrowserRouter>

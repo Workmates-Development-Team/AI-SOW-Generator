@@ -26,7 +26,6 @@ const SOWViewer: React.FC = () => {
     if (initialPresentation) {
       setPresentation({ ...initialPresentation, totalSlides: initialPresentation.slides.length });
     } else if (allSows && allSows.length > 0) {
-      // Display the most recent SOW if no initial one is provided
       setPresentation({ ...allSows[0], totalSlides: allSows[0].slides.length });
     }
   }, [initialPresentation, allSows]);

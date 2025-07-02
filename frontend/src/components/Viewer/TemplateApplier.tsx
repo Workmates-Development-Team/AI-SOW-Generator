@@ -18,8 +18,14 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
   templateId = "plain",
   sowNumber,
 }) => {
-  const actualTemplateId = slide.template || templateId;
-  const template = TEMPLATES[actualTemplateId as keyof typeof TEMPLATES] || TEMPLATES.generic;
+  let template;
+  if (typeof slide.template === 'string') {
+    template = TEMPLATES[slide.template as keyof typeof TEMPLATES] || TEMPLATES.generic;
+  } else if (slide.template && typeof slide.template === 'object') {
+    template = slide.template;
+  } else {
+    template = TEMPLATES[templateId as keyof typeof TEMPLATES] || TEMPLATES.generic;
+  }
 
   // Use the provided sowNumber, or generate one as fallback
   const generatedSowNumber = React.useMemo(() => {
@@ -131,7 +137,7 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
       }}>
         {slide.title}
         {/* Show date on cover template */}
-        {actualTemplateId === 'cover' && (() => {
+        {templateId === 'cover' && (() => {
           const date = new Date();
           const locale = 'en-IN';
           const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Kolkata' };
@@ -207,7 +213,7 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
       </div>
 
       {/* SOW Number using UUID */}
-      {actualTemplateId === 'cover' && (
+      {templateId === 'cover' && (
         <div
           style={{
             position: 'absolute',

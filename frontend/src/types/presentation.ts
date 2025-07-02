@@ -1,7 +1,9 @@
+import type { Template } from './template';
+
 export interface Slide {
   id: string;
   type: string;
-  template?: string;
+  template?: Template | string;
   title: string;
   content: string;
   contentType: string;

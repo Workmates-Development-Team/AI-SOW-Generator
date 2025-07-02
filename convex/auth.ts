@@ -1,69 +1,67 @@
-import { mutation, query } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import jwt from "jsonwebtoken";
+import type { QueryCtx } from "./_generated/server";
 
-export const login = mutation({
-  args: {
-    email: v.string(),
-    password: v.string(),
-  },
-  handler: async (ctx, { email, password }) => {
+async function validateJwt(token: string): Promise<{ email: string } | null> {
+  try {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error("JWT_SECRET is not set in Convex environment variables.");
+      return null;
+    }
+    const decoded = jwt.verify(token, secret) as { email: string };
+    return decoded;
+  } catch (error) {
+    console.error("JWT validation failed:", error);
+    return null;
+  }
+}
+
+export const getIdentity = query({
+  args: { token: v.optional(v.string()) },
+  handler: async (ctx: QueryCtx, { token }: { token?: string }) => {
+    if (!token) {
+      return null;
+    }
+
+    const decodedToken = await validateJwt(token);
+
+    if (!decodedToken || !decodedToken.email) {
+      return null;
+    }
+
+    const email = decodedToken.email;
+    const tokenIdentifier = `jwt-user-${email}`;
+
     let user = await ctx.db
       .query("users")
-      .withIndex("by_email", (q) => q.eq("email", email))
+      .withIndex("by_token", (q: any) => q.eq("tokenIdentifier", tokenIdentifier))
       .unique();
 
-    if (!user) {
-      throw new Error("User not found. Please sign up.");
-    }
-    return user.tokenIdentifier;
-  },
-});
-
-export const signup = mutation({
-  args: {
-    email: v.string(),
-    password: v.string(), // For local dev, a simple password check
-  },
-  handler: async (ctx, { email, password }) => {
-    const existingUser = await ctx.db
-      .query("users")
-      .withIndex("by_email", (q) => q.eq("email", email))
-      .unique();
-
-    if (existingUser) {
-      throw new Error("User with this email already exists. Please log in.");
-    }
-
-    const userId = await ctx.db.insert("users", {
-      name: email.split("@")[0] ?? "user",
-      email,
-      tokenIdentifier: `local-user-${email}`,
-    });
-
-    return `local-user-${email}`;
+    return user;
   },
 });
 
 export const logout = mutation({
   args: {},
   handler: async (ctx) => {
-    return true;
-  },
-});
-
-export const getIdentity = query({
-  args: { tokenIdentifier: v.optional(v.string()) },
-  handler: async (ctx, { tokenIdentifier }) => {
-    if (!tokenIdentifier) {
+    // Try to get the tokenIdentifier from the client (Convex client automatically attaches identity)
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity || !identity.tokenIdentifier) {
+      // Not logged in or no token to clear
       return null;
     }
-    // For local auth, the tokenIdentifier is the key to finding the user
+    // Find the user by tokenIdentifier
     const user = await ctx.db
       .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", tokenIdentifier)
-      )
+      .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
       .unique();
-    return user;
+    if (!user) {
+      return null;
+    }
+    // Clear the tokenIdentifier to log out
+    await ctx.db.patch(user._id, { tokenIdentifier: "" });
+    return true;
   },
 });

@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import LogoutButton from "../components/LogoutButton";
 
 const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
 
@@ -33,7 +34,7 @@ interface OptionalField {
   placeholder: string;
 }
 
-export default function GenerateSOWPage({ isAuthenticated }: { isAuthenticated: boolean }) {
+export default function GenerateSOWPage({ isAuthenticated, children }: { isAuthenticated: boolean, children: React.ReactNode }) {
   const [form, setForm] = useState<FormState>({
     clientName: '',
     projectDescription: '',
@@ -186,7 +187,11 @@ export default function GenerateSOWPage({ isAuthenticated }: { isAuthenticated: 
   const cardWidth = `${widthPercent}vw`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8 flex items-center justify-center relative">
+      {/* Logout button at top right */}
+      <div className="fixed top-4 right-4 z-20">
+        <LogoutButton />
+      </div>
       <Card
         className="shadow-2xl border border-white/20 bg-white/10 backdrop-blur-md p-0 md:p-2"
         style={{ width: cardWidth, minWidth: '400px', maxWidth: '80vw', transition: 'width 0.3s cubic-bezier(0.4,0,0.2,1)' }}

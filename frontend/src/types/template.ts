@@ -140,7 +140,7 @@ export const GENERIC_TEMPLATE: Template = {
     content: {
       position: {
         position: 'relative',
-        left: '8%',
+        left: '10%',
         width: '80%',
         marginTop: '8rem',
         maxHeight: '60vh',
@@ -173,8 +173,8 @@ export const SIGNATURE_TEMPLATE: Template = {
 };
 
 export const PLAIN_TEMPLATE: Template = {
-  id: 'plainImage6',
-  name: 'Plain Template with Image 6',
+  id: 'plain',
+  name: 'Plain Template',
   backgroundImage: '/6.svg',
   layout: {
     title: {
