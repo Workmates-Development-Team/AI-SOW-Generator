@@ -166,7 +166,7 @@ export const SIGNATURE_TEMPLATE: Template = {
       style: { display: 'none' }
     },
     content: {
-      position: { position: 'absolute', top: '6.8%', left: '25%', width: '20%' },
+      position: { position: 'absolute', top: '3.8%', left: '25%', width: '25%' },
       style: { fontSize: '1.3rem', color: '#000', textAlign: 'left', lineHeight: '1.2', fontWeight: 'bold' }
     }
   }

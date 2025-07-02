@@ -11,7 +11,7 @@ export interface ContentMeasurement {
 
 export class ContentSplitter {
   private static readonly MAX_LINES_FIRST_PAGE = 18;
-  private static readonly MAX_LINES_OVERFLOW_PAGE = 28;
+  private static readonly MAX_LINES_OVERFLOW_PAGE = 25;
 
   private static measureContent(content: string, maxLines: number): ContentMeasurement {
     const allLines = content.split('\n');
@@ -54,10 +54,8 @@ export class ContentSplitter {
       const line = allLines[i];
       
       if (!overflowStarted) {
-        // Check if adding this line would exceed the limit
         if (line.trim() !== '') {
           if (nonEmptyCount >= maxNonEmptyLines) {
-            // Start overflow from this line
             overflowStarted = true;
             overflowLines.push(line);
           } else {
@@ -65,11 +63,9 @@ export class ContentSplitter {
             nonEmptyCount++;
           }
         } else {
-          // Empty line - add to fitting content
           fittingLines.push(line);
         }
       } else {
-        // Already in overflow mode
         overflowLines.push(line);
       }
     }

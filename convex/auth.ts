@@ -46,13 +46,10 @@ export const getIdentity = query({
 export const logout = mutation({
   args: {},
   handler: async (ctx) => {
-    // Try to get the tokenIdentifier from the client (Convex client automatically attaches identity)
     const identity = await ctx.auth.getUserIdentity();
     if (!identity || !identity.tokenIdentifier) {
-      // Not logged in or no token to clear
       return null;
     }
-    // Find the user by tokenIdentifier
     const user = await ctx.db
       .query("users")
       .withIndex("by_token", (q) => q.eq("tokenIdentifier", identity.tokenIdentifier))
@@ -60,7 +57,6 @@ export const logout = mutation({
     if (!user) {
       return null;
     }
-    // Clear the tokenIdentifier to log out
     await ctx.db.patch(user._id, { tokenIdentifier: "" });
     return true;
   },
