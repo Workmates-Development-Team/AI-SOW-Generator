@@ -9,6 +9,7 @@ import { ContentSplitter } from '@/utils/contentSplitter';
 import { TEMPLATES } from '@/types/template';
 import { api } from "../lib/api";
 import { useAuth } from "../lib/useAuth";
+import ListButton from '@/components/ListButton';
 
 const SOWViewer: React.FC = () => {
   const location = useLocation();
@@ -160,7 +161,7 @@ const SOWViewer: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {allSows.map((sow) => (
                 <Card
-                  key={sow._id}
+                  key={sow.sowNumber || sow.title}
                   className="bg-white/10 border-white/20 text-white p-4 cursor-pointer hover:bg-white/20 transition-colors"
                   onClick={() => setPresentation({ ...sow, totalSlides: sow.slides.length })}
                 >
@@ -193,18 +194,12 @@ const SOWViewer: React.FC = () => {
             >
               ← Back to Generator
             </Button>
-            <Button
-              onClick={() => setPresentation(undefined)} // Go back to SOW list
-              variant="outline"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-            >
-              ← Back to SOWs
-            </Button>
           </div>
           <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white/80 text-sm font-medium select-none pointer-events-none bg-white/10 border border-white/20 px-4 py-1 rounded-full shadow-sm">
             Page {currentSlide + 1} of {totalSlides}
           </span>
           <div className="flex items-center gap-2 ml-auto">
+            <ListButton />
             <DownloadPDFButton slides={processedSlides} title={presentationState.title || 'Presentation'} />
           </div>
         </div>
