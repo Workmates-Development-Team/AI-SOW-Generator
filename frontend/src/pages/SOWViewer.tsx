@@ -10,6 +10,7 @@ import { api } from "../lib/api";
 import { useAuth } from "../lib/useAuth";
 import ListButton from '@/components/SOWListButton';
 import BackToGeneratorButton from '@/components/BackToGeneratorButton';
+import LogoutButton from "../components/LogoutButton";
 
 const SOWViewer: React.FC = () => {
   const location = useLocation();
@@ -189,6 +190,10 @@ const SOWViewer: React.FC = () => {
 
   return (
     <div className={`min-h-screen transition-all duration-300 ${getBackgroundClass()} p-6 h-screen w-screen overflow-hidden relative`}>
+      {/* Fixed Logout Button at Top Right */}
+      <div className="fixed top-4 right-4 z-20">
+        <LogoutButton />
+      </div>
       {/* Top Toolbar */}
       <div className="w-full flex justify-center" style={{ position: 'absolute', top: 0, left: 0, zIndex: 20, pointerEvents: 'none' }}>
         <div className="mt-4 max-w-5xl w-full rounded-2xl shadow-lg bg-white/10 backdrop-blur-md border border-white/20 px-6 py-2 flex items-center justify-between relative" style={{ minHeight: 40, fontSize: '0.95rem', pointerEvents: 'auto' }}>

@@ -18,4 +18,6 @@
 
 ## SOW Viewer
 
-- The content splitter works only for the mixed type content right now, has to also work for text, list, table (Important)
+- The content splitter works only for the mixed, list and text type content right now, has to also work table (Important)
+- The content in the deliverables and the scope of work
+- The sow number and date positioning is not consistent when switching between different presentations

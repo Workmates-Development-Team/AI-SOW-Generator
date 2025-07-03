@@ -10,7 +10,7 @@ export interface ContentMeasurement {
 
 export class ContentSplitter {
   private static readonly MAX_LINES_FIRST_PAGE = 18;
-  private static readonly MAX_LINES_OVERFLOW_PAGE = 25;
+  private static readonly MAX_LINES_OVERFLOW_PAGE = 24;
 
   private static measureContent(content: string, maxLines: number): ContentMeasurement {
     const allLines = content.split('\n');
