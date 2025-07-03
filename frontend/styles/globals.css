@@ -108,6 +108,22 @@
   --animate-accordion-up: accordion-up 0.2s ease-out;
 }
 
+/* Custom scrollbar for Chrome, Edge, and Safari */
+::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #374151; /* Tailwind gray-700 */
+  border-radius: 4px;
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #374151 transparent;
+}
+
 /* Custom scrollbar styles for slide thumbnails */
 .scrollbar-thin::-webkit-scrollbar {
   height: 6px;

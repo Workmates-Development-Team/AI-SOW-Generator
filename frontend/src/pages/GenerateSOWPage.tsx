@@ -203,7 +203,10 @@ export default function GenerateSOWPage() {
           <form onSubmit={handleGenerate} className="space-y-8">
             <div className="flex flex-col md:flex-row gap-2 max-h-[70vh] items-stretch">
               {/* Left column: Required fields */}
-              <div className="flex-1 space-y-6 overflow-y-auto min-h-0 pr-10">
+              <div
+                className="flex-1 space-y-6 overflow-y-auto min-h-0 pr-10 pr-2"
+                style={{ scrollbarGutter: 'stable' }}
+              >
                 <label htmlFor="clientName" className="block text-sm font-medium text-white/80">
                   Client Name
                 </label>
@@ -278,7 +281,10 @@ export default function GenerateSOWPage() {
               </div>
 
               {/* Right column: Optional fields */}
-              <div className="flex-1 space-y-6 overflow-y-auto min-h-0 pl-10 max-h-[70vh]">
+              <div
+                className="flex-1 space-y-6 overflow-y-auto min-h-0 pl-10 pl-2 max-h-[70vh]"
+                style={{ scrollbarGutter: 'stable' }}
+              >
                 {addedOptionalFields.map((fieldId) => {
                   const field = optionalFields.find(f => f.id === fieldId);
                   if (!field) return null; // Add this check
