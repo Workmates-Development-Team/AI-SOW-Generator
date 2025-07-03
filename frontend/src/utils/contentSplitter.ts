@@ -1,5 +1,4 @@
 import type { Slide } from '@/types/presentation';
-import { PLAIN_TEMPLATE } from '@/types/template';
 
 export interface ContentMeasurement {
   fits: boolean;

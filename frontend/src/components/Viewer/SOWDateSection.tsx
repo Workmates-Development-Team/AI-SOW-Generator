@@ -5,7 +5,7 @@ interface SOWDateSectionProps {
   style?: React.CSSProperties;
 }
 
-const SOWDateSection: React.FC<SOWDateSectionProps> = ({ sowDate }) => {
+const SOWDateSection: React.FC<SOWDateSectionProps> = ({ sowDate, style }) => {
   const displaySowDate = React.useMemo(() => {
     if (sowDate) {
       const date = new Date(sowDate);
@@ -24,17 +24,19 @@ const SOWDateSection: React.FC<SOWDateSectionProps> = ({ sowDate }) => {
   return (
     <div style={{
       position: 'absolute',
-      top: '67%',
-      right: '5%',
-      fontSize: '1.4rem',
+      top: '267%',
+      right: '-30%',
+      fontSize: '3rem',
       lineHeight: 1,
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'flex-end',
       zIndex: 10,
+      color: '#000',
+      ...style,
     }}>
-      <span style={{ fontWeight: 400 }}>{displaySowDate.dayMonth}</span>
-      <span style={{ fontWeight: 700, color: 'red' }}>{displaySowDate.year}</span>
+      <span style={{ fontWeight: 400, fontSize:'1.8rem',}}>{displaySowDate.dayMonth}</span>
+      <span style={{ fontWeight: 600, color: 'red' }}>{displaySowDate.year}</span>
     </div>
   );
 };

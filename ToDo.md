@@ -1,6 +1,7 @@
 ## Generator
 
 - Need to add a variable system that updates the request for generation in the system prompt based on the input fields used
+- Need a toolbar which houses the list view and the logout button
 
 ### Points to be added in the SOW as per customer's requirement:
 - Contact information
@@ -17,5 +18,4 @@
 
 ## SOW Viewer
 
-- Tables aren't properly accounted for in the overflow logic
-- The sow number and date do not persist after the initial generation, fix that
+- The content splitter works only for the mixed type content right now, has to also work for text, list, table (Important)

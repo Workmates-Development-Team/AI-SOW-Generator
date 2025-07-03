@@ -151,14 +151,17 @@ export default function GenerateSOWPage() {
       }
       // Attaching sowNumber and clientName
       const { template, totalSlides, ...sowDataToSave } = sowResult.data;
-      // Generate SOW number and date using utility
       const { sowNumber: generatedSowNumber, sowDate: generatedSowDate } = generateSowNumberAndDate();
-      // Assign to all slides
-      const slidesWithSOW = sowDataToSave.slides.map((slide: any, idx: number) => ({
-        ...slide,
-        sowNumber: generatedSowNumber,
-        sowDate: generatedSowDate,
-      }));
+      const slidesWithSOW = sowDataToSave.slides.map((slide: any) => {
+        if (slide.template === 'cover') {
+          return {
+            ...slide,
+            sowNumber: generatedSowNumber,
+            sowDate: generatedSowDate,
+          };
+        }
+        return slide;
+      });
       const presentationWithSOW = { ...sowDataToSave, sowNumber: generatedSowNumber, clientName: form.clientName.trim(), slides: slidesWithSOW };
       if (!token) {
         setError('Authentication token not found. Please log in again.');

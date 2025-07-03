@@ -48,6 +48,12 @@ const SOWViewer: React.FC = () => {
   const processedSlides = useMemo(() => {
     if (!presentationState?.slides) return [];
 
+    presentationState.slides.forEach((slide, idx) => {
+      if (!slide.sowDate) {
+        console.warn(`Slide at index ${idx} with title '${slide.title}' is missing sowDate!`);
+      }
+    });
+
     const SUPPORT_SERVICES_TITLE = "Support Services";
     const SUPPORT_SERVICES_PREFIX = `- Workmates will provide one-month free support from the date of delivery of the project.\n- The support team will be available from Monday through Friday (10am-7pm Indian Time).\n- Fix any issues reported by the client on the default features delivered as per committed project modules.\n- Answer any questions related to the features we had delivered as per proposal.\n- Support does not cover any additional customization or fixing up of issues caused due to code level edits done from client side or through usage of any third party solution. In such case the free support will become void.\n\n`;
 

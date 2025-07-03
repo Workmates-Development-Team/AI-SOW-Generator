@@ -5,8 +5,8 @@ const SOWNumberSection: React.FC<{ sowNumber?: string }> = ({ sowNumber }) => {
   return (
     <span style={{
       position: 'absolute',
-      top: '345%',
-      right: '-35%',
+      top: '460%',
+      right: '-38%',
       fontSize: '1.2rem',
       color: '#1e3a8a',
       fontWeight: 500,
