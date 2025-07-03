@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import GeneratePPTPage from "./pages/GenerateSOWPage";
 import SOWViewer from "./pages/SOWViewer";
+import SOWList from "./pages/SOWList";
 import Layout from "./components/Layout";
 import LoginPage from "./pages/LoginPage";
 import { useEffect, useState } from 'react';
@@ -44,8 +45,9 @@ function AuthenticatedRoutes() {
   return user ? (
     <Layout>
       <Routes>
-        <Route path="/" element={<GeneratePPTPage isAuthenticated={!!user} />} />
+        <Route path="/" element={<GeneratePPTPage />} />
         <Route path="/presentation" element={<SOWViewer />} />
+        <Route path="/sow-list" element={<SOWList />} />
       </Routes>
     </Layout>
   ) : (
@@ -57,7 +59,7 @@ export default function App() {
   return(
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Layout showLogout={false}><LoginPage /></Layout>} />
+        <Route path="/login" element={<Layout><LoginPage /></Layout>} />
         <Route path="/*" element={<AuthenticatedRoutes />} />
       </Routes>
     </BrowserRouter>

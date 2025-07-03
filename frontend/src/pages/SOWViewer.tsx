@@ -9,7 +9,7 @@ import { ContentSplitter } from '@/utils/contentSplitter';
 import { TEMPLATES } from '@/types/template';
 import { api } from "../lib/api";
 import { useAuth } from "../lib/useAuth";
-import ListButton from '@/components/ListButton';
+import ListButton from '@/components/SOWListButton';
 
 const SOWViewer: React.FC = () => {
   const location = useLocation();
