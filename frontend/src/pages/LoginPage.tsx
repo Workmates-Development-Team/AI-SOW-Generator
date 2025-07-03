@@ -5,32 +5,23 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
-import { useMutation } from 'convex/react';
-import { api } from "../../../convex/_generated/api";
+import { api } from "../lib/api";
 import { cn } from '@/lib/utils';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isLoginMode, setIsLoginMode] = useState(true);
   const navigate = useNavigate();
-  const login = useMutation(api.auth.login);
-  const signup = useMutation(api.auth.signup);
+  const [isLoginMode, setIsLoginMode] = useState(true);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try {
-      let tokenIdentifier: string;
-      if (isLoginMode) {
-        tokenIdentifier = await login({ email, password });
-      } else {
-        tokenIdentifier = await signup({ email, password });
-      }
-      localStorage.setItem('convex_token_identifier', tokenIdentifier);
+      const response = await api.auth.login(email);
+      localStorage.setItem('token', response.token);
       navigate('/');
     } catch (err: unknown) {
       setError((err as Error).message || 'Authentication failed');
@@ -91,8 +82,6 @@ export default function LoginPage() {
                 id="password"
                 type="password"
                 placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 className="text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
                 disabled={loading}
                 required

@@ -4,6 +4,9 @@ from ai import AIService
 import json
 from jwt_utils import create_jwt, decode_jwt
 import re
+from db import mongo_db
+from models import User, Sow
+from bson import ObjectId
 
 app = Flask(__name__)
 from config import ConfigAI
@@ -83,12 +86,22 @@ def generate_presentation():
 def login():
     data = request.get_json()
     email = data.get('email')
-    password = data.get('password')
+    password = data.get('password') # Password is not used in this flow, but kept for consistency with original
     email_regex = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
-    if not email or not password:
-        return jsonify({'error': 'Email and password required'}), 400
+    if not email:
+        return jsonify({'error': 'Email required'}), 400
     if not re.match(email_regex, email):
         return jsonify({'error': 'Invalid email format'}), 400
+
+    users_collection = mongo_db.get_collection('users')
+    user_data = users_collection.find_one({'email': email})
+
+    if not user_data:
+        # Create a new user if not found
+        new_user = User(name=email.split('@')[0], email=email, tokenIdentifier=f"jwt-user-{email}")
+        users_collection.insert_one(new_user.model_dump(by_alias=True, exclude_none=True))
+        user_data = users_collection.find_one({'email': email})
+
     token = create_jwt(email)
     return jsonify({'token': token})
 
@@ -101,6 +114,123 @@ def refresh_token():
         return jsonify({'error': 'Invalid or expired token'}), 401
     new_token = create_jwt(payload['email'])
     return jsonify({'token': new_token})
+
+def get_user_from_token(token):
+    payload = decode_jwt(token)
+    if not payload or not payload.get('email'):
+        return None
+    email = payload['email']
+    users_collection = mongo_db.get_collection('users')
+    user_data = users_collection.find_one({'email': email})
+    return user_data
+
+@app.route('/api/sows', methods=['POST'])
+def create_sow():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'error': 'Authorization token missing'}), 401
+    
+    user = get_user_from_token(token.split(' ')[1])
+    if not user:
+        return jsonify({'error': 'Not authenticated or user not found'}), 401
+
+    data = request.get_json()
+    try:
+        sow = Sow(
+            userId=str(user['_id']),
+            title=data['title'],
+            sowNumber=data['sowNumber'],
+            clientName=data['clientName'],
+            slides=data['slides']
+        )
+        sows_collection = mongo_db.get_collection('sows')
+        result = sows_collection.insert_one(sow.model_dump(by_alias=True, exclude_none=True))
+        return jsonify({'_id': str(result.inserted_id)}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/sows', methods=['GET'])
+def get_sows():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'error': 'Authorization token missing'}), 401
+    
+    user = get_user_from_token(token.split(' ')[1])
+    if not user:
+        return jsonify({'error': 'Not authenticated or user not found'}), 401
+
+    sows_collection = mongo_db.get_collection('sows')
+    user_sows = list(sows_collection.find({'userId': str(user['_id'])}))
+    for sow in user_sows:
+        sow['_id'] = str(sow['_id'])
+    return jsonify(user_sows), 200
+
+@app.route('/api/sows/<sow_id>', methods=['GET'])
+def get_sow(sow_id):
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'error': 'Authorization token missing'}), 401
+    
+    user = get_user_from_token(token.split(' ')[1])
+    if not user:
+        return jsonify({'error': 'Not authenticated or user not found'}), 401
+
+    sows_collection = mongo_db.get_collection('sows')
+    try:
+        sow = sows_collection.find_one({'_id': ObjectId(sow_id), 'userId': str(user['_id'])})
+        if not sow:
+            return jsonify({'error': 'SOW not found or unauthorized'}), 404
+        sow['_id'] = str(sow['_id'])
+        return jsonify(sow), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/sows/<sow_id>', methods=['PUT'])
+def update_sow(sow_id):
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'error': 'Authorization token missing'}), 401
+    
+    user = get_user_from_token(token.split(' ')[1])
+    if not user:
+        return jsonify({'error': 'Not authenticated or user not found'}), 401
+
+    data = request.get_json()
+    sows_collection = mongo_db.get_collection('sows')
+    try:
+        existing_sow = sows_collection.find_one({'_id': ObjectId(sow_id), 'userId': str(user['_id'])})
+        if not existing_sow:
+            return jsonify({'error': 'SOW not found or unauthorized'}), 404
+
+        update_data = {
+            'title': data['title'],
+            'sowNumber': data['sowNumber'],
+            'clientName': data['clientName'],
+            'slides': data['slides']
+        }
+        sows_collection.update_one({'_id': ObjectId(sow_id)}, {'$set': update_data})
+        return jsonify({'message': 'SOW updated successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/sows/<sow_id>', methods=['DELETE'])
+def delete_sow(sow_id):
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'error': 'Authorization token missing'}), 401
+    
+    user = get_user_from_token(token.split(' ')[1])
+    if not user:
+        return jsonify({'error': 'Not authenticated or user not found'}), 401
+
+    sows_collection = mongo_db.get_collection('sows')
+    try:
+        result = sows_collection.delete_one({'_id': ObjectId(sow_id), 'userId': str(user['_id'])})
+        if result.deleted_count == 0:
+            return jsonify({'error': 'SOW not found or unauthorized'}), 404
+        return jsonify({'message': 'SOW deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 if __name__ == '__main__':
     app.run(debug=True)

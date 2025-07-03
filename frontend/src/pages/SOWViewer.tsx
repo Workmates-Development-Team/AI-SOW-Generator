@@ -7,15 +7,30 @@ import type { SOWData, Slide } from '@/types/presentation';
 import DownloadPDFButton from '@/components/Viewer/DownloadPDFButton';
 import { ContentSplitter } from '@/utils/contentSplitter';
 import { TEMPLATES } from '@/types/template';
-import { useQuery } from 'convex/react';
-import { api } from "../../../convex/_generated/api";
+import { api } from "../lib/api";
+import { useAuth } from "../lib/useAuth";
 
 const SOWViewer: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const initialPresentation: SOWData | undefined = location.state?.presentation;
 
-  const allSows = useQuery(api.sows.getSows);
+    const { token } = useAuth();
+  const [allSows, setAllSows] = useState<SOWData[] | undefined>(undefined);
+
+  useEffect(() => {
+    const fetchSows = async () => {
+      if (token) {
+        try {
+          const fetchedSows = await api.sows.getSows(token);
+          setAllSows(fetchedSows);
+        } catch (error) {
+          console.error("Failed to fetch SOWs:", error);
+        }
+      }
+    };
+    fetchSows();
+  }, [token]);
 
   const [presentationState, setPresentation] = useState<SOWData | undefined>(initialPresentation);
   const [currentSlide, setCurrentSlide] = useState(0);

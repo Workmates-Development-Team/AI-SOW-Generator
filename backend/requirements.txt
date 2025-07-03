@@ -1,10 +1,32 @@
+# Web frameworks
 Flask
-Flask-CORS
-python-dotenv
-langchain
-langchain-aws
-boto3
-python-pptx
+Flask-Cors
 fastapi
-watchdog
+uvicorn
+
+# Flask dependencies
+python-dotenv
+Jinja2
+MarkupSafe
+itsdangerous
+Werkzeug
+click
+
+# Auth
 PyJWT
+
+# AI/LLM
+openai
+langchain
+langchain-core
+langchain-community
+langchain-aws
+
+# AWS
+boto3
+
+# Data
+pymongo
+python-multipart
+requests
+beautifulsoup4

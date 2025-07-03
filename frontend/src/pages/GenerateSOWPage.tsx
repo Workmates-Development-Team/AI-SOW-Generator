@@ -10,8 +10,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { useMutation } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
+import { api } from '../lib/api';
+import { useAuth } from '../lib/useAuth';
 import LogoutButton from "../components/LogoutButton";
 
 const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
@@ -34,7 +34,7 @@ interface OptionalField {
   placeholder: string;
 }
 
-export default function GenerateSOWPage({ isAuthenticated, children }: { isAuthenticated: boolean, children: React.ReactNode }) {
+export default function GenerateSOWPage() {
   const [form, setForm] = useState<FormState>({
     clientName: '',
     projectDescription: '',
@@ -50,12 +50,11 @@ export default function GenerateSOWPage({ isAuthenticated, children }: { isAuthe
   const [error, setError] = useState('');
   const navigate = useNavigate();
   
-  const createSow = useMutation(api.sows.createSow);
-  const logout = useMutation(api.auth.logout);
+  const { token, setToken } = useAuth();
 
   const handleLogout = async () => {
-    await logout();
-    localStorage.removeItem('convex_token_identifier');
+    await api.auth.logout();
+    setToken(null);
     navigate('/login');
   };
 
@@ -123,10 +122,7 @@ export default function GenerateSOWPage({ isAuthenticated, children }: { isAuthe
       setError('Client Name and Project Description are required.');
       return;
     }
-    if (!isAuthenticated) {
-      setError('You must be logged in to generate an SOW.');
-      return;
-    }
+    
     setLoading(true);
     setError('');
 
@@ -162,12 +158,11 @@ export default function GenerateSOWPage({ isAuthenticated, children }: { isAuthe
       // Attaching sowNumber and clientName
       const { template, totalSlides, ...sowDataToSave } = sowResult.data;
       const presentationWithSOW = { ...sowDataToSave, sowNumber, clientName: form.clientName.trim() };
-      const storedTokenIdentifier = localStorage.getItem('convex_token_identifier');
-      if (!storedTokenIdentifier) {
+      if (!token) {
         setError('Authentication token not found. Please log in again.');
         return;
       }
-      await createSow({ ...presentationWithSOW, tokenIdentifier: storedTokenIdentifier });
+      await api.sows.createSow(presentationWithSOW, token);
       navigate('/presentation', { state: { presentation: presentationWithSOW } });
     } catch (err: unknown) {
       setError(`Error: ${(err as Error).message || err}`);

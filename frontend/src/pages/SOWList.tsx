@@ -1,12 +1,28 @@
 import React from 'react';
-import { useQuery } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
+import { useState, useEffect } from 'react';
+import { api } from '../lib/api';
+import { useAuth } from '../lib/useAuth';
 import { Card, CardTitle } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 
 const SOWList: React.FC = () => {
   const navigate = useNavigate();
-  const sows = useQuery(api.sows.getSows);
+  const { token } = useAuth();
+  const [sows, setSows] = useState<any[] | undefined>(undefined);
+
+  useEffect(() => {
+    const fetchSows = async () => {
+      if (token) {
+        try {
+          const fetchedSows = await api.sows.getSows(token);
+          setSows(fetchedSows);
+        } catch (error) {
+          console.error("Failed to fetch SOWs:", error);
+        }
+      }
+    };
+    fetchSows();
+  }, [token]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8 flex flex-col items-center">

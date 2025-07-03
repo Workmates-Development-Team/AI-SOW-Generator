@@ -2,34 +2,42 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import GeneratePPTPage from "./pages/GenerateSOWPage";
 import SOWViewer from "./pages/SOWViewer";
 import Layout from "./components/Layout";
-import { ConvexProvider } from "convex/react";
-import { convex } from "./convex/client";
 import LoginPage from "./pages/LoginPage";
-import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { api } from "./lib/api";
 
 function AuthenticatedRoutes() {
-  const storedTokenIdentifier = localStorage.getItem('convex_token_identifier');
-  const user = useQuery(api.auth.getIdentity, { tokenIdentifier: storedTokenIdentifier || undefined });
+  const [user, setUser] = useState<any>(undefined);
+  const [loading, setLoading] = useState(true);
 
-  console.log("User identity from Convex:", user);
-
-  // This useEffect is a fallback to ensure reactivity, though useQuery should handle it.
   useEffect(() => {
-    // Force a re-render or re-evaluation if the token changes in localStorage
-    // This is a bit of a hack, but can help with reactivity issues.
+    const validateUser = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const response = await api.auth.getIdentity(token);
+          setUser(response);
+        } catch (error) {
+          console.error("Failed to validate token:", error);
+          localStorage.removeItem('token');
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    };
+
+    validateUser();
+
     const handleStorageChange = () => {
-      // This will cause the useQuery to re-evaluate
-      // In a real app, you might use a more sophisticated state management or context
-      // to trigger a re-render of components dependent on auth state.
-      console.log("localStorage changed, re-evaluating identity...");
+      validateUser();
     };
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  if (user === undefined) {
+  if (loading) {
     return <div>Loading user data...</div>; // Or a loading spinner
   }
 
@@ -47,13 +55,11 @@ function AuthenticatedRoutes() {
 
 export default function App() {
   return(
-    <ConvexProvider client={convex}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Layout showLogout={false}><LoginPage /></Layout>} />
-          <Route path="/*" element={<AuthenticatedRoutes />} />
-        </Routes>
-      </BrowserRouter>
-    </ConvexProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Layout showLogout={false}><LoginPage /></Layout>} />
+        <Route path="/*" element={<AuthenticatedRoutes />} />
+      </Routes>
+    </BrowserRouter>
   )
 }

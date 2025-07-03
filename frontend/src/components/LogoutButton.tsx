@@ -1,16 +1,16 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { api } from "../lib/api";
+import { useAuth } from "../lib/useAuth";
 
 const LogoutButton: React.FC = () => {
   const navigate = useNavigate();
-  const logout = useMutation(api.auth.logout);
+  const { setToken } = useAuth();
 
   const handleLogout = async () => {
-    await logout();
-    localStorage.removeItem('convex_token_identifier');
+    await api.auth.logout();
+    setToken(null);
     navigate('/login');
   };
 
