@@ -13,7 +13,9 @@
 ## SOW List
 
 - Add a thumbnail view that displays the first slide to represent the saved document
+- Add the ability to delete a document along with a conformation message
 
 ## SOW Viewer
 
 - Tables aren't properly accounted for in the overflow logic
+- The sow number and date do not persist after the initial generation, fix that
