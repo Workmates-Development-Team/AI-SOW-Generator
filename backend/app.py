@@ -3,6 +3,7 @@ from flask_cors import CORS
 from ai import AIService
 import json
 from jwt_utils import create_jwt, decode_jwt
+import re
 
 app = Flask(__name__)
 from config import ConfigAI
@@ -22,6 +23,7 @@ def generate_presentation():
             return jsonify({'error': 'Invalid JSON data'}), 400
         
         sow_fields = {
+            'clientName': data.get('clientName') or '',
             'projectDescription': data.get('projectDescription') or '',
             'requirements': data.get('requirements') or '',
             'duration': data.get('duration') or '',
@@ -82,10 +84,11 @@ def login():
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
-    # Mock user validation: accept any non-empty email/password
+    email_regex = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
     if not email or not password:
         return jsonify({'error': 'Email and password required'}), 400
-    # In production, validate user from DB here
+    if not re.match(email_regex, email):
+        return jsonify({'error': 'Invalid email format'}), 400
     token = create_jwt(email)
     return jsonify({'token': token})
 

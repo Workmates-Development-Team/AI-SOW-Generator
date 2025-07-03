@@ -172,6 +172,8 @@ class AIService:
 
         if isinstance(sow_fields, dict):
             prompt_lines = []
+            if sow_fields.get('clientName'):
+                prompt_lines.append(f"Client Name: {sow_fields['clientName']}")
             if sow_fields.get('projectDescription'):
                 prompt_lines.append(f"Project Description: {sow_fields['projectDescription']}")
             if sow_fields.get('requirements'):
