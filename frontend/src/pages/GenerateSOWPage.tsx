@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/useAuth';
 import LogoutButton from "../components/LogoutButton";
+import SOWListButton from "../components/SOWListButton";
 
 const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
 
@@ -183,8 +184,9 @@ export default function GenerateSOWPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8 flex items-center justify-center relative">
-      {/* Logout button at top right */}
-      <div className="fixed top-4 right-4 z-20">
+      {/* Logout and SOW List buttons at top right */}
+      <div className="fixed top-4 right-4 z-20 flex flex-row gap-2">
+        <SOWListButton />
         <LogoutButton />
       </div>
       <Card
