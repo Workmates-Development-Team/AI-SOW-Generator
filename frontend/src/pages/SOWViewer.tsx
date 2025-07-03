@@ -10,6 +10,7 @@ import { TEMPLATES } from '@/types/template';
 import { api } from "../lib/api";
 import { useAuth } from "../lib/useAuth";
 import ListButton from '@/components/SOWListButton';
+import BackToGeneratorButton from '@/components/BackToGeneratorButton';
 
 const SOWViewer: React.FC = () => {
   const location = useLocation();
@@ -187,13 +188,7 @@ const SOWViewer: React.FC = () => {
       <div className="w-full flex justify-center" style={{ position: 'absolute', top: 0, left: 0, zIndex: 20, pointerEvents: 'none' }}>
         <div className="mt-4 max-w-5xl w-full rounded-2xl shadow-lg bg-white/10 backdrop-blur-md border border-white/20 px-6 py-2 flex items-center justify-between relative" style={{ minHeight: 40, fontSize: '0.95rem', pointerEvents: 'auto' }}>
           <div className="flex items-center gap-4">
-            <Button
-              onClick={() => navigate('/')}
-              variant="outline"
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-            >
-              ← Back to Generator
-            </Button>
+            <BackToGeneratorButton />
           </div>
           <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white/80 text-sm font-medium select-none pointer-events-none bg-white/10 border border-white/20 px-4 py-1 rounded-full shadow-sm">
             Page {currentSlide + 1} of {totalSlides}
