@@ -14,6 +14,7 @@ import { api } from '../lib/api';
 import { useAuth } from '../lib/useAuth';
 import LogoutButton from "../components/LogoutButton";
 import SOWListButton from "../components/SOWListButton";
+import { generateSowNumberAndDate } from '../utils/sowMeta';
 
 const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
 
@@ -127,14 +128,6 @@ export default function GenerateSOWPage() {
     setLoading(true);
     setError('');
 
-    // Generate SOW number here
-    const date = new Date();
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const shortUuid = uuidv4().replace(/\D/g, '').slice(0, 5);
-    const sowNumber = `CWM${day}${month}${year}${shortUuid}`;
-
     try {
       const sowResponse = await fetch(`${API_URL}/api/generate-document`, {
         method: 'POST',
@@ -158,7 +151,15 @@ export default function GenerateSOWPage() {
       }
       // Attaching sowNumber and clientName
       const { template, totalSlides, ...sowDataToSave } = sowResult.data;
-      const presentationWithSOW = { ...sowDataToSave, sowNumber, clientName: form.clientName.trim() };
+      // Generate SOW number and date using utility
+      const { sowNumber: generatedSowNumber, sowDate: generatedSowDate } = generateSowNumberAndDate();
+      // Assign to all slides
+      const slidesWithSOW = sowDataToSave.slides.map((slide: any, idx: number) => ({
+        ...slide,
+        sowNumber: generatedSowNumber,
+        sowDate: generatedSowDate,
+      }));
+      const presentationWithSOW = { ...sowDataToSave, sowNumber: generatedSowNumber, clientName: form.clientName.trim(), slides: slidesWithSOW };
       if (!token) {
         setError('Authentication token not found. Please log in again.');
         return;

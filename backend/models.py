@@ -8,6 +8,8 @@ class Slide(BaseModel):
     title: str
     content: str
     contentType: str
+    sowNumber: Optional[str] = None
+    sowDate: Optional[str] = None
 
 class Sow(BaseModel):
     id: Optional[str] = Field(alias="_id", default=None)

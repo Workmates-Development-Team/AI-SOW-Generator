@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { useLocation } from 'react-router-dom';
 import { Card, CardTitle } from '@/components/ui/card';
 import TemplateApplier from '@/components/Viewer/TemplateApplier';
 import type { SOWData, Slide } from '@/types/presentation';
@@ -14,7 +13,6 @@ import BackToGeneratorButton from '@/components/BackToGeneratorButton';
 
 const SOWViewer: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const initialPresentation: SOWData | undefined = location.state?.presentation;
 
     const { token } = useAuth();
@@ -113,6 +111,7 @@ const SOWViewer: React.FC = () => {
         slide={slide}
         className="w-full h-full"
         sowNumber={presentationState?.sowNumber}
+        templateId={typeof slide.template === 'string' ? slide.template : 'plain'}
       />
     );
   };

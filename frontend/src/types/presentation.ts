@@ -7,6 +7,8 @@ export interface Slide {
   title: string;
   content: string;
   contentType: string;
+  sowNumber?: string;
+  sowDate?: string;
 }
 
 export interface SOWData {
