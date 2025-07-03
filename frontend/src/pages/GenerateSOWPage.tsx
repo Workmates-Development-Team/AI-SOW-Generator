@@ -188,21 +188,27 @@ export default function GenerateSOWPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8 flex items-center justify-center relative">
-      {/* Logout and SOW List buttons at top right */}
-      <div className="fixed top-4 right-4 z-20 flex flex-row gap-2">
-        <SOWListButton />
-        <LogoutButton />
+      {/* Top Toolbar */}
+      <div className="w-full flex justify-center" style={{ position: 'absolute', top: 0, left: 0, zIndex: 20, pointerEvents: 'none' }}>
+        <div className="mt-4 max-w-5xl w-full rounded-2xl shadow-lg bg-white/10 backdrop-blur-md border border-white/20 px-6 py-2 flex items-center justify-between relative" style={{ minHeight: 40, fontSize: '0.95rem', pointerEvents: 'auto' }}>
+          <div className="flex items-center gap-4">
+            <SOWListButton />
+          </div>
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white/80 text-sm font-medium select-none pointer-events-none flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Statement of Work (SOW) Generator
+          </span>
+          <div className="flex items-center gap-2 ml-auto">
+            <LogoutButton />
+          </div>
+        </div>
       </div>
+      {/* Card content below toolbar */}
       <Card
         className="shadow-2xl border border-white/20 bg-white/10 backdrop-blur-md p-0 md:p-2"
         style={{ width: cardWidth, minWidth: '400px', maxWidth: '80vw', transition: 'width 0.3s cubic-bezier(0.4,0,0.2,1)' }}
       >
-        <CardHeader className="px-8 pt-8 pb-4">
-          <CardTitle className="flex items-center gap-2 text-white">
-            <FileText className="h-5 w-5" />
-            Statement of Work (SOW) Generator
-          </CardTitle>
-        </CardHeader>
+        <div className="mt-8" />
         <CardContent className="space-y-8 px-8 pb-10 pt-2">
           <form onSubmit={handleGenerate} className="space-y-8">
             <div className="flex flex-col md:flex-row gap-2 max-h-[70vh] items-stretch">
