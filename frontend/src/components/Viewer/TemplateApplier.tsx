@@ -125,19 +125,26 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
       }
     >
       {/* Title */}
-      <div style={{
-        ...template.layout.title.position,
-        ...template.layout.title.style,
-      }}>
-        {slide.title}
-        {/* Show SOW number and date as sections on cover template */}
-        {templateId === 'cover' && (
-          <>
-            <SOWDateSection sowDate={slide.sowDate} />
-            <SOWNumberSection sowNumber={slide.sowNumber || sowNumber} />
-          </>
-        )}
-      </div>
+      {templateId === 'cover' ? (
+        <div style={{
+          position: 'relative',
+          height: '320px', // fixed height for cover title area
+          ...template.layout.title.position,
+        }}>
+          <div style={{ ...template.layout.title.style }}>
+            {slide.title}
+          </div>
+          <SOWDateSection sowDate={slide.sowDate} />
+          <SOWNumberSection sowNumber={slide.sowNumber || sowNumber} />
+        </div>
+      ) : (
+        <div style={{
+          ...template.layout.title.position,
+          ...template.layout.title.style,
+        }}>
+          {slide.title}
+        </div>
+      )}
 
       {/* Content */}
       <div style={{

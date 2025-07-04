@@ -4,8 +4,6 @@ import logging
 from langchain_aws import ChatBedrock
 from langchain.schema import HumanMessage, SystemMessage
 import re
-import json
-import logging
 from config import ConfigAI
 from botocore.config import Config as BotoConfig
 from builtins import TimeoutError
@@ -48,127 +46,9 @@ class AIService:
         except Exception as e:
             logger.error(f"Error generating: {e}")
             raise
-
+    
     def _generate_sow_structure(self, sow_fields) -> dict:
-        system_prompt = """
-        You are an expert business consultant creating professional Statement of Work (SOW) documents. 
-        Create a comprehensive SOW with structured markdown content for each section.
-           
-        CRITICAL JSON FORMATTING RULES:
-        1. The response MUST be a single, valid JSON object
-        2. NO additional text, markdown, or code blocks before or after the JSON
-        3. ALL strings must be properly escaped and enclosed in double quotes
-        4. NO trailing commas
-        5. Content should be in clean markdown format
-           
-        TEMPLATE MAPPING REQUIREMENTS:
-        You MUST create slides with these exact template mappings:
-        - template: "cover" -> Cover page content
-        - template: "scope" -> Scope of Work content  
-        - template: "deliverables" -> Deliverables content
-        - template: "generic" -> For other content like objectives, timeline, budget, etc.
-        - template: "signature" -> For the final signature page
-           
-        REQUIRED SOW STRUCTURE (in this exact order with template assignments):
-        1. Cover/Title Page (template: "cover")
-        2. Introduction (template: "generic") -- The title should ALWAYS be just 'Introduction'. The Introduction section MUST be a well-written paragraph that introduces the Statement of Work as a whole. It should include:
-           - Mention the service provider (using the fixed description below) in a paragraph,
-           - Mention the client (based on the project description and any provided client information) in the same paragraph as the service provider,
-           - And a summary of the project, its context, goals, and any other relevant introductory information.
-           The paragraph should flow naturally and not be a list of facts about the parties. It should set the stage for the rest of the document.
-           The fixed description of the service provider is:
-           "Workmates Core2cloud is a cloud managed services company focused on AWS services, the fastest growing AWS Premier Consulting Partner in India. We focus on Managed services, Cloud Migration and Implementation of various value-added services on the cloud including but not limited to Cyber Security and Analytics. Our skills cut across various workloads like SAP, Media Solutions, E-commerce, Analytics, IOT, Machine Learning, VR, AR etc. Our VR services are transforming many businesses."
-        3. Objectives (template: "generic") -- The title should ALWAYS be just 'Objectives'
-        4. Scope of Work (template: "scope")
-        5. Deliverables (template: "deliverables") -- ALWAYS include this slide
-        6. Timeline (template: "generic")
-        7. Budget (template: "generic")
-        8. Payment Terms (template: "generic")
-        9. Acceptance Criteria (template: "generic")
-        10. Assumptions and Constraints (template: "generic")
-        11. Support Services (template: "generic") -- ALWAYS include this slide
-        12. General Terms (template: "generic") -- The title should ALWAYS be just 'General Terms' and ALWAYS include this slide
-        13. Project Terms (template: "generic") -- The title should ALWAYS be just 'Project Terms' and ALWAYS include this slide
-        14. Termination (template: "generic") -- The title should ALWAYS be just 'Termination' and ALWAYS include this slide
-        15. Signature Page (template: "signature") -- The title should ALWAYS be just 'Signature' and the content should be ONLY the client name
-           
-        CONTENT STRUCTURE:
-        Each slide should have:
-        - title: Main heading for the slide
-        - content: Markdown formatted content
-        - contentType: Type of content (text, list, table, etc.)
-           
-        For different content types, use appropriate markdown:
-        - Lists: Use markdown bullet points (- item) or numbered lists (1. item)
-        - Tables: Use markdown table syntax
-        - Text: Use markdown paragraphs and formatting
-           
-        Required JSON structure:
-        {
-          "title": "[Project Title from Project Description]",
-          "template": "sow",
-          "slides": [
-            {
-              "id": "string",
-              "type": "string", 
-              "template": "cover|scope|deliverables|generic",
-              "title": "string",
-              "content": "markdown_content_string",
-              "contentType": "text|list|table|mixed"
-            }
-          ],
-          "totalSlides": number
-        }
-           
-        COVER SLIDE STRICT RULE:
-        The cover slide's content field MUST contain ONLY the line: **Prepared for:** [Client Name].
-        Do NOT include any other text, such as title, date, 'Statement of Work', 'Confidential Document', or anything else. No blank lines, no extra formatting, no additional information. Just the 'Prepared for' line.
-        
-        SAMPLE COVER SLIDE:
-        {
-          "id": "slide-1",
-          "type": "cover",
-          "template": "cover",
-          "title": "[Project Title]",
-          "content": "**Prepared for:** [Client Name]",
-          "contentType": "text"
-        }
-           
-        SCOPE OF WORK SLIDE:
-        {
-          "id": "slide-4",
-          "type": "scope",
-          "template": "scope",
-          "title": "",
-          "content": "1. **Phase 1: Planning & Analysis**  \n   1.1 Objectives  \n     • Define project scope  \n   1.2 Key Activities  \n     • Stakeholder meetings  \n   1.3 Scope Items  \n     a. **Requirements Gathering**  \n        – Interview stakeholders  \n2. **Phase 2: Implementation**  \n   2.1 Objectives  \n     • Develop solution  \n   2.2 Key Activities  \n     • Coding, testing  \n   2.3 Scope Items  \n     a. **Module Development**  \n        – Build core modules  \n3. **Phase 3: Delivery**  \n   ...  \n   (Continue structure as needed based on context)",
-          "contentType": "mixed"
-        }
-           
-        DELIVERABLES SLIDE:
-        {
-          "id": "slide-5",
-          "type": "deliverables",
-          "template": "deliverables",
-          "title": "", 
-          "content": "1. **Phase 1: Discovery and Planning**  \n   1.1 Objectives  \n     • Understand needs  \n   1.2 Key Activities  \n     • Gather requirements  \n   1.3 Deliverables  \n     a. **Requirements Document**  \n        – Description placeholder  \n2. **Phase 2: Development**  \n   2.1 Objectives  \n     • Build modules  \n   2.2 Deliverables  \n     a. **Module Example**  \n        – Feature description  \n3. **Phase 3: Integration**  \n   ...  \n   (Continue structure as needed based on context)",
-          "contentType": "mixed"
-        }
-
-        TIMELINE SLIDE:
-        {
-          "id": "slide-6",
-          "type": "timeline",
-          "template": "generic",
-          "title": "Project Timeline",
-          "content": "| Phase | Start Date | End Date | Milestone |\n|-------|------------|----------|-----------|\n| Planning & Analysis | 2024-06-01 | 2024-06-07 | Requirements Complete |\n| Implementation     | 2024-06-08 | 2024-07-15 | MVP Delivery         |\n| Delivery           | 2024-07-16 | 2024-07-31 | Final Handover       |",
-          "contentType": "table"
-        }
-           
-        Create professional, business-appropriate content for each section.
-        Make content specific to the user's request while maintaining SOW structure.
-        For the Timeline slide, always use a markdown table format for the content.
-        Use clean markdown formatting.
-        """
+        system_prompt = self._build_dynamic_system_prompt(sow_fields)
 
         if isinstance(sow_fields, dict):
             prompt_lines = []
@@ -183,24 +63,190 @@ class AIService:
             if sow_fields.get('budget'):
                 prompt_lines.append(f"Budget: {sow_fields['budget']}")
             if sow_fields.get('deliverables'):
-               prompt_lines.append(f"Deliverables: {sow_fields['deliverables']}")   
-
-            # Staged for removal
+                prompt_lines.append(f"Additional Deliverables Instructions: {sow_fields['deliverables']}")   
             if sow_fields.get('supportService'):
-                prompt_lines.append(f"Support Service: {sow_fields['supportService']}")
+                prompt_lines.append(f"Additional Support Service Instructions: {sow_fields['supportService']}")
             if sow_fields.get('legalTerms'):
                 prompt_lines.append(f"Special Legal Terms: {sow_fields['legalTerms']}")
             if sow_fields.get('terminationClause'):
-                prompt_lines.append(f"Termination Clause: {sow_fields['terminationClause']}")
+                prompt_lines.append(f"Special Termination Clauses: {sow_fields['terminationClause']}")
             structured_prompt = '\n'.join(prompt_lines)
         else:
             structured_prompt = str(sow_fields)
-        
+
         messages = [
             SystemMessage(content=system_prompt),
             HumanMessage(content=f"Create a professional Statement of Work for: {structured_prompt}")
         ]
         return self._process_ai_response(messages)
+
+    def _build_dynamic_system_prompt(self, sow_fields) -> str:
+        """Build a dynamic system prompt based on user input fields"""
+        
+        # Base system prompt
+        base_prompt = """
+        You are an expert business consultant creating professional Statement of Work (SOW) documents. 
+        Create a comprehensive SOW with structured markdown content for each section.
+           
+        CRITICAL JSON FORMATTING RULES:
+        1. The response MUST be a single, valid JSON object
+        2. NO additional text, markdown, or code blocks before or after the JSON
+        3. ALL strings must be properly escaped and enclosed in double quotes
+        4. NO trailing commas
+        5. Content should be in clean markdown format
+           
+        TEMPLATE MAPPING REQUIREMENTS:
+        You MUST create slides with these exact template mappings:
+        - template: \"cover\" -> Cover page content
+        - template: \"scope\" -> Scope of Work content  
+        - template: \"deliverables\" -> Deliverables content
+        - template: \"generic\" -> For other content like objectives, timeline, budget, etc.
+        - template: \"signature\" -> For the final signature page
+        """
+        
+        # Build dynamic slide structure
+        slides_structure = []
+        slide_counter = 1
+        
+        # Always include these core slides
+        slides_structure.extend([
+            f"{slide_counter}. Cover/Title Page (template: \"cover\")",
+            f"{slide_counter + 1}. Introduction (template: \"generic\") -- The title should ALWAYS be just 'Introduction'. The Introduction section MUST be a well-written paragraph that introduces the Statement of Work as a whole. It should include: - Mention the service provider (using the fixed description below) in a paragraph, - Mention the client (based on the project description and any provided client information) in the same paragraph as the service provider, - And a summary of the project, its context, goals, and any other relevant introductory information. The paragraph should flow naturally and not be a list of facts about the parties. It should set the stage for the rest of the document. The fixed description of the service provider is: \"Workmates Core2cloud is a cloud managed services company focused on AWS services, the fastest growing AWS Premier Consulting Partner in India. We focus on Managed services, Cloud Migration and Implementation of various value-added services on the cloud including but not limited to Cyber Security and Analytics. Our skills cut across various workloads like SAP, Media Solutions, E-commerce, Analytics, IOT, Machine Learning, VR, AR etc. Our VR services are transforming many businesses.\"",
+            f"{slide_counter + 2}. Objectives (template: \"generic\") -- The title should ALWAYS be just 'Objectives'",
+            f"{slide_counter + 3}. Scope of Work (template: \"scope\")",
+        ])
+        slide_counter += 4
+        
+        # Deliverables slide (always include, but with conditional instructions)
+        if sow_fields.get('deliverables'):
+            slides_structure.append(f"{slide_counter}. Deliverables (template: \"deliverables\") -- ALWAYS include this slide. Generate comprehensive deliverables content based on the project requirements AND incorporate the user's additional deliverables instructions: '{sow_fields['deliverables']}'")
+        else:
+            slides_structure.append(f"{slide_counter}. Deliverables (template: \"deliverables\") -- ALWAYS include this slide")
+        slide_counter += 1
+        
+        # Standard project slides
+        slides_structure.extend([
+            f"{slide_counter}. Timeline (template: \"generic\")",
+            f"{slide_counter + 1}. Budget (template: \"generic\")",
+            f"{slide_counter + 2}. Payment Terms (template: \"generic\")",
+            f"{slide_counter + 3}. Acceptance Criteria (template: \"generic\")",
+            f"{slide_counter + 4}. Assumptions and Constraints (template: \"generic\")",
+        ])
+        slide_counter += 5
+        
+        # Support Services slide (conditional content)
+        if sow_fields.get('supportService'):
+            slides_structure.append(f"{slide_counter}. Support Services (template: \"generic\") -- ALWAYS include this slide. Generate content based on the user's additional support service instructions: '{sow_fields['supportService']}'")
+        else:
+            slides_structure.append(f"{slide_counter}. Support Services (template: \"generic\") -- ALWAYS include this slide. Leave the content section blank if no user input.")
+        slide_counter += 1
+        
+        # General Terms slide (conditional content)
+        if sow_fields.get('legalTerms'):
+            slides_structure.append(f"{slide_counter}. General Terms (template: \"generic\") -- The title should ALWAYS be just 'General Terms' and ALWAYS include this slide. Generate content based on the user's special legal terms: '{sow_fields['legalTerms']}'")
+        else:
+            slides_structure.append(f"{slide_counter}. General Terms (template: \"generic\") -- The title should ALWAYS be just 'General Terms' and ALWAYS include this slide. Leave the content section blank if no user input.")
+        slide_counter += 1
+        
+        # Project Terms slide (conditional content)
+        slides_structure.append(f"{slide_counter}. Project Terms (template: \"generic\") -- The title should ALWAYS be just 'Project Terms' and ALWAYS include this slide. Leave the content section blank if no user input.")
+        slide_counter += 1
+        
+        # Termination slide (conditional content)
+        if sow_fields.get('terminationClause'):
+            slides_structure.append(f"{slide_counter}. Termination (template: \"generic\") -- The title should ALWAYS be just 'Termination' and ALWAYS include this slide. Generate content based on the user's special termination clauses: '{sow_fields['terminationClause']}'")
+        else:
+            slides_structure.append(f"{slide_counter}. Termination (template: \"generic\") -- The title should ALWAYS be just 'Termination' and ALWAYS include this slide. Leave the content section blank if no user input.")
+        slide_counter += 1
+        
+        # Signature slide (always include)
+        slides_structure.append(f"{slide_counter}. Signature Page (template: \"signature\") -- The title should ALWAYS be just 'Signature' and the content should be ONLY the client name")
+        
+        # Build the complete prompt
+        complete_prompt = f"""{base_prompt}
+           
+        REQUIRED SOW STRUCTURE (in this exact order with template assignments):
+        {chr(10).join(slides_structure)}
+           
+        CONTENT STRUCTURE:
+        Each slide should have:
+        - title: Main heading for the slide
+        - content: Markdown formatted content
+        - contentType: Type of content (text, list, table, etc.)
+           
+        For different content types, use appropriate markdown:
+        - Lists: Use markdown bullet points (- item) or numbered lists (1. item)
+        - Tables: Use markdown table syntax
+        - Text: Use markdown paragraphs and formatting
+           
+        Required JSON structure:
+        {{
+          "title": "[Project Title from Project Description]",
+          "template": "sow",
+          "slides": [
+            {{
+              "id": "string",
+              "type": "string", 
+              "template": "cover|scope|deliverables|generic",
+              "title": "string",
+              "content": "markdown_content_string",
+              "contentType": "text|list|table|mixed"
+            }}
+          ],
+          "totalSlides": number
+        }}
+           
+        COVER SLIDE STRICT RULE:
+        The cover slide's content field MUST contain ONLY the line: **Prepared for:** [Client Name].
+        Do NOT include any other text, such as title, date, 'Statement of Work', 'Confidential Document', or anything else. No blank lines, no extra formatting, no additional information. Just the 'Prepared for' line.
+        
+        SAMPLE COVER SLIDE:
+        {{
+          "id": "slide-1",
+          "type": "cover",
+          "template": "cover",
+          "title": "[Project Title]",
+          "content": "**Prepared for:** [Client Name]",
+          "contentType": "text"
+        }}
+           
+        SCOPE OF WORK SLIDE:
+        {{
+          "id": "slide-4",
+          "type": "scope",
+          "template": "scope",
+          "title": "",
+          "content": "1. **Phase 1: Planning & Analysis**  \\n   1.1 Objectives  \\n     • Define project scope  \\n   1.2 Key Activities  \\n     • Stakeholder meetings  \\n   1.3 Scope Items  \\n     a. **Requirements Gathering**  \\n        – Interview stakeholders  \\n2. **Phase 2: Implementation**  \\n   2.1 Objectives  \\n     • Develop solution  \\n   2.2 Key Activities  \\n     • Coding, testing  \\n   2.3 Scope Items  \\n     a. **Module Development**  \\n        – Build core modules  \\n3. **Phase 3: Delivery**  \\n   ...  \\n   (Continue structure as needed based on context)",
+          "contentType": "mixed"
+        }}
+           
+        DELIVERABLES SLIDE:
+        {{
+          "id": "slide-5",
+          "type": "deliverables",
+          "template": "deliverables",
+          "title": "", 
+          "content": "1. **Phase 1: Discovery and Planning**  \\n   1.1 Objectives  \\n     • Understand needs  \\n   1.2 Key Activities  \\n     • Gather requirements  \\n   1.3 Deliverables  \\n     a. **Requirements Document**  \\n        – Description placeholder  \\n2. **Phase 2: Development**  \\n   2.1 Objectives  \\n     • Build modules  \\n   2.2 Deliverables  \\n     a. **Module Example**  \\n        – Feature description  \\n3. **Phase 3: Integration**  \\n   ...  \\n   (Continue structure as needed based on context)",
+          "contentType": "mixed"
+        }}
+    
+        TIMELINE SLIDE:
+        {{
+          "id": "slide-6",
+          "type": "timeline",
+          "template": "generic",
+          "title": "Project Timeline",
+          "content": "| Phase | Start Date | End Date | Milestone |\n|-------|------------|----------|-----------|\n| Planning & Analysis | 2024-06-01 | 2024-06-07 | Requirements Complete |\n| Implementation     | 2024-06-08 | 2024-07-15 | MVP Delivery         |\n| Delivery           | 2024-07-16 | 2024-07-31 | Final Handover       |",
+          "contentType": "table"
+        }}
+           
+        Create professional, business-appropriate content for each section.
+        Make content specific to the user's request while maintaining SOW structure.
+        For the Timeline slide, always use a markdown table format for the content.
+        Use clean markdown formatting.
+        """
+        
+        return complete_prompt
 
     def _process_ai_response(self, messages) -> dict:
         max_retries = 5
@@ -281,21 +327,17 @@ class AIService:
 
     @staticmethod
     def _extract_json_from_response(content: str) -> dict:
-        """
-        Robustly extract JSON from LLM response, handling various formats.
-        """
         content = content.strip()
         # Remove markdown code blocks if present
         if content.startswith('```json'):
             content = content.replace('```json', '').replace('```', '').strip()
         elif content.startswith('```'):
             content = content.replace('```', '').strip()
-        # Try to find JSON object boundaries
+        # Find JSON object boundaries
         try:
             # Method 1: Look for the first { and try to parse from there
             start_idx = content.find('{')
             if start_idx != -1:
-                # Find the matching closing brace
                 brace_count = 0
                 end_idx = start_idx
                 for i in range(start_idx, len(content)):

@@ -1,3 +1,5 @@
+# Frontend
+
 ## Generator
 
 - Need to add a variable system that updates the request for generation in the system prompt based on the input fields used
@@ -16,10 +18,13 @@
 ## SOW List
 
 - Add a thumbnail view that displays the first slide to represent the saved document
-- Add the ability to delete a document along with a conformation message
 
 ## SOW Viewer
 
 - The content splitter works only for the mixed, list and text type content right now, it requires an exception condition to work for table (Important)
 - The downloaded PDFs currently are slightly misaligned (Crucial)
-- The objective page overflows regardless of the overflow condition
+- The objective and the assumptions and constraints pages overflow
+
+# Backend
+
+- The db should also save the prompt given by the user for future reference or use
