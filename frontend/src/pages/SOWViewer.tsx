@@ -199,12 +199,12 @@ const SOWViewer: React.FC = () => {
         <div className="mt-4 max-w-5xl w-full rounded-2xl shadow-lg bg-white/10 backdrop-blur-md border border-white/20 px-6 py-2 flex items-center justify-between relative" style={{ minHeight: 40, fontSize: '0.95rem', pointerEvents: 'auto' }}>
           <div className="flex items-center gap-4">
             <BackToGeneratorButton />
+            <ListButton />
           </div>
           <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white/80 text-sm font-medium select-none pointer-events-none bg-white/10 border border-white/20 px-4 py-1 rounded-full shadow-sm">
             Page {currentSlide + 1} of {totalSlides}
           </span>
           <div className="flex items-center gap-2 ml-auto">
-            <ListButton />
             <DownloadPDFButton slides={processedSlides} title={presentationState.title || 'Presentation'} />
           </div>
         </div>

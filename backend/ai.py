@@ -162,7 +162,6 @@ class AIService:
         # Signature slide (always include)
         slides_structure.append(f"{slide_counter}. Signature Page (template: \"signature\") -- The title should ALWAYS be just 'Signature' and the content should be ONLY the client name")
         
-        # Build the complete prompt
         complete_prompt = f"""{base_prompt}
            
         REQUIRED SOW STRUCTURE (in this exact order with template assignments):
