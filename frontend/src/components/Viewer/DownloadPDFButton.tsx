@@ -11,6 +11,11 @@ interface Props {
 
  const DownloadPDFButton: React.FC<Props> = ({ slides, title }) => {
   const download = async () => {
+    if (document.fonts && document.fonts.ready) {
+      await document.fonts.ready;
+    }
+    document.body.classList.add('export-mode');
+
     const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
     const slideNodes = Array.from(
       document.querySelectorAll(".slide-content-export")
@@ -38,6 +43,7 @@ interface Props {
         pdf.addPage();
       }
     }
+    document.body.classList.remove('export-mode');
     pdf.save(`${title}.pdf`);
   };
 

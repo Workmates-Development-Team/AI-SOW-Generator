@@ -10,6 +10,8 @@
 - Executive Summary
 - Urgency and Impact
 - Service level agreement if any : currently partially implemented, need to accept the llm response on the condition that the user provided additional constraints
+- A section for things not included
+- Optionally RACI matrix
 
 ## SOW List
 
@@ -19,6 +21,5 @@
 ## SOW Viewer
 
 - The content splitter works only for the mixed, list and text type content right now, it requires an exception condition to work for table (Important)
-- The content in the deliverables and the scope of work
-- The sow number and date positioning is not consistent when switching between different presentations
-- The downloaded PDFs currently are slightly misaligned
+- The downloaded PDFs currently are slightly misaligned (Crucial)
+- The objective page overflows regardless of the overflow condition
