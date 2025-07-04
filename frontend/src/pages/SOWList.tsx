@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/useAuth';
 import { Card, CardTitle } from '@/components/ui/card';
@@ -8,13 +7,27 @@ import type { SOWData } from '@/types/presentation';
 import { Button } from '@/components/ui/button';
 import BackToGeneratorButton from '@/components/BackToGeneratorButton';
 import LogoutButton from '@/components/LogoutButton';
-import { FileText } from 'lucide-react';
+import { Trash } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
 
 const SOWList: React.FC = () => {
   const navigate = useNavigate();
   const { token } = useAuth();
   const [sows, setSows] = useState<SOWData[] | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [sowToDelete, setSowToDelete] = useState<any>(null);
+  const dialogContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchSows = async () => {
@@ -69,21 +82,83 @@ const SOWList: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-5xl">
             {sows.map((sow) => (
-              <Card
-                key={(sow as any)._id || sow.sowNumber || sow.title}
-                className="bg-white/10 border-white/20 text-white p-6 cursor-pointer hover:bg-white/20 transition-colors"
-                onClick={() =>
-                  navigate('/presentation', {
-                    state: { presentation: { ...sow, totalSlides: sow.slides.length } },
-                  })
-                }
-              >
-                <CardTitle className="mb-2 text-lg font-semibold">{sow.title || 'Untitled SOW'}</CardTitle>
-                <p className="text-sm text-white/80 mb-1">
-                  SOW Number: <span className="font-mono">{sow.sowNumber || 'N/A'}</span>
-                </p>
-                <p className="text-sm text-white/60">Client: {sow.clientName || 'N/A'}</p>
-              </Card>
+              <div className="relative group" key={(sow as any)._id || sow.sowNumber || sow.title}>
+                <Card
+                  className="bg-white/10 border-white/20 text-white p-6 cursor-pointer hover:bg-white/20 transition-colors"
+                  onClick={(e) => {
+                    // Prevent navigation if delete button or dialog is clicked
+                    const target = e.target as HTMLElement;
+                    if (
+                      target.closest('.delete-btn') ||
+                      (dialogContentRef.current && dialogContentRef.current.contains(target))
+                    ) {
+                      return;
+                    }
+                    navigate('/presentation', {
+                      state: { presentation: { ...sow, totalSlides: sow.slides.length } },
+                    });
+                  }}
+                >
+                  <AlertDialog open={deleteDialogOpen && sowToDelete?._id === (sow as any)._id} onOpenChange={(open) => {
+                    if (!open) {
+                      setDeleteDialogOpen(false);
+                      setSowToDelete(null);
+                    }
+                  }}>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="delete-btn absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                        title="Delete SOW"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSowToDelete(sow);
+                          setDeleteDialogOpen(true);
+                        }}
+                      >
+                        <Trash className="w-4 h-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent ref={dialogContentRef}>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete SOW?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete <span className="font-bold">{sow.title || 'this SOW'}</span>? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => {
+                          setDeleteDialogOpen(false);
+                          setSowToDelete(null);
+                        }}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-destructive text-white hover:bg-destructive/90"
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            if (!token || !sowToDelete) return;
+                            try {
+                              await api.sows.deleteSow((sowToDelete as any)._id, token);
+                              setSows((prev) => prev ? prev.filter((s) => (s as any)._id !== (sowToDelete as any)._id) : prev);
+                              setDeleteDialogOpen(false);
+                              setSowToDelete(null);
+                            } catch (err: any) {
+                              setError(err?.message || 'Failed to delete SOW');
+                            }
+                          }}
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                  <CardTitle className="mb-2 text-lg font-semibold">{sow.title || 'Untitled SOW'}</CardTitle>
+                  <p className="text-sm text-white/80 mb-1">
+                    SOW Number: <span className="font-mono">{sow.sowNumber || 'N/A'}</span>
+                  </p>
+                  <p className="text-sm text-white/60">Client: {sow.clientName || 'N/A'}</p>
+                </Card>
+              </div>
             ))}
           </div>
         )}
