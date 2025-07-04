@@ -69,8 +69,9 @@ export const SCOPE_TEMPLATE: Template = {
         position: 'relative',
         left: '8%',
         width: '80%',
-        marginTop: '2rem',
+        marginTop: '3rem',
         top: '35%',
+        maxHeight: '60vh',
       },
       style: {
         fontSize: '1rem',
@@ -99,8 +100,9 @@ export const DELIVERABLES_TEMPLATE: Template = {
         position: 'relative',
         left: '8%',
         width: '80%',
-        marginTop: '2rem',
+        marginTop: '3rem',
         top: '40%',
+        maxHeight: '60vh',
       },
       style: {
         fontSize: '1.1rem',
@@ -138,9 +140,10 @@ export const GENERIC_TEMPLATE: Template = {
     content: {
       position: {
         position: 'relative',
-        left: '8%',
+        left: '10%',
         width: '80%',
         marginTop: '8rem',
+        maxHeight: '60vh',
       },
       style: {
         fontSize: '1.2rem',
@@ -149,111 +152,6 @@ export const GENERIC_TEMPLATE: Template = {
         padding: '4px',
         borderRadius: '8px',
       }
-    }
-  }
-};
-
-export const PLAIN_TEMPLATE: Template = {
-  id: 'plain',
-  name: 'Plain Template',
-  layout: {
-    title: {
-      position: {
-        marginBottom: '2rem',
-      },
-      style: {
-        fontSize: '2.5rem',
-        fontWeight: 'bold',
-        color: '#000000',
-      }
-    },
-    content: {
-      position: {},
-      style: {
-        fontSize: '1.4rem',
-        lineHeight: '1',
-        color: '#333333',
-      }
-    }
-  }
-};
-
-export const IMAGE5_TEMPLATE: Template = {
-  id: 'image5',
-  name: 'Image 5 Template',
-  backgroundImage: '/5.svg',
-  layout: {
-    title: {
-      position: { position: 'absolute', top: '40%', left: '10%', width: '80%' },
-      style: { fontSize: '2rem', color: '#fff', textAlign: 'center', fontWeight: 'bold' }
-    },
-    content: {
-      position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
-      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
-    }
-  }
-};
-
-export const IMAGE6_TEMPLATE: Template = {
-  id: 'image6',
-  name: 'Image 6 Template',
-  backgroundImage: '/6.svg',
-  layout: {
-    title: {
-      position: { position: 'absolute', top: '40%', left: '10%', width: '80%' },
-      style: { fontSize: '2rem', color: '#fff', textAlign: 'center', fontWeight: 'bold' }
-    },
-    content: {
-      position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
-      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
-    }
-  }
-};
-
-export const IMAGE7_TEMPLATE: Template = {
-  id: 'image7',
-  name: 'Image 7 Template',
-  backgroundImage: '/7.svg',
-  layout: {
-    title: {
-      position: { position: 'absolute', top: '40%', left: '10%', width: '80%' },
-      style: { fontSize: '2rem', color: '#fff', textAlign: 'center', fontWeight: 'bold' }
-    },
-    content: {
-      position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
-      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
-    }
-  }
-};
-
-export const IMAGE8_TEMPLATE: Template = {
-  id: 'image8',
-  name: 'Image 8 Template',
-  backgroundImage: '/8.svg',
-  layout: {
-    title: {
-      position: { position: 'absolute', top: '40%', left: '10%', width: '80%' },
-      style: { fontSize: '2rem', color: '#fff', textAlign: 'center', fontWeight: 'bold' }
-    },
-    content: {
-      position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
-      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
-    }
-  }
-};
-
-export const IMAGE9_TEMPLATE: Template = {
-  id: 'image9',
-  name: 'Image 9 Template',
-  backgroundImage: '/9.svg',
-  layout: {
-    title: {
-      position: { position: 'absolute', top: '40%', left: '10%', width: '80%' },
-      style: { fontSize: '2rem', color: '#fff', textAlign: 'center', fontWeight: 'bold' }
-    },
-    content: {
-      position: { position: 'absolute', top: '60%', left: '10%', width: '80%' },
-      style: { fontSize: '1.4rem', color: '#fff', textAlign: 'center', lineHeight: '1' }
     }
   }
 };
@@ -268,8 +166,35 @@ export const SIGNATURE_TEMPLATE: Template = {
       style: { display: 'none' }
     },
     content: {
-      position: { position: 'absolute', top: '6.8%', left: '25%', width: '20%' },
+      position: { position: 'absolute', top: '3.8%', left: '25%', width: '25%' },
       style: { fontSize: '1.3rem', color: '#000', textAlign: 'left', lineHeight: '1.2', fontWeight: 'bold' }
+    }
+  }
+};
+
+export const PLAIN_TEMPLATE: Template = {
+  id: 'plain',
+  name: 'Plain Template',
+  backgroundImage: '/6.svg',
+  layout: {
+    title: {
+      position: {
+        marginBottom: '2rem',
+      },
+      style: {
+        fontSize: '2.5rem',
+        fontWeight: 'bold',
+        color: '#000000',
+      }
+    },
+    content: {
+      position: {},
+      style: {
+        fontSize: '1.2rem',
+        lineHeight: '1',
+        color: '#333333',
+        padding: '64px',
+      }
     }
   }
 };

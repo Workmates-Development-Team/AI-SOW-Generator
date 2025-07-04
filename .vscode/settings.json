@@ -1,3 +1,12 @@
 {
-  "cSpell.words": ["dotenv", "flexbox", "infograph", "jsonify", "textareas"]
+  "cSpell.words": [
+    "dotenv",
+    "flexbox",
+    "infograph",
+    "Joomla",
+    "jsonify",
+    "textareas",
+    "uuidv"
+  ],
+  "python.defaultInterpreterPath": "AI-SOW-Generator/backend/.venv/bin/python",
 }

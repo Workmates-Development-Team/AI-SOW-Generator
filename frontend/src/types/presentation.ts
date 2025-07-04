@@ -1,10 +1,14 @@
+import type { Template } from './template';
+
 export interface Slide {
   id: string;
   type: string;
-  template?: string;
+  template?: Template | string;
   title: string;
   content: string;
-  contentType: 'text' | 'list' | 'table' | 'mixed';
+  contentType: string;
+  sowNumber?: string;
+  sowDate?: string;
 }
 
 export interface SOWData {

@@ -3,7 +3,16 @@ import json
 import logging
 from langchain_aws import ChatBedrock
 from langchain.schema import HumanMessage, SystemMessage
+import re
+import json
+import logging
 from config import ConfigAI
+from botocore.config import Config as BotoConfig
+from builtins import TimeoutError
+from botocore.exceptions import EndpointConnectionError, ConnectionClosedError, ReadTimeoutError, ClientError
+import time
+import requests
+import random
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -11,18 +20,20 @@ logger = logging.getLogger(__name__)
 class AIService:
     def __init__(self):
         try:
+            boto_config = BotoConfig(read_timeout=600)
             self.bedrock_client = boto3.client(
                 'bedrock-runtime',
                 aws_access_key_id=ConfigAI.AWS_ACCESS_KEY_ID,
                 aws_secret_access_key=ConfigAI.AWS_SECRET_ACCESS_KEY,
-                region_name=ConfigAI.AWS_REGION
+                region_name=ConfigAI.AWS_REGION,
+                config=boto_config
             )
             
             self.llm = ChatBedrock(
                 client=self.bedrock_client,
                 model_id=ConfigAI.BEDROCK_MODEL_ID,
                 model_kwargs={
-                    "max_tokens": 32000,
+                    "max_tokens": 25000,
                     "temperature": 0.5
                 }
             )
@@ -60,7 +71,13 @@ class AIService:
            
         REQUIRED SOW STRUCTURE (in this exact order with template assignments):
         1. Cover/Title Page (template: "cover")
-        2. Introduction (template: "generic") -- The title should ALWAYS be just 'Introduction'
+        2. Introduction (template: "generic") -- The title should ALWAYS be just 'Introduction'. The Introduction section MUST be a well-written paragraph that introduces the Statement of Work as a whole. It should include:
+           - Mention the service provider (using the fixed description below) in a paragraph,
+           - Mention the client (based on the project description and any provided client information) in the same paragraph as the service provider,
+           - And a summary of the project, its context, goals, and any other relevant introductory information.
+           The paragraph should flow naturally and not be a list of facts about the parties. It should set the stage for the rest of the document.
+           The fixed description of the service provider is:
+           "Workmates Core2cloud is a cloud managed services company focused on AWS services, the fastest growing AWS Premier Consulting Partner in India. We focus on Managed services, Cloud Migration and Implementation of various value-added services on the cloud including but not limited to Cyber Security and Analytics. Our skills cut across various workloads like SAP, Media Solutions, E-commerce, Analytics, IOT, Machine Learning, VR, AR etc. Our VR services are transforming many businesses."
         3. Objectives (template: "generic") -- The title should ALWAYS be just 'Objectives'
         4. Scope of Work (template: "scope")
         5. Deliverables (template: "deliverables") -- ALWAYS include this slide
@@ -155,6 +172,8 @@ class AIService:
 
         if isinstance(sow_fields, dict):
             prompt_lines = []
+            if sow_fields.get('clientName'):
+                prompt_lines.append(f"Client Name: {sow_fields['clientName']}")
             if sow_fields.get('projectDescription'):
                 prompt_lines.append(f"Project Description: {sow_fields['projectDescription']}")
             if sow_fields.get('requirements'):
@@ -163,12 +182,14 @@ class AIService:
                 prompt_lines.append(f"Project Duration: {sow_fields['duration']}")
             if sow_fields.get('budget'):
                 prompt_lines.append(f"Budget: {sow_fields['budget']}")
+            if sow_fields.get('deliverables'):
+               prompt_lines.append(f"Deliverables: {sow_fields['deliverables']}")   
+
+            # Staged for removal
             if sow_fields.get('supportService'):
                 prompt_lines.append(f"Support Service: {sow_fields['supportService']}")
             if sow_fields.get('legalTerms'):
                 prompt_lines.append(f"Special Legal Terms: {sow_fields['legalTerms']}")
-            if sow_fields.get('deliverables'):
-                prompt_lines.append(f"Deliverables: {sow_fields['deliverables']}")
             if sow_fields.get('terminationClause'):
                 prompt_lines.append(f"Termination Clause: {sow_fields['terminationClause']}")
             structured_prompt = '\n'.join(prompt_lines)
@@ -182,35 +203,126 @@ class AIService:
         return self._process_ai_response(messages)
 
     def _process_ai_response(self, messages) -> dict:
-        response = self.llm.invoke(messages)
-        content = response.content.strip()
-        
+        max_retries = 5
+        backoff = 4
+        last_exception = None
+        for attempt in range(1, max_retries + 1):
+            try:
+                response = self.llm.invoke(messages)
+                content = response.content.strip()
+                try:
+                    parsed_content = self._extract_json_from_response(content)
+                except ValueError as e:
+                    logger.error(f"Failed to extract JSON from LLM response: {e}")
+                    logger.debug(f"Raw LLM response: {content}")
+                    raise
+                if 'slides' in parsed_content:
+                    parsed_content['totalSlides'] = len(parsed_content['slides'])
+                if 'slides' not in parsed_content:
+                    logger.error(f"Invalid presentation structure. Raw LLM response: {content}")
+                    raise ValueError(f"Invalid presentation structure. Raw LLM response: {content}")
+                if len(parsed_content['slides']) == 0:
+                    logger.error(f"No slides generated. Raw LLM response: {content}")
+                    raise ValueError(f"No slides generated. Raw LLM response: {content}")
+                for i, slide in enumerate(parsed_content['slides']):
+                    if not isinstance(slide, dict):
+                        logger.warning(f"Invalid slide {i}, skipping")
+                        continue
+                    slide['id'] = slide.get('id', f'slide-{i+1}')
+                    slide['type'] = slide.get('type', 'content')
+                    slide['template'] = slide.get('template', 'generic')
+                    slide['title'] = slide.get('title', f'Slide {i+1}')
+                    slide['content'] = slide.get('content', '')
+                    slide['contentType'] = slide.get('contentType', 'text')
+                print(f"Generated {len(parsed_content['slides'])} slides successfully")
+                return parsed_content
+            except (EndpointConnectionError, ConnectionClosedError, ReadTimeoutError, TimeoutError, requests.exceptions.RequestException) as e:
+                logger.warning(f"Network/timeout error on attempt {attempt}: {e}")
+                last_exception = e
+                if attempt == max_retries:
+                    logger.error("Max retries reached. Raising error.")
+                    break
+                sleep_time = backoff ** attempt + random.uniform(0, 1)
+                logger.info(f"Retrying in {sleep_time:.2f} seconds...")
+                time.sleep(sleep_time)
+            except ClientError as e:
+                error_code = e.response.get("Error", {}).get("Code")
+                if error_code in ["ServiceUnavailableException", "ThrottlingException"]:
+                    logger.warning(f"AWS Bedrock service error ({error_code}) on attempt {attempt}: {e}")
+                    last_exception = e
+                    if attempt == max_retries:
+                        logger.error("Max retries reached. Raising error.")
+                        break
+                    sleep_time = backoff ** attempt + random.uniform(0, 1)
+                    logger.info(f"Retrying in {sleep_time:.2f} seconds...")
+                    time.sleep(sleep_time)
+                else:
+                    raise
+            except Exception as e:
+                # Retry on generic network errors
+                if (
+                    'NetworkError' in str(e)
+                ) or (
+                    'NetworkError' in type(e).__name__ or 'NetworkError' in str(e)
+                ):
+                    logger.warning(f"Generic network error on attempt {attempt}: {e}")
+                    last_exception = e
+                    if attempt == max_retries:
+                        logger.error("Max retries reached. Raising error.")
+                        break
+                    sleep_time = backoff ** attempt + random.uniform(0, 1)
+                    logger.info(f"Retrying in {sleep_time:.2f} seconds...")
+                    time.sleep(sleep_time)
+                else:
+                    raise
+        if last_exception:
+            raise last_exception
+        raise RuntimeError("Unknown error in _process_ai_response: no response and no exception captured.")
+
+    @staticmethod
+    def _extract_json_from_response(content: str) -> dict:
+        """
+        Robustly extract JSON from LLM response, handling various formats.
+        """
+        content = content.strip()
+        # Remove markdown code blocks if present
         if content.startswith('```json'):
             content = content.replace('```json', '').replace('```', '').strip()
         elif content.startswith('```'):
             content = content.replace('```', '').strip()
-        
-        parsed_content = json.loads(content)
-        
-        if 'slides' in parsed_content:
-            parsed_content['totalSlides'] = len(parsed_content['slides'])
-
-        if len(parsed_content['slides']) == 0:
-            raise ValueError("No slides generated")
-        
-        if 'slides' not in parsed_content:
-            raise ValueError("Invalid presentation structure")
-
-        for i, slide in enumerate(parsed_content['slides']):
-            if not isinstance(slide, dict):
-                logger.warning(f"Invalid slide {i}, skipping")
-                continue
-            slide['id'] = slide.get('id', f'slide-{i+1}')
-            slide['type'] = slide.get('type', 'content')
-            slide['template'] = slide.get('template', 'generic')
-            slide['title'] = slide.get('title', f'Slide {i+1}')
-            slide['content'] = slide.get('content', '')
-            slide['contentType'] = slide.get('contentType', 'text')
-        
-        print(f"Generated {len(parsed_content['slides'])} slides successfully")
-        return parsed_content
+        # Try to find JSON object boundaries
+        try:
+            # Method 1: Look for the first { and try to parse from there
+            start_idx = content.find('{')
+            if start_idx != -1:
+                # Find the matching closing brace
+                brace_count = 0
+                end_idx = start_idx
+                for i in range(start_idx, len(content)):
+                    if content[i] == '{':
+                        brace_count += 1
+                    elif content[i] == '}':
+                        brace_count -= 1
+                        if brace_count == 0:
+                            end_idx = i + 1
+                            break
+                json_str = content[start_idx:end_idx]
+                return json.loads(json_str)
+        except (json.JSONDecodeError, IndexError):
+            pass
+        # Method 2: Use regex to find JSON-like structure
+        try:
+            json_pattern = r'\{(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*\}'
+            matches = re.findall(json_pattern, content, re.DOTALL)
+            for match in matches:
+                try:
+                    return json.loads(match)
+                except json.JSONDecodeError:
+                    continue
+        except Exception:
+            pass
+        # Method 3: Try parsing the entire content as JSON (fallback)
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError:
+            raise ValueError(f"Could not extract valid JSON from response: {content[:200]}...")

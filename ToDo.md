@@ -1,7 +1,24 @@
-## To add
+## Generator
 
-### Viewer
+- Need to add a variable system that updates the request for generation in the system prompt based on the input fields used
+- Need a toolbar which houses the list view and the logout button
 
-## Issues
-- The constant pages that need to be appended are not being added in correct order and page number 9 is missing
-- Make a dynamic signature page
+### Points to be added in the SOW as per customer's requirement:
+- Contact information
+- Index/Table of Contents
+- About the company
+- Executive Summary
+- Urgency and Impact
+- Service level agreement if any : currently partially implemented, need to accept the llm response on the condition that the user provided additional constraints
+
+## SOW List
+
+- Add a thumbnail view that displays the first slide to represent the saved document
+- Add the ability to delete a document along with a conformation message
+
+## SOW Viewer
+
+- The content splitter works only for the mixed, list and text type content right now, it requires an exception condition to work for table (Important)
+- The content in the deliverables and the scope of work
+- The sow number and date positioning is not consistent when switching between different presentations
+- The downloaded PDFs currently are slightly misaligned

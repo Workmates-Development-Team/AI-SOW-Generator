@@ -3,15 +3,41 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, FileText } from 'lucide-react';
+import { Loader2, FileText, X } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { v4 as uuidv4 } from 'uuid';
+import { Select, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { api } from '../lib/api';
+import { useAuth } from '../lib/useAuth';
+import LogoutButton from "../components/LogoutButton";
+import SOWListButton from "../components/SOWListButton";
+import { generateSowNumberAndDate } from '../utils/sowMeta';
 
 const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
 
+interface FormState {
+  clientName: string;
+  projectDescription: string;
+  requirements: string;
+  duration: string;
+  budget: string;
+  supportService: string;
+  legalTerms: string;
+  deliverables: string;
+  terminationClause: string;
+}
+
+interface OptionalField {
+  id: keyof FormState;
+  label: string;
+  placeholder: string;
+}
+
 export default function GenerateSOWPage() {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormState>({
     clientName: '',
     projectDescription: '',
     requirements: '',
@@ -25,42 +51,82 @@ export default function GenerateSOWPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  
+  const { token, setToken } = useAuth();
 
-  const handleChange = (e) => {
+  const handleLogout = async () => {
+    await api.auth.logout();
+    setToken(null);
+    navigate('/login');
+  };
+
+  // Optional fields list
+  const optionalFields: OptionalField[] = [
+    {
+      id: 'deliverables',
+      label: 'Additional instructions for deliverables',
+      placeholder: 'Provide additional instructions or notes for the deliverables',
+    },
+    {
+      id: 'supportService',
+      label: 'Additional instructions for Support Service',
+      placeholder: 'e.g. 24/7 support, 1 year maintenance, etc.',
+    },
+    {
+      id: 'legalTerms',
+      label: 'Special Legal Terms',
+      placeholder: 'e.g. NDA, IP ownership, etc.',
+    },
+    {
+      id: 'terminationClause',
+      label: 'Special Termination Clauses',
+      placeholder: 'Describe any additional termination conditions or clauses',
+    },
+  ];
+  const [addedOptionalFields, setAddedOptionalFields] = useState<Array<keyof FormState>>([]);
+  const availableOptionalFields = optionalFields.filter(f => !addedOptionalFields.includes(f.id));
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setForm((prev) => ({ ...prev, [id]: value }));
   };
 
   // Resize handler for textareas
-  const handleAutoResize = (e) => {
-    e.target.style.height = 'auto';
-    e.target.style.height = e.target.scrollHeight + 'px';
+  const handleAutoResize = (e: React.FormEvent<HTMLTextAreaElement>) => {
+    e.currentTarget.style.height = 'auto';
+    e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
   };
 
   // Enter to submit
-  const handleTextareaKeyDown = (e) => {
+  const handleTextareaKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      let form = e.target.form;
-      if (form) {
-        form.requestSubmit();
+      const formElement = e.currentTarget.form;
+      if (formElement) {
+        formElement.requestSubmit();
       }
     }
   };
 
-  const handleGenerate = async (e) => {
+  const handleAddOptionalField = (fieldId: keyof FormState) => {
+    if (!addedOptionalFields.includes(fieldId)) {
+      setAddedOptionalFields(prev => [...prev, fieldId]);
+    }
+  };
+  const handleRemoveOptionalField = (fieldId: keyof FormState) => {
+    setAddedOptionalFields(prev => prev.filter(id => id !== fieldId));
+    setForm(prev => ({ ...prev, [fieldId]: '' }));
+  };
+
+  const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.clientName.trim() || !form.projectDescription.trim()) return;
+    if (!form.clientName.trim() || !form.projectDescription.trim()) {
+      setError('Client Name and Project Description are required.');
+      return;
+    }
+    
     setLoading(true);
     setError('');
-
-    // Generate SOW number here
-    const date = new Date();
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const shortUuid = uuidv4().replace(/\D/g, '').slice(0, 5);
-    const sowNumber = `CWM${day}${month}${year}${shortUuid}`;
 
     try {
       const sowResponse = await fetch(`${API_URL}/api/generate-document`, {
@@ -84,10 +150,27 @@ export default function GenerateSOWPage() {
         return;
       }
       // Attaching sowNumber and clientName
-      const presentationWithSOW = { ...sowResult.data, sowNumber, clientName: form.clientName.trim() };
+      const { template, totalSlides, ...sowDataToSave } = sowResult.data;
+      const { sowNumber: generatedSowNumber, sowDate: generatedSowDate } = generateSowNumberAndDate();
+      const slidesWithSOW = sowDataToSave.slides.map((slide: any) => {
+        if (slide.template === 'cover') {
+          return {
+            ...slide,
+            sowNumber: generatedSowNumber,
+            sowDate: generatedSowDate,
+          };
+        }
+        return slide;
+      });
+      const presentationWithSOW = { ...sowDataToSave, sowNumber: generatedSowNumber, clientName: form.clientName.trim(), slides: slidesWithSOW };
+      if (!token) {
+        setError('Authentication token not found. Please log in again.');
+        return;
+      }
+      await api.sows.createSow(presentationWithSOW, token);
       navigate('/presentation', { state: { presentation: presentationWithSOW } });
-    } catch (err) {
-      setError(`Error: ${err.message || err}`);
+    } catch (err: unknown) {
+      setError(`Error: ${(err as Error).message || err}`);
     } finally {
       setLoading(false);
     }
@@ -104,35 +187,50 @@ export default function GenerateSOWPage() {
   const cardWidth = `${widthPercent}vw`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8 flex items-center justify-center relative">
+      {/* Top Toolbar */}
+      <div className="w-full flex justify-center" style={{ position: 'absolute', top: 0, left: 0, zIndex: 20, pointerEvents: 'none' }}>
+        <div className="mt-4 max-w-5xl w-full rounded-2xl shadow-lg bg-white/10 backdrop-blur-md border border-white/20 px-6 py-2 flex items-center justify-between relative" style={{ minHeight: 40, fontSize: '0.95rem', pointerEvents: 'auto' }}>
+          <div className="flex items-center gap-4">
+            <SOWListButton />
+          </div>
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white/80 text-sm font-medium select-none pointer-events-none flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Statement of Work (SOW) Generator
+          </span>
+          <div className="flex items-center gap-2 ml-auto">
+            <LogoutButton />
+          </div>
+        </div>
+      </div>
+      {/* Card content below toolbar */}
       <Card
         className="shadow-2xl border border-white/20 bg-white/10 backdrop-blur-md p-0 md:p-2"
         style={{ width: cardWidth, minWidth: '400px', maxWidth: '80vw', transition: 'width 0.3s cubic-bezier(0.4,0,0.2,1)' }}
       >
-        <CardHeader className="px-8 pt-8 pb-4">
-          <CardTitle className="flex items-center gap-2 text-white">
-            <FileText className="h-5 w-5" />
-            Statement of Work (SOW) Generator
-          </CardTitle>
-        </CardHeader>
+        <div className="mt-8" />
         <CardContent className="space-y-8 px-8 pb-10 pt-2">
           <form onSubmit={handleGenerate} className="space-y-8">
-            <div className="flex flex-col md:flex-row gap-16">
+            <div className="flex flex-col md:flex-row gap-2 max-h-[70vh] items-stretch">
               {/* Left column: Required fields */}
-              <div className="flex-1 space-y-6">
+              <div
+                className="flex-1 space-y-6 overflow-y-auto min-h-0 pr-10 pr-2"
+                style={{ scrollbarGutter: 'stable' }}
+              >
                 <label htmlFor="clientName" className="block text-sm font-medium text-white/80">
                   Client Name
                 </label>
-                <Textarea
+                <Input
                   id="clientName"
+                  type="text"
                   placeholder="Enter the client's name"
                   value={form.clientName}
                   onChange={handleChange}
-                  onKeyDown={handleTextareaKeyDown}
-                  onInput={handleAutoResize}
-                  className="min-h-[40px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+                  className="text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40 resize-none"
                   disabled={loading}
                   required
+                  autoComplete="off"
+                  spellCheck={false}
                 />
                 <label htmlFor="projectDescription" className="block text-sm font-medium text-white/80">
                   Project Description
@@ -166,7 +264,7 @@ export default function GenerateSOWPage() {
                 </label>
                 <Textarea
                   id="duration"
-                  placeholder="e.g. 3 months, Q1 2025, etc."
+                  placeholder="e.g. 3 months, Q1 2025, etc." 
                   value={form.duration}
                   onChange={handleChange}
                   onInput={handleAutoResize}
@@ -186,63 +284,66 @@ export default function GenerateSOWPage() {
                   disabled={loading}
                 />
               </div>
+
               {/* Separator */}
               <div className="hidden md:flex items-stretch mx-2">
                 <Separator orientation="vertical" className="h-full bg-white/20" />
               </div>
+
               {/* Right column: Optional fields */}
-              <div className="flex-1 space-y-6">
-                <label htmlFor="deliverables" className="block text-sm font-medium text-white/80">
-                  Instructions for the deliverables (Optional)
-                </label>
-                <Textarea
-                  id="deliverables"
-                  placeholder="Provide instructions or notes for the deliverables (optional)"
-                  value={form.deliverables}
-                  onChange={handleChange}
-                  onKeyDown={handleTextareaKeyDown}
-                  onInput={handleAutoResize}
-                  className="min-h-[80px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
-                  disabled={loading}
-                />
-                <label htmlFor="supportService" className="block text-sm font-medium text-white/80">
-                  Support Service (Optional)
-                </label>
-                <Textarea
-                  id="supportService"
-                  placeholder="e.g. 24/7 support, 1 year maintenance, etc."
-                  value={form.supportService}
-                  onChange={handleChange}
-                  onInput={handleAutoResize}
-                  className="min-h-[80px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
-                  disabled={loading}
-                />
-                <label htmlFor="legalTerms" className="block text-sm font-medium text-white/80">
-                  Special Legal Terms (Optional)
-                </label>
-                <Textarea
-                  id="legalTerms"
-                  placeholder="e.g. NDA, IP ownership, etc."
-                  value={form.legalTerms}
-                  onChange={handleChange}
-                  onKeyDown={handleTextareaKeyDown}
-                  onInput={handleAutoResize}
-                  className="min-h-[80px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
-                  disabled={loading}
-                />
-                <label htmlFor="terminationClause" className="block text-sm font-medium text-white/80">
-                  Termination Clause (Optional)
-                </label>
-                <Textarea
-                  id="terminationClause"
-                  placeholder="Describe any termination conditions or clauses (optional)"
-                  value={form.terminationClause}
-                  onChange={handleChange}
-                  onKeyDown={handleTextareaKeyDown}
-                  onInput={handleAutoResize}
-                  className="min-h-[80px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
-                  disabled={loading}
-                />
+              <div
+                className="flex-1 space-y-6 overflow-y-auto min-h-0 pl-10 pl-2 max-h-[70vh]"
+                style={{ scrollbarGutter: 'stable' }}
+              >
+                {addedOptionalFields.map((fieldId) => {
+                  const field = optionalFields.find(f => f.id === fieldId);
+                  if (!field) return null; // Add this check
+                  return (
+                    <div key={fieldId} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor={fieldId} className="text-sm font-medium text-white/80">
+                          {field.label}
+                        </Label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemoveOptionalField(fieldId)}
+                          className="text-white hover:bg-white/20 focus:bg-white/30 ml-2"
+                          aria-label={`Remove ${field.label}`}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <Textarea
+                        id={fieldId}
+                        placeholder={field.placeholder}
+                        value={form[fieldId]}
+                        onChange={handleChange}
+                        onKeyDown={handleTextareaKeyDown}
+                        onInput={handleAutoResize}
+                        className="min-h-[80px] bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40 flex-1"
+                        disabled={loading}
+                      />
+                    </div>
+                  );
+                })}
+                {availableOptionalFields.length > 0 && (
+                  <div className="space-y-2">
+                    <Select onValueChange={handleAddOptionalField}>
+                      <SelectTrigger className="bg-white/10 border-white/20 text-white focus:border-white/40">
+                        <span className="text-white/50">Add Optional Field</span>
+                      </SelectTrigger>
+                      <SelectContent className="bg-white/10 border border-white/20 text-white shadow-xl">
+                        {availableOptionalFields.map((field) => (
+                          <SelectItem key={field.id} value={field.id} className="text-white hover:bg-white/10 focus:bg-white/20">
+                            {field.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
             </div>
             {/* Submit button below the columns */}
@@ -280,3 +381,4 @@ export default function GenerateSOWPage() {
     </div>
   );
 }
+

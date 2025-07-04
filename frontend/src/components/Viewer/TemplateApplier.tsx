@@ -3,7 +3,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { TEMPLATES } from '@/types/template';
 import type { Slide } from '@/types/presentation';
-import { v4 as uuidv4 } from 'uuid';
+import { SOWDateSection } from './SOWDateSection';
+import { SOWNumberSection } from './SOWNumberSection';
 
 interface TemplateApplierProps {
   slide: Slide;
@@ -18,19 +19,14 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
   templateId = "plain",
   sowNumber,
 }) => {
-  const actualTemplateId = slide.template || templateId;
-  const template = TEMPLATES[actualTemplateId as keyof typeof TEMPLATES] || TEMPLATES.generic;
-
-  // Use the provided sowNumber, or generate one as fallback
-  const generatedSowNumber = React.useMemo(() => {
-    const date = new Date();
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const shortUuid = uuidv4().replace(/-/g, '').slice(0, 5).toUpperCase();
-    return `CWM${day}${month}${year}${shortUuid}`;
-  }, []);
-  const displaySowNumber = sowNumber || generatedSowNumber;
+  let template;
+  if (typeof slide.template === 'string') {
+    template = TEMPLATES[slide.template as keyof typeof TEMPLATES] || TEMPLATES.generic;
+  } else if (slide.template && typeof slide.template === 'object') {
+    template = slide.template;
+  } else {
+    template = TEMPLATES[templateId as keyof typeof TEMPLATES] || TEMPLATES.generic;
+  }
 
   const renderContent = () => {
     const customComponents = {
@@ -130,97 +126,24 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
         ...template.layout.title.style,
       }}>
         {slide.title}
-        {/* Show date on cover template */}
-        {actualTemplateId === 'cover' && (() => {
-          const date = new Date();
-          const locale = 'en-IN';
-          const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Kolkata' };
-          const parts = new Intl.DateTimeFormat(locale, options).formatToParts(date);
-
-          const monthPart = parts.find((part) => part.type === 'month');
-          const dayPart = parts.find((part) => part.type === 'day');
-          const yearPart = parts.find((part) => part.type === 'year');
-
-          return (
-            <div
-              style={{
-                marginTop: '22rem',
-                marginRight: '-11rem',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-end',
-              }}
-            >
-              <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-end' }}>
-                {monthPart && (
-                  <span
-                    style={{
-                      fontSize: '1.4rem',
-                      color: 'red',
-                      fontWeight: 400,
-                      marginRight: '0.15rem',
-                      lineHeight: 1,
-                    }}
-                  >
-                    {monthPart.value}
-                  </span>
-                )}
-                {dayPart && (
-                  <span
-                    style={{
-                      fontSize: '1.4rem',
-                      color: 'red',
-                      fontWeight: 400,
-                      marginRight: '0.15rem',
-                      lineHeight: 1,
-                    }}
-                  >
-                    {dayPart.value}
-                  </span>
-                )}
-              </div>
-              {yearPart && (
-                <span
-                  style={{
-                    fontSize: '3.5rem',
-                    fontWeight: 700,
-                    color: '#000',
-                    lineHeight: 1,
-                  }}
-                >
-                  {yearPart.value}
-                </span>
-              )}
-            </div>
-          );
-        })()}
+        {/* Show SOW number and date as sections on cover template */}
+        {templateId === 'cover' && (
+          <>
+            <SOWDateSection sowDate={slide.sowDate} />
+            <SOWNumberSection sowNumber={slide.sowNumber || sowNumber} />
+          </>
+        )}
       </div>
 
       {/* Content */}
       <div style={{
         ...template.layout.content.position,
-        ...template.layout.content.style,
+        ...Object.fromEntries(Object.entries(template.layout.content.style).filter(([key]) => key !== 'padding')),
       }}>
-        {renderContent()}
-      </div>
-
-      {/* SOW Number using UUID */}
-      {actualTemplateId === 'cover' && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '0.2rem',
-            right: '0.5rem',
-            color: '#1e3a8a',
-            fontWeight: 600,
-            fontSize: '1.3rem',
-            padding: '0.5rem 1.2rem',
-            zIndex: 10,
-          }}
-        >
-          SOW Number: {displaySowNumber}
+        <div style={{ padding: template.layout.content.style?.padding || undefined, height: '100%', width: '100%' }}>
+          {renderContent()}
         </div>
-      )}
+      </div>
     </div>
   );
 };
