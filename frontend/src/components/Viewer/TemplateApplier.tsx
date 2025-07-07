@@ -31,18 +31,16 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
   const renderContent = () => {
     const customComponents = {
       table: ({ children }: any) => (
-        <>
-          <table style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            marginTop: '1rem',
-            fontSize: '0.92em', 
-            backgroundColor: 'inherit',
-          }}>
-            {children}
-          </table>
-          <br />
-        </>
+        <table style={{
+          width: '100%',
+          borderCollapse: 'collapse',
+          marginTop: '1rem',
+          marginBottom: '1.5rem',
+          fontSize: '0.92em', 
+          backgroundColor: 'inherit',
+        }}>
+          {children}
+        </table>
       ),
       th: ({ children }: any) => (
         <th style={{
