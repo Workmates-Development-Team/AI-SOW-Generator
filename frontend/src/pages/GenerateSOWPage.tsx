@@ -25,6 +25,7 @@ interface FormState {
   legalTerms: string;
   deliverables: string;
   terminationClause: string;
+  contactInformation: string;
 }
 
 interface OptionalField {
@@ -44,6 +45,7 @@ export default function GenerateSOWPage() {
     legalTerms: '',
     deliverables: '',
     terminationClause: '',
+    contactInformation: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -72,6 +74,11 @@ export default function GenerateSOWPage() {
       id: 'terminationClause',
       label: 'Special Termination Clauses',
       placeholder: 'Describe any additional termination conditions or clauses',
+    },
+    {
+      id: 'contactInformation',
+      label: 'Contact Information',
+      placeholder: 'Enter contact details (e.g. name, email, phone)',
     },
   ];
   const [addedOptionalFields, setAddedOptionalFields] = useState<Array<keyof FormState>>([]);
@@ -133,6 +140,7 @@ export default function GenerateSOWPage() {
           legalTerms: form.legalTerms.trim(),
           deliverables: form.deliverables.trim(),
           terminationClause: form.terminationClause.trim(),
+          contactInformation: form.contactInformation.trim(),
         }),
       });
       const sowResult = await sowResponse.json();

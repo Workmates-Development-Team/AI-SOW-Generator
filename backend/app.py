@@ -35,6 +35,7 @@ def generate_presentation():
             'legalTerms': data.get('legalTerms') or '',
             'deliverables': data.get('deliverables') or '',
             'terminationClause': data.get('terminationClause') or '',
+            'contactInformation': data.get('contactInformation') or '',
         }
 
         if any(sow_fields.values()):

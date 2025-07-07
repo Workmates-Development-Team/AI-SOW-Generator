@@ -68,6 +68,7 @@ const SOWViewer: React.FC = () => {
     });
 
     // Apply client name to signature slide
+    // The `+(slide.content || "")` part can be added add the model generated text in the document
     const slidesWithContent = presentationState.slides.map(slide => {
       if (slide.template === 'signature' && presentationState?.clientName) {
         return { ...slide, content: presentationState.clientName };

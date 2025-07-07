@@ -16,6 +16,7 @@ export interface FormState {
   legalTerms: string;
   deliverables: string;
   terminationClause: string;
+  contactInformation: string;
 }
 
 interface OptionalField {

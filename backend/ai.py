@@ -113,15 +113,15 @@ class AIService:
             f"{slide_counter}. Cover/Title Page (template: \"cover\")",
             f"{slide_counter + 1}. Introduction (template: \"generic\") -- The title should ALWAYS be just 'Introduction'. The Introduction section MUST be a well-written paragraph that introduces the Statement of Work as a whole. It should include: - Mention the service provider (using the fixed description below) in a paragraph, - Mention the client (based on the project description and any provided client information) in the same paragraph as the service provider, - And a summary of the project, its context, goals, and any other relevant introductory information. The paragraph should flow naturally and not be a list of facts about the parties. It should set the stage for the rest of the document. The fixed description of the service provider is: \"Workmates Core2cloud is a cloud managed services company focused on AWS services, the fastest growing AWS Premier Consulting Partner in India. We focus on Managed services, Cloud Migration and Implementation of various value-added services on the cloud including but not limited to Cyber Security and Analytics. Our skills cut across various workloads like SAP, Media Solutions, E-commerce, Analytics, IOT, Machine Learning, VR, AR etc. Our VR services are transforming many businesses.\"",
             f"{slide_counter + 2}. Objectives (template: \"generic\") -- The title should ALWAYS be just 'Objectives'",
-            f"{slide_counter + 3}. Scope of Work (template: \"scope\")",
+            f"{slide_counter + 3}. Scope of Work (template: \"scope\") -- The title should ALWAYS be just 'Scope of Work'",
         ])
         slide_counter += 4
         
         # Deliverables slide (always include, but with conditional instructions)
         if sow_fields.get('deliverables'):
-            slides_structure.append(f"{slide_counter}. Deliverables (template: \"deliverables\") -- ALWAYS include this slide. Generate comprehensive deliverables content based on the project requirements AND incorporate the user's additional deliverables instructions: '{sow_fields['deliverables']}'")
+            slides_structure.append(f"{slide_counter}. Deliverables (template: \"deliverables\") -- The title should ALWAYS be just 'Deliverables'. ALWAYS include this slide. Generate comprehensive deliverables content based on the project requirements AND incorporate the user's additional deliverables instructions: '{sow_fields['deliverables']}'")
         else:
-            slides_structure.append(f"{slide_counter}. Deliverables (template: \"deliverables\") -- ALWAYS include this slide")
+            slides_structure.append(f"{slide_counter}. Deliverables (template: \"deliverables\") -- The title should ALWAYS be just 'Deliverables'. ALWAYS include this slide")
         slide_counter += 1
         
         # Standard project slides
@@ -158,7 +158,26 @@ class AIService:
         else:
             slides_structure.append(f"{slide_counter}. Termination (template: \"generic\") -- The title should ALWAYS be just 'Termination' and ALWAYS include this slide. Leave the content section blank if no user input.")
         slide_counter += 1
-        
+
+        # Contact Information slide (conditional content)
+        if sow_fields.get('contactInformation'):
+            slides_structure.append(f"{slide_counter}. Contact Information (template: \"generic\") -- The title should ALWAYS be just 'Contact Information'. The content should be the provided contact information: '{sow_fields['contactInformation']}' in a well structured, appropriate way.")
+            # Example Contact Information slide (table structure with two columns: Field and Value, as a multiline string)
+            slides_structure.append(
+                f"""
+                Example Contact Information Slide (table):
+                {{
+                  "id": "slide-{slide_counter}",
+                  "type": "generic",
+                  "template": "generic",
+                  "title": "Contact Information",
+                  "content": "| Field | Value |\n|-------|-------|\n| Name  | John Doe              |\n| Email | john.doe@example.com  |\n| Phone | +1-234-567-8901       |",
+                  "contentType": "table"
+                }}
+                """
+            )
+            slide_counter += 1
+
         # Signature slide (always include)
         slides_structure.append(f"{slide_counter}. Signature Page (template: \"signature\") -- The title should ALWAYS be just 'Signature' and the content should be ONLY the client name")
         
@@ -214,7 +233,7 @@ class AIService:
           "id": "slide-4",
           "type": "scope",
           "template": "scope",
-          "title": "",
+          "title": "Scope of Work",
           "content": "1. **Phase 1: Planning & Analysis**  \\n   1.1 Objectives  \\n     • Define project scope  \\n   1.2 Key Activities  \\n     • Stakeholder meetings  \\n   1.3 Scope Items  \\n     a. **Requirements Gathering**  \\n        – Interview stakeholders  \\n2. **Phase 2: Implementation**  \\n   2.1 Objectives  \\n     • Develop solution  \\n   2.2 Key Activities  \\n     • Coding, testing  \\n   2.3 Scope Items  \\n     a. **Module Development**  \\n        – Build core modules  \\n3. **Phase 3: Delivery**  \\n   ...  \\n   (Continue structure as needed based on context)",
           "contentType": "mixed"
         }}
@@ -224,7 +243,7 @@ class AIService:
           "id": "slide-5",
           "type": "deliverables",
           "template": "deliverables",
-          "title": "", 
+          "title": "Deliverables", 
           "content": "1. **Phase 1: Discovery and Planning**  \\n   1.1 Objectives  \\n     • Understand needs  \\n   1.2 Key Activities  \\n     • Gather requirements  \\n   1.3 Deliverables  \\n     a. **Requirements Document**  \\n        – Description placeholder  \\n2. **Phase 2: Development**  \\n   2.1 Objectives  \\n     • Build modules  \\n   2.2 Deliverables  \\n     a. **Module Example**  \\n        – Feature description  \\n3. **Phase 3: Integration**  \\n   ...  \\n   (Continue structure as needed based on context)",
           "contentType": "mixed"
         }}
