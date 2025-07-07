@@ -91,22 +91,6 @@ export const GENERIC_TEMPLATE: Template = {
   }
 };
 
-export const SIGNATURE_TEMPLATE: Template = {
-  id: 'signature',
-  name: 'Signature Template',
-  backgroundImage: '/4.svg',
-  layout: {
-    title: {
-      position: {},
-      style: { display: 'none' }
-    },
-    content: {
-      position: { position: 'absolute', top: '3.8%', left: '25%', width: '25%' },
-      style: { fontSize: '1.3rem', color: '#000', textAlign: 'left', lineHeight: '1.2', fontWeight: 'bold' }
-    }
-  }
-};
-
 export const PLAIN_TEMPLATE: Template = {
   id: 'plain',
   name: 'Plain Template',
@@ -136,10 +120,24 @@ export const PLAIN_TEMPLATE: Template = {
   }
 };
 
+export const SIGNATURE_TEMPLATE: Template = {
+  id: 'signature',
+  name: 'Signature Template',
+  backgroundImage: '/4.svg',
+  layout: {
+    title: {
+      position: {},
+      style: { display: 'none' }
+    },
+    content: {
+      position: { position: 'absolute', top: '3.8%', left: '25%', width: '25%' },
+      style: { fontSize: '1.3rem', color: '#000', textAlign: 'left', lineHeight: '1.2', fontWeight: 'bold' }
+    }
+  }
+};
+
 export const TEMPLATES = {
   cover: COVER_TEMPLATE,
-  scope: GENERIC_TEMPLATE,
-  deliverables: GENERIC_TEMPLATE,
   generic: GENERIC_TEMPLATE,
   plain: PLAIN_TEMPLATE,
   signature: SIGNATURE_TEMPLATE,

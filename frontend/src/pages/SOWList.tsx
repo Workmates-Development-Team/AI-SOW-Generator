@@ -29,6 +29,10 @@ const SOWList: React.FC = () => {
   const [sowToDelete, setSowToDelete] = useState<any>(null);
   const dialogContentRef = useRef<HTMLDivElement>(null);
 
+  // --- Card sizing refs and state ---
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [maxCardSize, setMaxCardSize] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
+
   useEffect(() => {
     const fetchSows = async () => {
       if (token) {
@@ -54,6 +58,27 @@ const SOWList: React.FC = () => {
     };
     fetchSows();
   }, [token]);
+
+  useEffect(() => {
+    if (sows && sows.length > 0) {
+      // After cards render, measure their sizes
+      setTimeout(() => {
+        let maxWidth = 0;
+        let maxHeight = 0;
+        cardRefs.current.forEach((ref) => {
+          if (ref) {
+            const rect = ref.getBoundingClientRect();
+            if (rect.width > maxWidth) maxWidth = rect.width;
+            if (rect.height > maxHeight) maxHeight = rect.height;
+          }
+        });
+        if (maxWidth !== maxCardSize.width || maxHeight !== maxCardSize.height) {
+          setMaxCardSize({ width: maxWidth, height: maxHeight });
+        }
+      }, 0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sows]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8 flex flex-col items-center relative">
@@ -81,9 +106,11 @@ const SOWList: React.FC = () => {
           <div className="text-white/70">No SOWs generated yet.</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-5xl">
-            {sows.map((sow) => (
+            {sows.map((sow, idx) => (
               <div className="relative group" key={(sow as any)._id || sow.sowNumber || sow.title}>
                 <Card
+                  ref={el => { cardRefs.current[idx] = el; }}
+                  style={maxCardSize.width && maxCardSize.height ? { width: maxCardSize.width, height: maxCardSize.height } : {}}
                   className="bg-white/10 border-white/20 text-white p-6 cursor-pointer hover:bg-white/20 transition-colors"
                   onClick={(e) => {
                     // Prevent navigation if delete button or dialog is clicked
@@ -120,36 +147,46 @@ const SOWList: React.FC = () => {
                         <Trash className="w-4 h-4" />
                       </Button>
                     </AlertDialogTrigger>
-                    <AlertDialogContent ref={dialogContentRef}>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete SOW?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete <span className="font-bold">{sow.title || 'this SOW'}</span>? This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => {
-                          setDeleteDialogOpen(false);
-                          setSowToDelete(null);
-                        }}>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          className="bg-destructive text-white hover:bg-destructive/90"
-                          onClick={async (e) => {
-                            e.preventDefault();
-                            if (!token || !sowToDelete) return;
-                            try {
-                              await api.sows.deleteSow((sowToDelete as any)._id, token);
-                              setSows((prev) => prev ? prev.filter((s) => (s as any)._id !== (sowToDelete as any)._id) : prev);
+                    <AlertDialogContent ref={dialogContentRef}
+                      className="shadow-2xl border border-white/20 bg-white/10 backdrop-blur-md p-0 md:p-2 rounded-2xl max-w-md w-full"
+                    >
+                      <div className="mt-4" />
+                      <div className="px-8 pb-8 pt-2">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete SOW?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete <span className="font-bold">{sow.title || 'this SOW'}</span>? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter className="mt-6 flex flex-row gap-4 justify-end">
+                          <AlertDialogCancel
+                            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                            onClick={() => {
                               setDeleteDialogOpen(false);
                               setSowToDelete(null);
-                            } catch (err: any) {
-                              setError(err?.message || 'Failed to delete SOW');
-                            }
-                          }}
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
+                            }}
+                          >
+                            Cancel
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-red-600 hover:bg-red-700 text-white border-0 px-6 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 font-semibold"
+                            onClick={async (e) => {
+                              e.preventDefault();
+                              if (!token || !sowToDelete) return;
+                              try {
+                                await api.sows.deleteSow((sowToDelete as any)._id, token);
+                                setSows((prev) => prev ? prev.filter((s) => (s as any)._id !== (sowToDelete as any)._id) : prev);
+                                setDeleteDialogOpen(false);
+                                setSowToDelete(null);
+                              } catch (err: any) {
+                                setError(err?.message || 'Failed to delete SOW');
+                              }
+                            }}
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </div>
                     </AlertDialogContent>
                   </AlertDialog>
                   <CardTitle className="mb-2 text-lg font-semibold">{sow.title || 'Untitled SOW'}</CardTitle>
