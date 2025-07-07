@@ -39,7 +39,19 @@ function AuthenticatedRoutes() {
   }, []);
 
   if (loading) {
-    return <div>Loading user data...</div>; // Or a loading spinner
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center gap-6 p-10 rounded-2xl shadow-2xl border border-white/20 bg-white/10 backdrop-blur-md">
+          <span className="animate-spin text-yellow-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="mx-auto">
+              <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
+              <path d="M22 12a10 10 0 0 1-10 10" />
+            </svg>
+          </span>
+          <span className="text-white text-lg font-medium tracking-wide">Loading user data</span>
+        </div>
+      </div>
+    );
   }
 
   return user ? (
