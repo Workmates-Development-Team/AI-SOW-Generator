@@ -1,8 +1,6 @@
 # Web frameworks
 Flask
 Flask-Cors
-fastapi
-uvicorn
 
 # Flask dependencies
 python-dotenv
@@ -16,7 +14,6 @@ click
 PyJWT
 
 # AI/LLM
-openai
 langchain
 langchain-core
 langchain-community

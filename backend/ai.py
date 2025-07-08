@@ -70,6 +70,8 @@ class AIService:
                 prompt_lines.append(f"Special Legal Terms: {sow_fields['legalTerms']}")
             if sow_fields.get('terminationClause'):
                 prompt_lines.append(f"Special Termination Clauses: {sow_fields['terminationClause']}")
+            if sow_fields.get('contactInfo'):
+                prompt_lines.append(f"Contact Information: {sow_fields['contactInfo']}")
             structured_prompt = '\n'.join(prompt_lines)
         else:
             structured_prompt = str(sow_fields)
@@ -118,7 +120,7 @@ class AIService:
         slide_counter += 4
         
         # Deliverables slide (always include, but with conditional instructions)
-        if sow_fields.get('deliverables'):
+        if sow_fields.get('deliverables') and sow_fields['deliverables'].strip() != "":
             slides_structure.append(f"{slide_counter}. Deliverables (template: \"deliverables\") -- The title should ALWAYS be just 'Deliverables'. ALWAYS include this slide. Generate comprehensive deliverables content based on the project requirements AND incorporate the user's additional deliverables instructions: '{sow_fields['deliverables']}'")
         else:
             slides_structure.append(f"{slide_counter}. Deliverables (template: \"deliverables\") -- The title should ALWAYS be just 'Deliverables'. ALWAYS include this slide")
@@ -135,14 +137,14 @@ class AIService:
         slide_counter += 5
         
         # Support Services slide (conditional content)
-        if sow_fields.get('supportService'):
+        if sow_fields.get('supportService') and sow_fields['supportService'].strip() != "":
             slides_structure.append(f"{slide_counter}. Support Services (template: \"generic\") -- ALWAYS include this slide. Generate content based on the user's additional support service instructions: '{sow_fields['supportService']}'")
         else:
             slides_structure.append(f"{slide_counter}. Support Services (template: \"generic\") -- ALWAYS include this slide. Leave the content section blank if no user input.")
         slide_counter += 1
         
         # General Terms slide (conditional content)
-        if sow_fields.get('legalTerms'):
+        if sow_fields.get('legalTerms') and sow_fields['legalTerms'].strip() != "":
             slides_structure.append(f"{slide_counter}. General Terms (template: \"generic\") -- The title should ALWAYS be just 'General Terms' and ALWAYS include this slide. Generate content based on the user's special legal terms: '{sow_fields['legalTerms']}'")
         else:
             slides_structure.append(f"{slide_counter}. General Terms (template: \"generic\") -- The title should ALWAYS be just 'General Terms' and ALWAYS include this slide. Leave the content section blank if no user input.")
@@ -153,26 +155,26 @@ class AIService:
         slide_counter += 1
         
         # Termination slide (conditional content)
-        if sow_fields.get('terminationClause'):
+        if sow_fields.get('terminationClause') and sow_fields['terminationClause'].strip() != "":
             slides_structure.append(f"{slide_counter}. Termination (template: \"generic\") -- The title should ALWAYS be just 'Termination' and ALWAYS include this slide. Generate content based on the user's special termination clauses: '{sow_fields['terminationClause']}'")
         else:
             slides_structure.append(f"{slide_counter}. Termination (template: \"generic\") -- The title should ALWAYS be just 'Termination' and ALWAYS include this slide. Leave the content section blank if no user input.")
         slide_counter += 1
-
+        
         # Contact Information slide (conditional content)
-        if sow_fields.get('contactInformation'):
+        if sow_fields.get('contactInformation') and sow_fields['contactInformation'].strip() != "":
             slides_structure.append(f"{slide_counter}. Contact Information (template: \"generic\") -- The title should ALWAYS be just 'Contact Information'. The content should be the provided contact information: '{sow_fields['contactInformation']}' in a well structured, appropriate way.")
-            # Example Contact Information slide (table structure with two columns: Field and Value, as a multiline string)
+            # Example contact information slide
             slides_structure.append(
                 f"""
                 Example Contact Information Slide (table):
                 {{
-                  "id": "slide-{slide_counter}",
-                  "type": "generic",
-                  "template": "generic",
-                  "title": "Contact Information",
-                  "content": "| Field | Value |\n|-------|-------|\n| Name  | John Doe              |\n| Email | john.doe@example.com  |\n| Phone | +1-234-567-8901       |",
-                  "contentType": "table"
+                  \"id\": \"slide-{slide_counter}\",
+                  \"type\": \"generic\",
+                  \"template\": \"generic\",
+                  \"title\": \"Contact Information\",
+                  \"content\": \"| Field | Value |\n|-------|-------|\n| Name  | John Doe              |\n| Email | john.doe@example.com  |\n| Phone | +1-234-567-8901       |\",
+                  \"contentType\": \"table\"
                 }}
                 """
             )
