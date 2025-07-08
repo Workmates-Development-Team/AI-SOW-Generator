@@ -35,30 +35,32 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
           width: '100%',
           borderCollapse: 'collapse',
           marginTop: '1rem',
-          fontSize: 'inherit',
+          marginBottom: '1.5rem',
+          fontSize: '0.92em', 
           backgroundColor: 'inherit',
-          borderRadius: '8px',
-          overflow: 'hidden',
         }}>
           {children}
         </table>
       ),
       th: ({ children }: any) => (
         <th style={{
-          backgroundColor: '#1e3a8a',
-          color: '#fbbf24',
-          padding: '12px',
+          border: '2px solid #222', 
+          borderBottomWidth: '3px', 
+          padding: '8px 10px',
           textAlign: 'left',
           fontWeight: 'bold',
+          color: '#111', 
+          fontSize: '0.98em',
         }}>
           {children}
         </th>
       ),
       td: ({ children }: any) => (
         <td style={{
-          padding: '10px 12px',
-          borderBottom: '1px solid #ddd',
-          color: '#000',
+          padding: '7px 10px',
+          border: '1px solid #888',
+          color: '#222',
+          fontSize: '0.92em', 
         }}>
           {children}
         </td>
@@ -121,19 +123,26 @@ const TemplateApplier: React.FC<TemplateApplierProps> = ({
       }
     >
       {/* Title */}
-      <div style={{
-        ...template.layout.title.position,
-        ...template.layout.title.style,
-      }}>
-        {slide.title}
-        {/* Show SOW number and date as sections on cover template */}
-        {templateId === 'cover' && (
-          <>
-            <SOWDateSection sowDate={slide.sowDate} />
-            <SOWNumberSection sowNumber={slide.sowNumber || sowNumber} />
-          </>
-        )}
-      </div>
+      {templateId === 'cover' ? (
+        <div style={{
+          position: 'relative',
+          height: '320px', // fixed height for cover title area
+          ...template.layout.title.position,
+        }}>
+          <div style={{ ...template.layout.title.style }}>
+            {slide.title}
+          </div>
+          <SOWDateSection sowDate={slide.sowDate} />
+          <SOWNumberSection sowNumber={slide.sowNumber || sowNumber} />
+        </div>
+      ) : (
+        <div style={{
+          ...template.layout.title.position,
+          ...template.layout.title.style,
+        }}>
+          {slide.title}
+        </div>
+      )}
 
       {/* Content */}
       <div style={{

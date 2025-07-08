@@ -1,24 +1,29 @@
+# Frontend
+
+- Instead of converting the backend response into html using RegEx, directly render the markdown and style it
+
 ## Generator
 
-- Need to add a variable system that updates the request for generation in the system prompt based on the input fields used
-- Need a toolbar which houses the list view and the logout button
-
 ### Points to be added in the SOW as per customer's requirement:
-- Contact information
 - Index/Table of Contents
 - About the company
 - Executive Summary
 - Urgency and Impact
-- Service level agreement if any : currently partially implemented, need to accept the llm response on the condition that the user provided additional constraints
+- Service level agreement (optional)
+- A section for things not included (optional)
+- RACI matrix (optional)
 
 ## SOW List
 
 - Add a thumbnail view that displays the first slide to represent the saved document
-- Add the ability to delete a document along with a conformation message
 
 ## SOW Viewer
 
 - The content splitter works only for the mixed, list and text type content right now, it requires an exception condition to work for table (Important)
-- The content in the deliverables and the scope of work
-- The sow number and date positioning is not consistent when switching between different presentations
-- The downloaded PDFs currently are slightly misaligned
+- The downloaded PDFs currently are slightly misaligned (Crucial)
+- The objective and the assumptions and constraints pages overflow
+
+# Backend
+
+- The db should also save the prompt given by the user for future reference or use
+- The backend should accept a cover, generic, plain and signature picture or bg image upload that would be used overriding the default. This should be implemented in the generate page where the user selects the type of document to generate and then gives the user a skippable option to upload the images with a description of which parts they will be used for and then only the images uploaded by the user are then overridden for use in the template.

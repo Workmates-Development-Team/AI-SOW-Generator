@@ -24,8 +24,8 @@ const SOWDateSection: React.FC<SOWDateSectionProps> = ({ sowDate, style }) => {
   return (
     <div style={{
       position: 'absolute',
-      top: '267%',
-      right: '-30%',
+      top: '150%',
+      right: '-35%',
       fontSize: '3rem',
       lineHeight: 1,
       display: 'flex',

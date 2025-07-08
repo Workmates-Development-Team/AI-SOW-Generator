@@ -35,7 +35,9 @@ def generate_presentation():
             'legalTerms': data.get('legalTerms') or '',
             'deliverables': data.get('deliverables') or '',
             'terminationClause': data.get('terminationClause') or '',
+            'contactInformation': data.get('contactInformation') or '',
         }
+
         if any(sow_fields.values()):
             try:
                 presentation_data = ai.generate_sow_document(sow_fields)
@@ -67,15 +69,6 @@ def generate_presentation():
             'data': presentation_data
         })
         
-    except json.JSONDecodeError as e:
-        if hasattr(e, 'doc'):
-            raw_llm_output = e.doc
-        return jsonify({
-            'success': False,
-            'error': f'Invalid JSON format: {str(e)}',
-            'raw_llm_output': raw_llm_output
-        }), 400
-
     except Exception as e:
         return jsonify({
             'success': False,
