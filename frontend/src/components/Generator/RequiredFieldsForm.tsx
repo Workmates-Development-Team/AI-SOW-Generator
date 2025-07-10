@@ -19,7 +19,7 @@ const RequiredFieldsForm: React.FC<RequiredFieldsFormProps> = ({
   handleAutoResize,
 }) => {
   return (
-    <div className="flex-1 space-y-6 overflow-y-auto min-h-0 pr-10 pr-2" style={{ scrollbarGutter: 'stable' }}>
+    <div className="flex-1 space-y-6 overflow-y-auto min-h-0 pr-10" style={{ scrollbarGutter: 'stable' }}>
       <label htmlFor="clientName" className="block text-sm font-medium text-white/80">
         Client Name
       </label>
