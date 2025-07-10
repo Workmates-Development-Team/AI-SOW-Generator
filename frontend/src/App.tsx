@@ -6,6 +6,7 @@ import Logo from "./components/Logo";
 import LoginPage from "./pages/LoginPage";
 import { useEffect, useState } from 'react';
 import { api } from "./lib/api";
+import { ThemeProvider } from './contexts/ThemeContext';
 
 function AuthenticatedRoutes() {
   const [user, setUser] = useState<any>(undefined);
@@ -69,11 +70,13 @@ function AuthenticatedRoutes() {
 
 export default function App() {
   return(
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Logo><LoginPage /></Logo>} />
-        <Route path="/*" element={<AuthenticatedRoutes />} />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Logo><LoginPage /></Logo>} />
+          <Route path="/*" element={<AuthenticatedRoutes />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }

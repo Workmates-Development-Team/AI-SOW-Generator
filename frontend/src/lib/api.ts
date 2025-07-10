@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 async function callApi(endpoint: string, method: string, data?: any, token?: string) {
   const headers: HeadersInit = {
@@ -17,7 +17,8 @@ async function callApi(endpoint: string, method: string, data?: any, token?: str
     config.body = JSON.stringify(data);
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+  const url = `${API_BASE_URL}/api${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+  const response = await fetch(url, config);
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(errorData.error || "Something went wrong");

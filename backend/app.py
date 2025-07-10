@@ -10,7 +10,7 @@ from bson import ObjectId
 
 app = Flask(__name__)
 from config import ConfigAI
-CORS(app, resources={r"/api/*": {"origins": ConfigAI.CORS_ORIGINS.split(',') if ConfigAI.CORS_ORIGINS else "*"}})
+CORS(app)
 ai = AIService()
 
 @app.route('/api/generate-document', methods=['POST'])

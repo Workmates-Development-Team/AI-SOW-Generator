@@ -12,8 +12,10 @@ import SOWListButton from "../components/SOWListButton";
 import { generateSowNumberAndDate } from '../utils/sowMeta';
 import OptionalFieldsSelector from '../components/Generator/OptionalFieldsSelector';
 import RequiredFieldsForm from '../components/Generator/RequiredFieldsForm';
+import { useTheme } from '../contexts/ThemeContext';
+import ThemeToggle from '../components/ThemeToggle';
 
-const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 interface FormState {
   clientName: string;
@@ -35,6 +37,7 @@ interface OptionalField {
 }
 
 export default function GenerateSOWPage() {
+  const { theme } = useTheme();
   const [form, setForm] = useState<FormState>({
     clientName: '',
     projectDescription: '',
@@ -127,21 +130,31 @@ export default function GenerateSOWPage() {
     setError('');
 
     try {
+      const requiredFields = {
+        clientName: form.clientName.trim(),
+        projectDescription: form.projectDescription.trim(),
+        requirements: form.requirements.trim(),
+        duration: form.duration.trim(),
+        budget: form.budget.trim(),
+      };
+      const optionalFieldIds = [
+        'supportService',
+        'legalTerms',
+        'deliverables',
+        'terminationClause',
+        'contactInformation',
+      ];
+      const optionalFieldsToSend = Object.fromEntries(
+        addedOptionalFields
+          .filter((field) => optionalFieldIds.includes(field))
+          .map((field) => [field, form[field].trim()])
+      );
+      const requestBody = { ...requiredFields, ...optionalFieldsToSend };
+
       const sowResponse = await fetch(`${API_URL}/api/generate-document`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clientName: form.clientName.trim(),
-          projectDescription: form.projectDescription.trim(),
-          requirements: form.requirements.trim(),
-          duration: form.duration.trim(),
-          budget: form.budget.trim(),
-          supportService: form.supportService.trim(),
-          legalTerms: form.legalTerms.trim(),
-          deliverables: form.deliverables.trim(),
-          terminationClause: form.terminationClause.trim(),
-          contactInformation: form.contactInformation.trim(),
-        }),
+        body: JSON.stringify(requestBody),
       });
       const sowResult = await sowResponse.json();
       if (!sowResult.success) {
@@ -185,26 +198,33 @@ export default function GenerateSOWPage() {
   );
   const cardWidth = `${widthPercent}vw`;
 
+  const backgroundClass = theme === 'light' ? 'bg-gradient-to-br from-gray-200 via-gray-300 to-gray-200' : 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900';
+  const cardClass = theme === 'light' ? 'bg-white text-gray-800' : 'bg-white/10 text-white border-white/20';
+  const textClass = theme === 'light' ? 'text-gray-800' : 'text-white/80';
+  const inputClass = theme === 'light' ? 'bg-gray-200 border-gray-300 text-gray-800 placeholder:text-gray-400 focus:border-blue-500' : 'bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40';
+
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8 flex items-center justify-center relative">
+    <div className={`min-h-screen p-4 md:p-8 flex items-center justify-center relative ${backgroundClass}`}>
       {/* Top Toolbar */}
       <div className="w-full flex justify-center" style={{ position: 'absolute', top: 0, left: 0, zIndex: 20, pointerEvents: 'none' }}>
-        <div className="mt-4 max-w-5xl w-full rounded-2xl shadow-lg bg-white/10 backdrop-blur-md border border-white/20 px-6 py-2 flex items-center justify-between relative" style={{ minHeight: 40, fontSize: '0.95rem', pointerEvents: 'auto' }}>
+        <div className={`mt-4 max-w-5xl w-full rounded-2xl shadow-lg backdrop-blur-md px-6 py-2 flex items-center justify-between relative ${cardClass}`} style={{ minHeight: 40, fontSize: '0.95rem', pointerEvents: 'auto' }}>
           <div className="flex items-center gap-4">
             <SOWListButton />
           </div>
-          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white/80 text-sm font-medium select-none pointer-events-none flex items-center gap-2">
+          <span className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-medium select-none pointer-events-none flex items-center gap-2 ${textClass}`}>
             <FileText className="h-5 w-5" />
             Statement of Work (SOW) Generator
           </span>
           <div className="flex items-center gap-2 ml-auto">
+            <ThemeToggle />
             <LogoutButton />
           </div>
         </div>
       </div>
       {/* Card content below toolbar */}
       <Card
-        className="shadow-2xl border border-white/20 bg-white/10 backdrop-blur-md p-0 md:p-2"
+        className={`shadow-2xl p-0 md:p-2 ${cardClass}`}
         style={{ width: cardWidth, minWidth: '400px', maxWidth: '80vw', transition: 'width 0.3s cubic-bezier(0.4,0,0.2,1)' }}
       >
         <div className="mt-8" />
@@ -222,7 +242,7 @@ export default function GenerateSOWPage() {
 
               {/* Separator */}
               <div className="hidden md:flex items-stretch mx-2">
-                <Separator orientation="vertical" className="h-full bg-white/20" />
+                <Separator orientation="vertical" className={`${theme === 'light' ? 'bg-gray-300' : 'bg-white/20'}`} />
               </div>
 
               {/* Right column: Optional fields */}

@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import BackToGeneratorButton from '@/components/BackToGeneratorButton';
 import LogoutButton from '@/components/LogoutButton';
 import { Trash } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import ThemeToggle from '../components/ThemeToggle';
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -21,6 +23,7 @@ import {
 } from '@/components/ui/alert-dialog';
 
 const SOWList: React.FC = () => {
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const { token } = useAuth();
   const [sows, setSows] = useState<SOWData[] | undefined>(undefined);
@@ -80,18 +83,23 @@ const SOWList: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sows]);
 
+  const backgroundClass = theme === 'light' ? 'bg-gradient-to-br from-gray-200 via-gray-300 to-gray-200' : 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900';
+  const cardClass = theme === 'light' ? 'bg-white/50 text-gray-800 border-gray-300 backdrop-blur-md' : 'bg-white/10 text-white border-white/20';
+  const textClass = theme === 'light' ? 'text-gray-800' : 'text-white/80';
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-8 flex flex-col items-center relative">
+    <div className={`min-h-screen p-4 md:p-8 flex flex-col items-center relative ${backgroundClass}`}>
       {/* Top Toolbar */}
       <div className="w-full flex justify-center" style={{ position: 'absolute', top: 0, left: 0, zIndex: 20, pointerEvents: 'none' }}>
-        <div className="mt-4 max-w-5xl w-full rounded-2xl shadow-lg bg-white/10 backdrop-blur-md border border-white/20 px-6 py-2 flex items-center justify-between relative" style={{ minHeight: 40, fontSize: '0.95rem', pointerEvents: 'auto' }}>
+        <div className={`mt-4 max-w-5xl w-full rounded-2xl shadow-lg backdrop-blur-md px-6 py-2 flex items-center justify-between relative ${cardClass}`} style={{ minHeight: 40, fontSize: '0.95rem', pointerEvents: 'auto' }}>
           <div className="flex items-center gap-4">
             <BackToGeneratorButton />
           </div>
-          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white/80 text-lg font-bold select-none pointer-events-none flex items-center gap-2">
+          <span className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-bold select-none pointer-events-none flex items-center gap-2 ${textClass}`}>
             Generated SOWs
           </span>
           <div className="flex items-center gap-2 ml-auto">
+            <ThemeToggle />
             <LogoutButton />
           </div>
         </div>
@@ -111,7 +119,7 @@ const SOWList: React.FC = () => {
                 <Card
                   ref={el => { cardRefs.current[idx] = el; }}
                   style={maxCardSize.width && maxCardSize.height ? { width: maxCardSize.width, height: maxCardSize.height } : {}}
-                  className="bg-white/10 border-white/20 text-white p-6 cursor-pointer hover:bg-white/20 transition-colors"
+                  className={`${theme === 'light' ? 'bg-white/50 border-gray-300 text-gray-800 hover:bg-gray-100' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'} p-6 cursor-pointer transition-colors`}
                   onClick={(e) => {
                     // Prevent navigation if delete button or dialog is clicked
                     const target = e.target as HTMLElement;
@@ -189,11 +197,11 @@ const SOWList: React.FC = () => {
                       </div>
                     </AlertDialogContent>
                   </AlertDialog>
-                  <CardTitle className="mb-2 text-lg font-semibold">{sow.title || 'Untitled SOW'}</CardTitle>
-                  <p className="text-sm text-white/80 mb-1">
+                  <CardTitle className={`mb-2 text-lg font-semibold ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>{sow.title || 'Untitled SOW'}</CardTitle>
+                  <p className={`text-sm mb-1 ${theme === 'light' ? 'text-gray-700' : 'text-white/80'}`}>
                     SOW Number: <span className="font-mono">{sow.sowNumber || 'N/A'}</span>
                   </p>
-                  <p className="text-sm text-white/60">Client: {sow.clientName || 'N/A'}</p>
+                  <p className={`text-sm ${theme === 'light' ? 'text-gray-600' : 'text-white/60'}`}>Client: {sow.clientName || 'N/A'}</p>
                 </Card>
               </div>
             ))}
