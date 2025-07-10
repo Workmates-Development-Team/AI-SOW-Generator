@@ -13,7 +13,7 @@ import { generateSowNumberAndDate } from '../utils/sowMeta';
 import OptionalFieldsSelector from '../components/Generator/OptionalFieldsSelector';
 import RequiredFieldsForm from '../components/Generator/RequiredFieldsForm';
 
-const API_URL = import.meta.env.API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 interface FormState {
   clientName: string;
@@ -127,21 +127,31 @@ export default function GenerateSOWPage() {
     setError('');
 
     try {
+      const requiredFields = {
+        clientName: form.clientName.trim(),
+        projectDescription: form.projectDescription.trim(),
+        requirements: form.requirements.trim(),
+        duration: form.duration.trim(),
+        budget: form.budget.trim(),
+      };
+      const optionalFieldIds = [
+        'supportService',
+        'legalTerms',
+        'deliverables',
+        'terminationClause',
+        'contactInformation',
+      ];
+      const optionalFieldsToSend = Object.fromEntries(
+        addedOptionalFields
+          .filter((field) => optionalFieldIds.includes(field))
+          .map((field) => [field, form[field].trim()])
+      );
+      const requestBody = { ...requiredFields, ...optionalFieldsToSend };
+
       const sowResponse = await fetch(`${API_URL}/api/generate-document`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clientName: form.clientName.trim(),
-          projectDescription: form.projectDescription.trim(),
-          requirements: form.requirements.trim(),
-          duration: form.duration.trim(),
-          budget: form.budget.trim(),
-          supportService: form.supportService.trim(),
-          legalTerms: form.legalTerms.trim(),
-          deliverables: form.deliverables.trim(),
-          terminationClause: form.terminationClause.trim(),
-          contactInformation: form.contactInformation.trim(),
-        }),
+        body: JSON.stringify(requestBody),
       });
       const sowResult = await sowResponse.json();
       if (!sowResult.success) {
