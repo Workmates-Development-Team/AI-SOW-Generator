@@ -6,7 +6,7 @@ import { Sun, Moon } from 'lucide-react';
 const ThemeToggle: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
 
-  const buttonClass = theme === 'light' ? 'text-gray-800 focus:ring-gray-500' : 'text-white focus:ring-white';
+  const buttonClass = theme === 'light' ? 'text-gray-800 focus:ring-gray-500 border border-gray-300' : 'text-white focus:ring-white border border-white/20';
 
   return (
     <button
