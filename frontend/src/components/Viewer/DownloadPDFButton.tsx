@@ -3,6 +3,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Button } from "@/components/ui/button";
 import type { Slide } from '@/types/presentation'
+import { useTheme } from '../../contexts/ThemeContext';
 
 interface Props {
   slides: Slide[]
@@ -10,6 +11,7 @@ interface Props {
 }
 
  const DownloadPDFButton: React.FC<Props> = ({ slides, title }) => {
+  const { theme } = useTheme();
   const download = async () => {
     if (document.fonts && document.fonts.ready) {
       await document.fonts.ready;
@@ -51,7 +53,7 @@ interface Props {
     <Button
       onClick={download}
       variant="outline"
-      className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+      className={theme === 'light' ? 'bg-gray-200 border-gray-300 text-gray-800 hover:bg-gray-300' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}
     >
       Download PDF
     </Button>

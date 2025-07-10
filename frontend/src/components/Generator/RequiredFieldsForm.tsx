@@ -1,3 +1,4 @@
+import { useTheme } from '../../contexts/ThemeContext';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import React from 'react';
@@ -18,9 +19,13 @@ const RequiredFieldsForm: React.FC<RequiredFieldsFormProps> = ({
   handleTextareaKeyDown,
   handleAutoResize,
 }) => {
+  const { theme } = useTheme();
+  const labelClass = theme === 'light' ? 'text-gray-900' : 'text-white/80';
+  const inputClass = theme === 'light' ? 'bg-gray-100 border-gray-300 text-gray-900 placeholder:text-gray-600 focus:border-blue-500' : 'bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40';
+
   return (
     <div className="flex-1 space-y-6 overflow-y-auto min-h-0 pr-10" style={{ scrollbarGutter: 'stable' }}>
-      <label htmlFor="clientName" className="block text-sm font-medium text-white/80">
+      <label htmlFor="clientName" className={`block text-sm font-medium ${labelClass}`}>
         Client Name
       </label>
       <Input
@@ -29,13 +34,13 @@ const RequiredFieldsForm: React.FC<RequiredFieldsFormProps> = ({
         placeholder="Enter the client's name"
         value={form.clientName}
         onChange={handleChange}
-        className="text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40 resize-none"
+        className={`text-base resize-none ${inputClass}`}
         disabled={loading}
         required
         autoComplete="off"
         spellCheck={false}
       />
-      <label htmlFor="projectDescription" className="block text-sm font-medium text-white/80">
+      <label htmlFor="projectDescription" className={`block text-sm font-medium ${labelClass}`}>
         Project Description
       </label>
       <Textarea
@@ -45,11 +50,11 @@ const RequiredFieldsForm: React.FC<RequiredFieldsFormProps> = ({
         onChange={handleChange}
         onKeyDown={handleTextareaKeyDown}
         onInput={handleAutoResize}
-        className="min-h-[80px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+        className={`min-h-[80px] text-base ${inputClass}`}
         disabled={loading}
         required
       />
-      <label htmlFor="requirements" className="block text-sm font-medium text-white/80">
+      <label htmlFor="requirements" className={`block text-sm font-medium ${labelClass}`}>
         Client Requirements
       </label>
       <Textarea
@@ -59,10 +64,10 @@ const RequiredFieldsForm: React.FC<RequiredFieldsFormProps> = ({
         onChange={handleChange}
         onKeyDown={handleTextareaKeyDown}
         onInput={handleAutoResize}
-        className="min-h-[80px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+        className={`min-h-[80px] text-base ${inputClass}`}
         disabled={loading}
       />
-      <label htmlFor="duration" className="block text-sm font-medium text-white/80">
+      <label htmlFor="duration" className={`block text-sm font-medium ${labelClass}`}>
         Project Duration
       </label>
       <Textarea
@@ -71,10 +76,10 @@ const RequiredFieldsForm: React.FC<RequiredFieldsFormProps> = ({
         value={form.duration}
         onChange={handleChange}
         onInput={handleAutoResize}
-        className="min-h-[80px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+        className={`min-h-[80px] text-base ${inputClass}`}
         disabled={loading}
       />
-      <label htmlFor="budget" className="block text-sm font-medium text-white/80">
+      <label htmlFor="budget" className={`block text-sm font-medium ${labelClass}`}>
         Budget
       </label>
       <Textarea
@@ -83,7 +88,7 @@ const RequiredFieldsForm: React.FC<RequiredFieldsFormProps> = ({
         value={form.budget}
         onChange={handleChange}
         onInput={handleAutoResize}
-        className="min-h-[80px] text-base bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40"
+        className={`min-h-[80px] text-base ${inputClass}`}
         disabled={loading}
       />
     </div>

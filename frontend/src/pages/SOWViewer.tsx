@@ -11,6 +11,8 @@ import { useAuth } from "../lib/useAuth";
 import ListButton from '@/components/SOWListButton';
 import BackToGeneratorButton from '@/components/BackToGeneratorButton';
 import LogoutButton from "../components/LogoutButton";
+import { useTheme } from '../contexts/ThemeContext';
+import ThemeToggle from '../components/ThemeToggle';
 
 const SUPPORT_SERVICES_TITLE = "Support Services";
 const SUPPORT_SERVICES_PREFIX = `- Workmates will provide one-month free support from the date of delivery of the project.\n- The support team will be available from Monday through Friday (10am-7pm Indian Time).\n- Fix any issues reported by the client on the default features delivered as per committed project modules.\n- Answer any questions related to the features we had delivered as per proposal.\n- Support does not cover any additional customization or fixing up of issues caused due to code level edits done from client side or through usage of any third party solution. In such case the free support will become void.\n\n`;
@@ -25,6 +27,7 @@ const TERMINATION_TITLE = "Termination";
 const TERMINATION_PREFIX = `- Workmates reserves the right to terminate at any time with written\nnotice to the Client. Such notice will be given Fifteen (15) days prior\nto the termination. If the Scope of Work is not provided properly or\nthe Client makes us to perform certain tasks which is beyond the\nscope of this agreement or Non payment.\n- In the event of termination of this Agreement Workmates shall\ncompute a project completion percentage by comparing completed\ntasks with tasks on the project plan. The Client shall then pay to\nWorkmates the same percentage as agreed. Workmates shall\nevidence completed tasks to the Client by demonstrating working\nfunctionality or source code. Once Workmates receives the payment\ndue from the Client we will Share the Source Code and Knowledge\nTransfer.\n- The quotation is valid for 15 days from the date of receiving and may\nbe accepted at any time prior to that date.This quotation is subject\nto mutually acceptable terms and conditions.`;
 
 const SOWViewer: React.FC = () => {
+  const { theme } = useTheme();
   const location = useLocation();
   const initialPresentation: SOWData | undefined = location.state?.presentation;
 
@@ -59,7 +62,11 @@ const SOWViewer: React.FC = () => {
   }, [initialPresentation, allSows]);
 
   const processedSlides = useMemo(() => {
-    if (!presentationState?.slides) return [];
+    console.log("Processing slides for presentationState:", presentationState);
+    if (!presentationState?.slides) {
+      console.log("No slides found in presentationState.");
+      return [];
+    }
 
     presentationState.slides.forEach((slide, idx) => {
       if (!slide.sowDate) {
@@ -103,17 +110,19 @@ const SOWViewer: React.FC = () => {
 
       try {
         const splitSlides = ContentSplitter.splitSlideContent(slide, template);
+        console.log(`Split slide ${slide.title}:`, splitSlides);
         finalSlides.push(...splitSlides);
       } catch (error) {
         console.warn('Failed to split slide content, using original:', error);
         finalSlides.push(slide);
       }
     });
-
+    console.log("Final processed slides:", finalSlides);
     return finalSlides;
   }, [presentationState]);
 
   const renderSlideContent = (slide: Slide) => {
+    console.log("Rendering slide:", slide);
     return (
       <TemplateApplier 
         slide={slide}
@@ -186,8 +195,11 @@ const SOWViewer: React.FC = () => {
   }
 
   const getBackgroundClass = () => {
-    return 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900';
+    return theme === 'light' ? 'bg-gradient-to-br from-gray-200 via-gray-300 to-gray-200' : 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900';
   };
+
+  const cardClass = theme === 'light' ? 'bg-white/50 text-gray-800 border-gray-300 backdrop-blur-md' : 'bg-white/10 text-white border-white/20';
+  const textClass = theme === 'light' ? 'text-gray-800' : 'text-white/80';
 
   return (
     <div className={`min-h-screen transition-all duration-300 ${getBackgroundClass()} p-6 h-screen w-screen overflow-hidden relative`}>
@@ -197,15 +209,16 @@ const SOWViewer: React.FC = () => {
       </div>
       {/* Top Toolbar */}
       <div className="w-full flex justify-center" style={{ position: 'absolute', top: 0, left: 0, zIndex: 20, pointerEvents: 'none' }}>
-        <div className="mt-4 max-w-5xl w-full rounded-2xl shadow-lg bg-white/10 backdrop-blur-md border border-white/20 px-6 py-2 flex items-center justify-between relative" style={{ minHeight: 40, fontSize: '0.95rem', pointerEvents: 'auto' }}>
+        <div className={`mt-4 max-w-5xl w-full rounded-2xl shadow-lg backdrop-blur-md px-6 py-2 flex items-center justify-between relative ${cardClass}`} style={{ minHeight: 40, fontSize: '0.95rem', pointerEvents: 'auto' }}>
           <div className="flex items-center gap-4">
             <BackToGeneratorButton />
             <ListButton />
           </div>
-          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white/80 text-sm font-medium select-none pointer-events-none bg-white/10 border border-white/20 px-4 py-1 rounded-full shadow-sm">
+          <span className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-medium select-none pointer-events-none px-4 py-1 rounded-full ${theme === 'light' ? 'bg-gray-200 border border-gray-300 shadow-md' : 'bg-white/10 border border-white/20 shadow-sm'} ${textClass}`}>
             Page {currentSlide + 1} of {totalSlides}
           </span>
           <div className="flex items-center gap-2 ml-auto">
+            <ThemeToggle />
             <DownloadPDFButton slides={processedSlides} title={presentationState.title || 'Presentation'} />
           </div>
         </div>
@@ -223,14 +236,14 @@ const SOWViewer: React.FC = () => {
               className={
                 `w-14 h-20 border-2 rounded-xl flex-shrink-0 transition-all duration-300
                 ${currentSlide === index
-                  ? 'border-blue-900 bg-blue-900/80 shadow-lg shadow-blue-900/40 scale-110'
-                  : 'border-white/20 bg-white/10 hover:border-white/40 hover:bg-white/20'
+                  ? (theme === 'light' ? 'border-blue-700 bg-blue-100 shadow-lg shadow-blue-200 scale-110' : 'border-blue-900 bg-blue-900/80 shadow-lg shadow-blue-900/40 scale-110')
+                  : (theme === 'light' ? 'border-gray-300 bg-gray-100 hover:border-gray-400 hover:bg-gray-200' : 'border-white/20 bg-white/10 hover:border-white/40 hover:bg-white/20')
                 }
                 backdrop-blur-sm relative`
               }
             >
               <div className="w-full h-full flex items-center justify-center">
-                <span className={`text-base font-medium ${currentSlide === index ? 'text-yellow-400' : 'text-white'}`}>{index + 1}</span>
+                <span className={`text-base font-medium ${currentSlide === index ? 'text-yellow-400' : (theme === 'light' ? 'text-gray-800' : 'text-white')}`}>{index + 1}</span>
               </div>
             </button>
           ))}
