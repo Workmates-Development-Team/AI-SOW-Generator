@@ -348,9 +348,7 @@ class AIService:
         
         # Contact Information slide (conditional content)
         if sow_fields.get('contactInformation'):
-            slides_structure.append(f"{slide_counter}. Contact Information (template: \"generic\") -- The title should ALWAYS be just 'Contact Information' and ALWAYS include this slide. Generate content based on the provided contact information: '{sow_fields['contactInformation']}' in a well structured, appropriate way. Use markdown table format like: | Field | Value | for structured contact details.")
-        # else:
-        #     slides_structure.append(f"{slide_counter}. Contact Information (template: \"generic\") -- The title should ALWAYS be just 'Contact Information' and ALWAYS include this slide. Leave the content section blank if no user input.")
+            slides_structure.append(f"{slide_counter}. Contact Information (template: \"generic\") -- The title should ALWAYS be just 'Contact Information' and ALWAYS include this slide. Generate content based on the provided contact information: '{sow_fields['contactInformation']}' in a well structured, appropriate way. Use markdown table format like: | Field | Value | for structured contact details. IMPORTANT: Any contacts provided here are Workmates employees.")
         slide_counter += 1
     
         # Signature slide (always include)

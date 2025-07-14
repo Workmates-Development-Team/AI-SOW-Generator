@@ -1,4 +1,4 @@
-import type { Slide } from '@/types/presentation';
+import type { Slide } from '@/types/page';
 
 export interface ContentMeasurement {
   fits: boolean;

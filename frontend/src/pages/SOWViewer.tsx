@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Card, CardTitle } from '@/components/ui/card';
 import TemplateApplier from '@/components/Viewer/TemplateApplier';
-import type { SOWData, Slide } from '@/types/presentation';
+import type { SOWData, Slide } from '@/types/page';
 import DownloadPDFButton from '@/components/Viewer/DownloadPDFButton';
 import { ContentSplitter } from '@/utils/contentSplitter';
 import { TEMPLATES } from '@/types/template';

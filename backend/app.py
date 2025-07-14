@@ -7,9 +7,9 @@ import re
 from db import mongo_db
 from models import User, Sow
 from bson import ObjectId
+from config import ConfigAI
 
 app = Flask(__name__)
-from config import ConfigAI
 CORS(app)
 ai = AIService()
 
@@ -134,7 +134,8 @@ def create_sow():
             title=data['title'],
             sowNumber=data['sowNumber'],
             clientName=data['clientName'],
-            slides=data['slides']
+            slides=data['slides'],
+            prompt=data.get('prompt')
         )
         sows_collection = mongo_db.get_collection('sows')
         result = sows_collection.insert_one(sow.model_dump(by_alias=True, exclude_none=True))
@@ -199,7 +200,8 @@ def update_sow(sow_id):
             'title': data['title'],
             'sowNumber': data['sowNumber'],
             'clientName': data['clientName'],
-            'slides': data['slides']
+            'slides': data['slides'],
+            'prompt': data.get('prompt')
         }
         sows_collection.update_one({'_id': ObjectId(sow_id)}, {'$set': update_data})
         return jsonify({'message': 'SOW updated successfully'}), 200

@@ -18,6 +18,7 @@ export interface SOWData {
   totalSlides: number;
   sowNumber?: string;
   clientName?: string;
+  prompt?: any;
 }
 
 export interface SOWState {
