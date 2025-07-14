@@ -167,7 +167,7 @@ const SOWViewer: React.FC = () => {
 
   if (!presentationState) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-6 h-screen w-screen overflow-hidden relative flex items-center justify-center text-white">
+      <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 p-6 h-screen w-screen overflow-hidden relative flex items-center justify-center text-white">
         {allSows === undefined ? (
           <div>Loading SOWs...</div>
         ) : allSows.length === 0 ? (
@@ -195,7 +195,7 @@ const SOWViewer: React.FC = () => {
   }
 
   const getBackgroundClass = () => {
-    return theme === 'light' ? 'bg-gradient-to-br from-gray-200 via-gray-300 to-gray-200' : 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900';
+    return theme === 'light' ? 'bg-linear-to-br from-gray-200 via-gray-300 to-gray-200' : 'bg-linear-to-br from-gray-900 via-gray-800 to-gray-900';
   };
 
   const cardClass = theme === 'light' ? 'bg-white/50 text-gray-800 border-gray-300 backdrop-blur-md' : 'bg-white/10 text-white border-white/20';
@@ -214,7 +214,7 @@ const SOWViewer: React.FC = () => {
             <BackToGeneratorButton />
             <ListButton />
           </div>
-          <span className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-medium select-none pointer-events-none px-4 py-1 rounded-full ${theme === 'light' ? 'bg-gray-200 border border-gray-300 shadow-md' : 'bg-white/10 border border-white/20 shadow-sm'} ${textClass}`}>
+          <span className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-medium select-none pointer-events-none px-4 py-1 rounded-full ${theme === 'light' ? 'bg-gray-200 border border-gray-300 shadow-md' : 'bg-white/10 border border-white/20 shadow-xs'} ${textClass}`}>
             Page {currentSlide + 1} of {totalSlides}
           </span>
           <div className="flex items-center gap-2 ml-auto">

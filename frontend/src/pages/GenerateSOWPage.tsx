@@ -59,6 +59,18 @@ export default function GenerateSOWPage() {
   
   const { token, setToken } = useAuth();
 
+  const [componentError, setComponentError] = useState<string | null>(null);
+
+  useEffect(() => {
+    console.log('GenerateSOWPage mounted');
+    console.log('searchParams:', searchParams.toString());
+    console.log('API_URL:', import.meta.env.VITE_API_BASE_URL);
+    
+    return () => {
+      console.log('GenerateSOWPage unmounted');
+    };
+  }, []);
+
   // Optional fields list
   const optionalFields: OptionalField[] = [
     {
@@ -92,40 +104,62 @@ export default function GenerateSOWPage() {
 
   // Prefill form if regenerate param is present in URL and sessionStorage has the prompt
   useEffect(() => {
-    const regenerate = searchParams.get('regenerate');
-    if (regenerate) {
-      const promptStr = sessionStorage.getItem('regeneratePrompt');
-      if (promptStr) {
-        try {
-          const prompt = JSON.parse(promptStr);
-          setForm(prevForm => ({
-            ...prevForm,
-            clientName: prompt.clientName || '',
-            projectDescription: prompt.projectDescription || '',
-            requirements: prompt.requirements || '',
-            duration: prompt.duration || '',
-            budget: prompt.budget || '',
-            supportService: prompt.supportService || '',
-            legalTerms: prompt.legalTerms || '',
-            deliverables: prompt.deliverables || '',
-            terminationClause: prompt.terminationClause || '',
-            contactInformation: prompt.contactInformation || '',
-          }));
-          const optionalFieldIds = ['supportService', 'legalTerms', 'deliverables', 'terminationClause', 'contactInformation'];
-          const presentOptionalFields = optionalFieldIds.filter((key) => prompt[key]?.trim());
-          setAddedOptionalFields(presentOptionalFields as Array<keyof FormState>);
-          setPrefilledFromPrompt(true);
-          window.history.replaceState({}, document.title);
-          setIsInitializing(false);
-          // Optionally clear the prompt from sessionStorage
-          sessionStorage.removeItem('regeneratePrompt');
-          return;
-        } catch (error) {
-          console.error('Error parsing prompt from sessionStorage:', error);
+    const initializeForm = async () => {
+      try {
+        console.log('Initializing form...');
+        
+        const regenerate = searchParams.get('regenerate');
+        console.log('Regenerate parameter:', regenerate);
+        
+        if (regenerate) {
+          const promptStr = sessionStorage.getItem('regeneratePrompt');
+          console.log('Prompt from sessionStorage:', promptStr);
+          
+          if (promptStr) {
+            try {
+              const prompt = JSON.parse(promptStr);
+              console.log('Parsed prompt:', prompt);
+              
+              const newFormState = {
+                clientName: prompt.clientName || '',
+                projectDescription: prompt.projectDescription || '',
+                requirements: prompt.requirements || '',
+                duration: prompt.duration || '',
+                budget: prompt.budget || '',
+                supportService: prompt.supportService || '',
+                legalTerms: prompt.legalTerms || '',
+                deliverables: prompt.deliverables || '',
+                terminationClause: prompt.terminationClause || '',
+                contactInformation: prompt.contactInformation || '',
+              };
+              
+              console.log('Setting form state:', newFormState);
+              setForm(newFormState);
+              
+              const optionalFieldIds = ['supportService', 'legalTerms', 'deliverables', 'terminationClause', 'contactInformation'];
+              const presentOptionalFields = optionalFieldIds.filter((key) => prompt[key]?.trim());
+              console.log('Setting optional fields:', presentOptionalFields);
+              
+              setAddedOptionalFields(presentOptionalFields as Array<keyof FormState>);
+              setPrefilledFromPrompt(true);
+              
+              // Clear the prompt from sessionStorage
+              sessionStorage.removeItem('regeneratePrompt');
+            } catch (parseError) {
+              console.error('Error parsing prompt from sessionStorage:', parseError);
+              setComponentError(`Failed to parse prompt: ${parseError}`);
+            }
+          }
         }
+      } catch (error) {
+        console.error('Error in form initialization:', error);
+        setComponentError(`Form initialization failed: ${error}`);
+      } finally {
+        setIsInitializing(false);
       }
-    }
-    setIsInitializing(false);
+    };
+
+    initializeForm();
   }, [searchParams]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -239,7 +273,7 @@ export default function GenerateSOWPage() {
   );
   const cardWidth = `${widthPercent}vw`;
 
-  const backgroundClass = theme === 'light' ? 'bg-gradient-to-br from-gray-200 via-gray-300 to-gray-200' : 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900';
+  const backgroundClass = theme === 'light' ? 'bg-linear-to-br from-gray-200 via-gray-300 to-gray-200' : 'bg-linear-to-br from-gray-900 via-gray-800 to-gray-900';
   const cardClass = theme === 'light' ? 'bg-white text-gray-800' : 'bg-white/10 text-white border-white/20';
   const textClass = theme === 'light' ? 'text-gray-800' : 'text-white/80';
   const inputClass = theme === 'light' ? 'bg-gray-200 border-gray-300 text-gray-800 placeholder:text-gray-400 focus:border-blue-500' : 'bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40';
@@ -285,7 +319,7 @@ export default function GenerateSOWPage() {
 
   if (isInitializing) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
         <div className="flex flex-col items-center justify-center gap-6 p-10 rounded-2xl shadow-2xl border border-white/20 bg-white/10 backdrop-blur-md">
           <span className="animate-spin text-yellow-400">
             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" className="mx-auto">
@@ -354,7 +388,7 @@ export default function GenerateSOWPage() {
             <Button
               type="submit"
               disabled={loading || !form.projectDescription.trim()}
-              className="w-full bg-gradient-to-r from-blue-600 via-blue-700 to-yellow-500 hover:from-blue-700 hover:via-blue-800 hover:to-yellow-600 text-white border-0"
+              className="w-full bg-linear-to-r from-blue-600 via-blue-700 to-yellow-500 hover:from-blue-700 hover:via-blue-800 hover:to-yellow-600 text-white border-0"
               size="lg"
             >
               {loading ? (

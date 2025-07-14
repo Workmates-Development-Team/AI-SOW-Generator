@@ -65,7 +65,6 @@ const SOWList: React.FC = () => {
 
   useEffect(() => {
     if (sows && sows.length > 0) {
-      // After cards render, measure their sizes
       setTimeout(() => {
         let maxWidth = 0;
         let maxHeight = 0;
@@ -81,10 +80,9 @@ const SOWList: React.FC = () => {
         }
       }, 0);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sows]);
 
-  const backgroundClass = theme === 'light' ? 'bg-gradient-to-br from-gray-200 via-gray-300 to-gray-200' : 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900';
+  const backgroundClass = theme === 'light' ? 'bg-linear-to-br from-gray-200 via-gray-300 to-gray-200' : 'bg-linear-to-br from-gray-900 via-gray-800 to-gray-900';
   const cardClass = theme === 'light' ? 'bg-white/50 text-gray-800 border-gray-300 backdrop-blur-md' : 'bg-white/10 text-white border-white/20';
   const textClass = theme === 'light' ? 'text-gray-800' : 'text-white/80';
 
@@ -150,7 +148,7 @@ const SOWList: React.FC = () => {
                     <Button
                       variant="secondary"
                       size="icon"
-                      className="regenerate-btn opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto"
+                      className="regenerate-btn opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto bg-transparent border-0 shadow-none hover:bg-transparent focus:bg-transparent focus:ring-0 focus:outline-none text-inherit hover:text-blue-500 focus:text-blue-600"
                       title="Regenerate SOW with same prompt"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -172,7 +170,7 @@ const SOWList: React.FC = () => {
                         <Button
                           variant="destructive"
                           size="icon"
-                          className="delete-btn opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto"
+                          className="delete-btn opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto bg-transparent border-0 shadow-none hover:bg-transparent focus:bg-transparent focus:ring-0 focus:outline-none text-inherit hover:text-red-500 focus:text-red-600"
                           title="Delete SOW"
                           onClick={(e) => {
                             e.stopPropagation();
