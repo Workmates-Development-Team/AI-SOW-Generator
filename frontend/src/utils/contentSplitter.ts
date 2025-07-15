@@ -137,15 +137,11 @@ export class ContentSplitter {
     let adjustedMaxLines = maxLines;
 
     if (title.includes('assumptions and constraints')) {
-      adjustedMaxLines = Math.floor(maxLines * (overflowId > 0 ? 0.7 : 0.45));
+      adjustedMaxLines = Math.floor(maxLines * (overflowId > 0 ? 0.7 : 0.5));
     } else if (title.includes('acceptance criteria')) {
       adjustedMaxLines = Math.floor(maxLines * (overflowId > 0 ? 0.65 : 0.6));
     } else if (title.includes('objectives')) {
       adjustedMaxLines = Math.floor(maxLines * (overflowId > 0 ? 0.7 : 0.55));
-    } else if (title.includes('scope of work')) {
-      adjustedMaxLines = Math.floor(maxLines * (overflowId > 0 ? 0.8 : 0.7));
-    } else if (title.includes('deliverables')) {
-      adjustedMaxLines = Math.floor(maxLines * (overflowId > 0 ? 0.75 : 0.7));
     } else if (title.includes('project terms')) {
       adjustedMaxLines = Math.floor(maxLines * (overflowId > 0 ? 0.75 : 0.6));
     }
