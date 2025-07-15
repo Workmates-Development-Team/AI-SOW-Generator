@@ -80,16 +80,18 @@ const OptionalFieldsSelector: React.FC<OptionalFieldsSelectorProps> = ({
                 <X className="w-4 h-4" />
               </Button>
             </div>
-            <Textarea
-              id={String(fieldId)}
-              placeholder={field.placeholder}
-              value={form[fieldId]}
-              onChange={handleChange}
-              onKeyDown={handleTextareaKeyDown}
-              onInput={handleAutoResize}
-              className={`min-h-[80px] flex-1 ${inputClass}`}
-              disabled={loading}
-            />
+            <div className={`ml-2 rounded-md transition-all ${theme === 'light' ? 'focus-within:ring-4 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-white' : 'focus-within:ring-4 focus-within:ring-blue-700 focus-within:ring-offset-2 focus-within:ring-offset-[#10192b]'}`}>
+              <Textarea
+                id={String(fieldId)}
+                placeholder={field.placeholder}
+                value={form[fieldId]}
+                onChange={handleChange}
+                onKeyDown={handleTextareaKeyDown}
+                onInput={handleAutoResize}
+                className={`min-h-[80px] flex-1 ${inputClass}`}
+                disabled={loading}
+              />
+            </div>
           </div>
         );
       })}

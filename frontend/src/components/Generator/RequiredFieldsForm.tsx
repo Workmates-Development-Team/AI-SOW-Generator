@@ -28,69 +28,79 @@ const RequiredFieldsForm: React.FC<RequiredFieldsFormProps> = ({
       <label htmlFor="clientName" className={`block text-sm font-medium ${labelClass}`}>
         Client Name
       </label>
-      <Input
-        id="clientName"
-        type="text"
-        placeholder="Enter the client's name"
-        value={form.clientName}
-        onChange={handleChange}
-        className={`text-base resize-none ${inputClass}`}
-        disabled={loading}
-        required
-        autoComplete="off"
-        spellCheck={false}
-      />
+      <div className={`ml-2 rounded-md transition-all ${theme === 'light' ? 'focus-within:ring-4 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-white' : 'focus-within:ring-4 focus-within:ring-blue-700 focus-within:ring-offset-2 focus-within:ring-offset-[#10192b]'}`}>
+        <Input
+          id="clientName"
+          type="text"
+          placeholder="Enter the client's name"
+          value={form.clientName}
+          onChange={handleChange}
+          className={`text-base resize-none ${inputClass}`}
+          disabled={loading}
+          required
+          autoComplete="off"
+          spellCheck={false}
+        />
+      </div>
       <label htmlFor="projectDescription" className={`block text-sm font-medium ${labelClass}`}>
         Project Description
       </label>
-      <Textarea
-        id="projectDescription"
-        placeholder="Describe your project for the SOW"
-        value={form.projectDescription}
-        onChange={handleChange}
-        onKeyDown={handleTextareaKeyDown}
-        onInput={handleAutoResize}
-        className={`min-h-[80px] text-base ${inputClass}`}
-        disabled={loading}
-        required
-      />
+      <div className={`ml-2 rounded-md transition-all ${theme === 'light' ? 'focus-within:ring-4 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-white' : 'focus-within:ring-4 focus-within:ring-blue-700 focus-within:ring-offset-2 focus-within:ring-offset-[#10192b]'}`}>
+        <Textarea
+          id="projectDescription"
+          placeholder="Describe your project for the SOW"
+          value={form.projectDescription}
+          onChange={handleChange}
+          onKeyDown={handleTextareaKeyDown}
+          onInput={handleAutoResize}
+          className={`min-h-[80px] text-base ${inputClass}`}
+          disabled={loading}
+          required
+        />
+      </div>
       <label htmlFor="requirements" className={`block text-sm font-medium ${labelClass}`}>
         Client Requirements
       </label>
-      <Textarea
-        id="requirements"
-        placeholder="List any specific client requirements"
-        value={form.requirements}
-        onChange={handleChange}
-        onKeyDown={handleTextareaKeyDown}
-        onInput={handleAutoResize}
-        className={`min-h-[80px] text-base ${inputClass}`}
-        disabled={loading}
-      />
+      <div className={`ml-2 rounded-md transition-all ${theme === 'light' ? 'focus-within:ring-4 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-white' : 'focus-within:ring-4 focus-within:ring-blue-700 focus-within:ring-offset-2 focus-within:ring-offset-[#10192b]'}`}>
+        <Textarea
+          id="requirements"
+          placeholder="List any specific client requirements"
+          value={form.requirements}
+          onChange={handleChange}
+          onKeyDown={handleTextareaKeyDown}
+          onInput={handleAutoResize}
+          className={`min-h-[80px] text-base ${inputClass}`}
+          disabled={loading}
+        />
+      </div>
       <label htmlFor="duration" className={`block text-sm font-medium ${labelClass}`}>
         Project Duration
       </label>
-      <Textarea
-        id="duration"
-        placeholder="e.g. 3 months, Q1 2025, etc."
-        value={form.duration}
-        onChange={handleChange}
-        onInput={handleAutoResize}
-        className={`min-h-[80px] text-base ${inputClass}`}
-        disabled={loading}
-      />
+      <div className={`ml-2 rounded-md transition-all ${theme === 'light' ? 'focus-within:ring-4 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-white' : 'focus-within:ring-4 focus-within:ring-blue-700 focus-within:ring-offset-2 focus-within:ring-offset-[#10192b]'}`}>
+        <Textarea
+          id="duration"
+          placeholder="e.g. 3 months, Q1 2025, etc."
+          value={form.duration}
+          onChange={handleChange}
+          onInput={handleAutoResize}
+          className={`min-h-[80px] text-base ${inputClass}`}
+          disabled={loading}
+        />
+      </div>
       <label htmlFor="budget" className={`block text-sm font-medium ${labelClass}`}>
         Budget
       </label>
-      <Textarea
-        id="budget"
-        placeholder="e.g. $10,000, 5 lakh INR, etc."
-        value={form.budget}
-        onChange={handleChange}
-        onInput={handleAutoResize}
-        className={`min-h-[80px] text-base ${inputClass}`}
-        disabled={loading}
-      />
+      <div className={`ml-2 mb-2 rounded-md transition-all ${theme === 'light' ? 'focus-within:ring-4 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-white' : 'focus-within:ring-4 focus-within:ring-blue-700 focus-within:ring-offset-2 focus-within:ring-offset-[#10192b]'}`}>
+        <Textarea
+          id="budget"
+          placeholder="e.g. $10,000, 5 lakh INR, etc."
+          value={form.budget}
+          onChange={handleChange}
+          onInput={handleAutoResize}
+          className={`min-h-[80px] text-base ${inputClass}`}
+          disabled={loading}
+        />
+      </div>
     </div>
   );
 };

@@ -13,6 +13,7 @@ import BackToGeneratorButton from '@/components/BackToGeneratorButton';
 import LogoutButton from "../components/LogoutButton";
 import { useTheme } from '../contexts/ThemeContext';
 import ThemeToggle from '../components/ThemeToggle';
+import Thumbnails from '@/components/Viewer/Thumbnails';
 
 const SUPPORT_SERVICES_TITLE = "Support Services";
 const SUPPORT_SERVICES_PREFIX = `- Workmates will provide one-month free support from the date of delivery of the project.\n- The support team will be available from Monday through Friday (10am-7pm Indian Time).\n- Fix any issues reported by the client on the default features delivered as per committed project modules.\n- Answer any questions related to the features we had delivered as per proposal.\n- Support does not cover any additional customization or fixing up of issues caused due to code level edits done from client side or through usage of any third party solution. In such case the free support will become void.\n\n`;
@@ -222,33 +223,18 @@ export default function SOWViewer() {
       </div>
 
       {/* Sidebar Thumbnails */}
-      <div className="fixed left-0 top-0 h-full flex flex-col items-center justify-center py-8 pl-8 pr-4 z-10" style={{ width: 80, paddingTop: 80 }}>
-        <div className="flex flex-col gap-3 overflow-y-auto max-h-[70vh] px-1 pt-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-          {processedSlides.map((_, index) => (
-            <button
-              key={index}
-              data-slide-index={index}
-              ref={el => { thumbnailRefs.current[index] = el; }}
-              onClick={() => setCurrentSlide(index)}
-              className={
-                `w-14 h-20 border-2 rounded-xl flex-shrink-0 transition-all duration-300
-                ${currentSlide === index
-                  ? (theme === 'light' ? 'border-blue-700 bg-blue-100 shadow-lg shadow-blue-200 scale-110' : 'border-blue-900 bg-blue-900/80 shadow-lg shadow-blue-900/40 scale-110')
-                  : (theme === 'light' ? 'border-gray-300 bg-gray-100 hover:border-gray-400 hover:bg-gray-200' : 'border-white/20 bg-white/10 hover:border-white/40 hover:bg-white/20')
-                }
-                backdrop-blur-sm relative`
-              }
-            >
-              <div className="w-full h-full flex items-center justify-center">
-                <span className={`text-base font-medium ${currentSlide === index ? 'text-yellow-400' : (theme === 'light' ? 'text-gray-800' : 'text-white')}`}>{index + 1}</span>
-              </div>
-            </button>
-          ))}
-        </div>
+      <div className="fixed left-[80px] top-0 h-full flex flex-col items-center justify-center py-8 pl-8 pr-4 z-10" style={{ width: 160, paddingTop: 80 }}>
+        <Thumbnails
+          slides={processedSlides}
+          currentSlide={currentSlide}
+          onSelect={setCurrentSlide}
+          theme={theme}
+          maxHeightClass="max-h-[90vh]"
+        />
       </div>
 
       {/* Main Slide Area */}
-      <div className="flex-1 flex flex-col h-full relative py-8 pr-8 pl-4 items-center justify-center" style={{ paddingTop: 80, paddingLeft: 96 }}>
+      <div className="flex-1 flex flex-col h-full relative py-8 pr-8 pl-4 items-center justify-center" style={{ paddingTop: 80, paddingLeft: 256 }}>
         <div className="absolute left-1/2 top-0 transform -translate-x-1/2 w-full max-w-7xl h-full flex flex-col pt-16">
           <div className="flex-1 flex items-center justify-center h-full">
             <div className="flex items-center justify-center w-full h-full">
