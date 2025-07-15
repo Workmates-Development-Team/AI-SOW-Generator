@@ -56,9 +56,7 @@ export default function GenerateSOWPage() {
   const [error, setError] = useState('');
   const [prefilledFromPrompt, setPrefilledFromPrompt] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
-  
   const { token, setToken } = useAuth();
-
   const [componentError, setComponentError] = useState<string | null>(null);
 
   useEffect(() => {

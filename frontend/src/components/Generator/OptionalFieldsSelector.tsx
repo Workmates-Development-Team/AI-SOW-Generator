@@ -6,7 +6,6 @@ import { Label } from '@/components/ui/label';
 import { X } from 'lucide-react';
 import React from 'react';
 
-// Copy FormState type from GenerateSOWPage
 export interface FormState {
   clientName: string;
   projectDescription: string;
@@ -59,7 +58,7 @@ const OptionalFieldsSelector: React.FC<OptionalFieldsSelectorProps> = ({
   const selectItemClass = theme === 'light' ? 'text-gray-900 hover:bg-gray-100 focus:bg-gray-100' : 'text-white hover:bg-white/10 focus:bg-white/20';
 
   return (
-    <div className="flex-1 space-y-6 overflow-y-auto min-h-0 pl-10 pl-2 max-h-[70vh]" style={{ scrollbarGutter: 'stable' }}>
+    <div className="flex-1 space-y-6 overflow-y-auto min-h-0 pl-10 max-h-[70vh]" style={{ scrollbarGutter: 'stable' }}>
       {addedOptionalFields.map((fieldId) => {
         const field = optionalFields.find(f => f.id === fieldId);
         if (!field) return null;

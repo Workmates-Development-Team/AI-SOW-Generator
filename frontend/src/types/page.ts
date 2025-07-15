@@ -9,6 +9,7 @@ export interface Slide {
   contentType: string;
   sowNumber?: string;
   sowDate?: string;
+  overflowId?: number;
 }
 
 export interface SOWData {

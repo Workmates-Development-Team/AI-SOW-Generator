@@ -22,7 +22,7 @@ import {
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
 
-const SOWList: React.FC = () => {
+export function SOWList() {
   const { theme } = useTheme();
   const navigate = useNavigate();
   const { token } = useAuth();
@@ -31,8 +31,6 @@ const SOWList: React.FC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [sowToDelete, setSowToDelete] = useState<any>(null);
   const dialogContentRef = useRef<HTMLDivElement>(null);
-
-  // --- Card sizing refs and state ---
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [maxCardSize, setMaxCardSize] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
 

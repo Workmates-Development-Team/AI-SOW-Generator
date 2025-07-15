@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Card, CardTitle } from '@/components/ui/card';
 import TemplateApplier from '@/components/Viewer/TemplateApplier';
@@ -26,7 +26,7 @@ const PROJECT_TERMS_PREFIX = `- The full picture at the time of quotation. Any d
 const TERMINATION_TITLE = "Termination";
 const TERMINATION_PREFIX = `- Workmates reserves the right to terminate at any time with written\nnotice to the Client. Such notice will be given Fifteen (15) days prior\nto the termination. If the Scope of Work is not provided properly or\nthe Client makes us to perform certain tasks which is beyond the\nscope of this agreement or Non payment.\n- In the event of termination of this Agreement Workmates shall\ncompute a project completion percentage by comparing completed\ntasks with tasks on the project plan. The Client shall then pay to\nWorkmates the same percentage as agreed. Workmates shall\nevidence completed tasks to the Client by demonstrating working\nfunctionality or source code. Once Workmates receives the payment\ndue from the Client we will Share the Source Code and Knowledge\nTransfer.\n- The quotation is valid for 15 days from the date of receiving and may\nbe accepted at any time prior to that date.This quotation is subject\nto mutually acceptable terms and conditions.`;
 
-const SOWViewer: React.FC = () => {
+export default function SOWViewer() {
   const { theme } = useTheme();
   const location = useLocation();
   const initialPresentation: SOWData | undefined = location.state?.presentation;
@@ -95,14 +95,11 @@ const SOWViewer: React.FC = () => {
       return slide;
     });
 
-    // Split slides that have overflowing content
     const finalSlides: Slide[] = [];
-    
     slidesWithContent.forEach(slide => {
       const templateId = slide.template || 'generic';
       const template = TEMPLATES[templateId as keyof typeof TEMPLATES] || TEMPLATES.generic;
       
-      // Skip content splitting for certain templates
       if (templateId === 'cover' || templateId === 'signature') {
         finalSlides.push(slide);
         return;
@@ -284,5 +281,3 @@ const SOWViewer: React.FC = () => {
     </div>
   );
 };
-
-export default SOWViewer;
