@@ -2,7 +2,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { TEMPLATES } from '@/types/template';
-import type { Slide } from '@/types/presentation';
+import type { Slide } from '@/types/page';
 import { SOWDateSection } from './SOWDateSection';
 import { SOWNumberSection } from './SOWNumberSection';
 

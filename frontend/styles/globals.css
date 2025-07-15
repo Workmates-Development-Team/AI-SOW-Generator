@@ -1,8 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@plugin "tailwindcss-animate";
+@import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -158,4 +154,13 @@ input.hide-number-spin::-webkit-inner-spin-button {
 }
 input.hide-number-spin[type=number] {
   -moz-appearance: textfield;
+}
+
+/* Hide scrollbars utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari, Opera */
 }

@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Card, CardTitle } from '@/components/ui/card';
 import TemplateApplier from '@/components/Viewer/TemplateApplier';
-import type { SOWData, Slide } from '@/types/presentation';
+import type { SOWData, Slide } from '@/types/page';
 import DownloadPDFButton from '@/components/Viewer/DownloadPDFButton';
 import { ContentSplitter } from '@/utils/contentSplitter';
 import { TEMPLATES } from '@/types/template';
@@ -13,6 +13,7 @@ import BackToGeneratorButton from '@/components/BackToGeneratorButton';
 import LogoutButton from "../components/LogoutButton";
 import { useTheme } from '../contexts/ThemeContext';
 import ThemeToggle from '../components/ThemeToggle';
+import Thumbnails from '@/components/Viewer/Thumbnails';
 
 const SUPPORT_SERVICES_TITLE = "Support Services";
 const SUPPORT_SERVICES_PREFIX = `- Workmates will provide one-month free support from the date of delivery of the project.\n- The support team will be available from Monday through Friday (10am-7pm Indian Time).\n- Fix any issues reported by the client on the default features delivered as per committed project modules.\n- Answer any questions related to the features we had delivered as per proposal.\n- Support does not cover any additional customization or fixing up of issues caused due to code level edits done from client side or through usage of any third party solution. In such case the free support will become void.\n\n`;
@@ -26,7 +27,7 @@ const PROJECT_TERMS_PREFIX = `- The full picture at the time of quotation. Any d
 const TERMINATION_TITLE = "Termination";
 const TERMINATION_PREFIX = `- Workmates reserves the right to terminate at any time with written\nnotice to the Client. Such notice will be given Fifteen (15) days prior\nto the termination. If the Scope of Work is not provided properly or\nthe Client makes us to perform certain tasks which is beyond the\nscope of this agreement or Non payment.\n- In the event of termination of this Agreement Workmates shall\ncompute a project completion percentage by comparing completed\ntasks with tasks on the project plan. The Client shall then pay to\nWorkmates the same percentage as agreed. Workmates shall\nevidence completed tasks to the Client by demonstrating working\nfunctionality or source code. Once Workmates receives the payment\ndue from the Client we will Share the Source Code and Knowledge\nTransfer.\n- The quotation is valid for 15 days from the date of receiving and may\nbe accepted at any time prior to that date.This quotation is subject\nto mutually acceptable terms and conditions.`;
 
-const SOWViewer: React.FC = () => {
+export default function SOWViewer() {
   const { theme } = useTheme();
   const location = useLocation();
   const initialPresentation: SOWData | undefined = location.state?.presentation;
@@ -95,14 +96,11 @@ const SOWViewer: React.FC = () => {
       return slide;
     });
 
-    // Split slides that have overflowing content
     const finalSlides: Slide[] = [];
-    
     slidesWithContent.forEach(slide => {
       const templateId = slide.template || 'generic';
       const template = TEMPLATES[templateId as keyof typeof TEMPLATES] || TEMPLATES.generic;
       
-      // Skip content splitting for certain templates
       if (templateId === 'cover' || templateId === 'signature') {
         finalSlides.push(slide);
         return;
@@ -167,7 +165,7 @@ const SOWViewer: React.FC = () => {
 
   if (!presentationState) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-6 h-screen w-screen overflow-hidden relative flex items-center justify-center text-white">
+      <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 p-6 h-screen w-screen overflow-hidden relative flex items-center justify-center text-white">
         {allSows === undefined ? (
           <div>Loading SOWs...</div>
         ) : allSows.length === 0 ? (
@@ -195,7 +193,7 @@ const SOWViewer: React.FC = () => {
   }
 
   const getBackgroundClass = () => {
-    return theme === 'light' ? 'bg-gradient-to-br from-gray-200 via-gray-300 to-gray-200' : 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900';
+    return theme === 'light' ? 'bg-linear-to-br from-gray-200 via-gray-300 to-gray-200' : 'bg-linear-to-br from-gray-900 via-gray-800 to-gray-900';
   };
 
   const cardClass = theme === 'light' ? 'bg-white/50 text-gray-800 border-gray-300 backdrop-blur-md' : 'bg-white/10 text-white border-white/20';
@@ -214,7 +212,7 @@ const SOWViewer: React.FC = () => {
             <BackToGeneratorButton />
             <ListButton />
           </div>
-          <span className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-medium select-none pointer-events-none px-4 py-1 rounded-full ${theme === 'light' ? 'bg-gray-200 border border-gray-300 shadow-md' : 'bg-white/10 border border-white/20 shadow-sm'} ${textClass}`}>
+          <span className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-sm font-medium select-none pointer-events-none px-4 py-1 rounded-full ${theme === 'light' ? 'bg-gray-200 border border-gray-300 shadow-md' : 'bg-white/10 border border-white/20 shadow-xs'} ${textClass}`}>
             Page {currentSlide + 1} of {totalSlides}
           </span>
           <div className="flex items-center gap-2 ml-auto">
@@ -225,33 +223,18 @@ const SOWViewer: React.FC = () => {
       </div>
 
       {/* Sidebar Thumbnails */}
-      <div className="fixed left-0 top-0 h-full flex flex-col items-center justify-center py-8 pl-8 pr-4 z-10" style={{ width: 80, paddingTop: 80 }}>
-        <div className="flex flex-col gap-3 overflow-y-auto max-h-[70vh] px-1 pt-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-          {processedSlides.map((_, index) => (
-            <button
-              key={index}
-              data-slide-index={index}
-              ref={el => { thumbnailRefs.current[index] = el; }}
-              onClick={() => setCurrentSlide(index)}
-              className={
-                `w-14 h-20 border-2 rounded-xl flex-shrink-0 transition-all duration-300
-                ${currentSlide === index
-                  ? (theme === 'light' ? 'border-blue-700 bg-blue-100 shadow-lg shadow-blue-200 scale-110' : 'border-blue-900 bg-blue-900/80 shadow-lg shadow-blue-900/40 scale-110')
-                  : (theme === 'light' ? 'border-gray-300 bg-gray-100 hover:border-gray-400 hover:bg-gray-200' : 'border-white/20 bg-white/10 hover:border-white/40 hover:bg-white/20')
-                }
-                backdrop-blur-sm relative`
-              }
-            >
-              <div className="w-full h-full flex items-center justify-center">
-                <span className={`text-base font-medium ${currentSlide === index ? 'text-yellow-400' : (theme === 'light' ? 'text-gray-800' : 'text-white')}`}>{index + 1}</span>
-              </div>
-            </button>
-          ))}
-        </div>
+      <div className="fixed left-[80px] top-0 h-full flex flex-col items-center justify-center py-8 pl-8 pr-4 z-10" style={{ width: 160, paddingTop: 80 }}>
+        <Thumbnails
+          slides={processedSlides}
+          currentSlide={currentSlide}
+          onSelect={setCurrentSlide}
+          theme={theme}
+          maxHeightClass="max-h-[90vh]"
+        />
       </div>
 
       {/* Main Slide Area */}
-      <div className="flex-1 flex flex-col h-full relative py-8 pr-8 pl-4 items-center justify-center" style={{ paddingTop: 80, paddingLeft: 96 }}>
+      <div className="flex-1 flex flex-col h-full relative py-8 pr-8 pl-4 items-center justify-center" style={{ paddingTop: 80, paddingLeft: 256 }}>
         <div className="absolute left-1/2 top-0 transform -translate-x-1/2 w-full max-w-7xl h-full flex flex-col pt-16">
           <div className="flex-1 flex items-center justify-center h-full">
             <div className="flex items-center justify-center w-full h-full">
@@ -284,5 +267,3 @@ const SOWViewer: React.FC = () => {
     </div>
   );
 };
-
-export default SOWViewer;

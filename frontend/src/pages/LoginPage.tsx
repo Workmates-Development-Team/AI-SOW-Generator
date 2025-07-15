@@ -33,7 +33,7 @@ export default function LoginPage() {
     }
   };
 
-  const backgroundClass = theme === 'light' ? 'bg-gradient-to-br from-gray-200 via-gray-300 to-gray-200' : 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900';
+  const backgroundClass = theme === 'light' ? 'bg-linear-to-br from-gray-200 via-gray-300 to-gray-200' : 'bg-linear-to-br from-gray-900 via-gray-800 to-gray-900';
   const cardClass = theme === 'light' ? 'bg-white/50 text-gray-800 border-gray-300 backdrop-blur-md' : 'bg-white/10 text-white border-white/20';
   const textClass = theme === 'light' ? 'text-gray-800' : 'text-white/80';
   const inputClass = theme === 'light' ? 'bg-gray-200 border-gray-300 text-gray-800 placeholder:text-gray-400 focus:border-blue-500' : 'bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white/40';
@@ -103,7 +103,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 via-blue-700 to-yellow-500 hover:from-blue-700 hover:via-blue-800 hover:to-yellow-600 text-white border-0"
+              className="w-full bg-linear-to-r from-blue-600 via-blue-700 to-yellow-500 hover:from-blue-700 hover:via-blue-800 hover:to-yellow-600 text-white border-0"
               size="lg"
             >
               {loading ? (

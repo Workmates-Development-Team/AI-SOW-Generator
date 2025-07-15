@@ -9,6 +9,7 @@ export interface Slide {
   contentType: string;
   sowNumber?: string;
   sowDate?: string;
+  overflowId?: number;
 }
 
 export interface SOWData {
@@ -18,6 +19,7 @@ export interface SOWData {
   totalSlides: number;
   sowNumber?: string;
   clientName?: string;
+  prompt?: any;
 }
 
 export interface SOWState {

@@ -53,7 +53,7 @@ function AlertDialogContent({
         data-slot="alert-dialog-content"
         className={cn(
           // Custom dark glassy style
-          "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white border border-white/20 backdrop-blur-md shadow-lg rounded-2xl p-8 max-w-lg w-full grid gap-4 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50",
+          "bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 text-white border border-white/20 backdrop-blur-md shadow-lg rounded-2xl p-8 max-w-lg w-full grid gap-4 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50",
           className
         )}
         {...props}

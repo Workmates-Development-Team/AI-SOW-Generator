@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Any
 
 class Slide(BaseModel):
     id: str
@@ -18,6 +18,7 @@ class Sow(BaseModel):
     sowNumber: str
     clientName: str
     slides: List[Slide]
+    prompt: Optional[Any] = None
 
 class User(BaseModel):
     id: Optional[str] = Field(alias="_id", default=None)

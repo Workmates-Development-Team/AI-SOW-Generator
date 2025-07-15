@@ -2,7 +2,7 @@ import React from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Button } from "@/components/ui/button";
-import type { Slide } from '@/types/presentation'
+import type { Slide } from '@/types/page'
 import { useTheme } from '../../contexts/ThemeContext';
 
 interface Props {

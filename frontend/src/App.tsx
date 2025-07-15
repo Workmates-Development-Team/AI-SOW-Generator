@@ -7,6 +7,7 @@ import LoginPage from "./pages/LoginPage";
 import { useEffect, useState } from 'react';
 import { api } from "./lib/api";
 import { ThemeProvider } from './contexts/ThemeContext';
+import ErrorBoundary from './components/Generator/ErrorBoundary';
 
 function AuthenticatedRoutes() {
   const [user, setUser] = useState<any>(undefined);
@@ -58,7 +59,11 @@ function AuthenticatedRoutes() {
   return user ? (
     <Logo>
       <Routes>
-        <Route path="/" element={<GeneratePPTPage />} />
+        <Route path="/" element={
+          <ErrorBoundary>
+            <GeneratePPTPage />
+          </ErrorBoundary>
+        } />
         <Route path="/presentation" element={<SOWViewer />} />
         <Route path="/sow-list" element={<SOWList />} />
       </Routes>

@@ -6,7 +6,6 @@ import { Label } from '@/components/ui/label';
 import { X } from 'lucide-react';
 import React from 'react';
 
-// Copy FormState type from GenerateSOWPage
 export interface FormState {
   clientName: string;
   projectDescription: string;
@@ -59,7 +58,7 @@ const OptionalFieldsSelector: React.FC<OptionalFieldsSelectorProps> = ({
   const selectItemClass = theme === 'light' ? 'text-gray-900 hover:bg-gray-100 focus:bg-gray-100' : 'text-white hover:bg-white/10 focus:bg-white/20';
 
   return (
-    <div className="flex-1 space-y-6 overflow-y-auto min-h-0 pl-10 pl-2 max-h-[70vh]" style={{ scrollbarGutter: 'stable' }}>
+    <div className="flex-1 space-y-6 overflow-y-auto min-h-0 pl-10 max-h-[70vh]" style={{ scrollbarGutter: 'stable' }}>
       {addedOptionalFields.map((fieldId) => {
         const field = optionalFields.find(f => f.id === fieldId);
         if (!field) return null;
@@ -81,16 +80,18 @@ const OptionalFieldsSelector: React.FC<OptionalFieldsSelectorProps> = ({
                 <X className="w-4 h-4" />
               </Button>
             </div>
-            <Textarea
-              id={String(fieldId)}
-              placeholder={field.placeholder}
-              value={form[fieldId]}
-              onChange={handleChange}
-              onKeyDown={handleTextareaKeyDown}
-              onInput={handleAutoResize}
-              className={`min-h-[80px] flex-1 ${inputClass}`}
-              disabled={loading}
-            />
+            <div className={`ml-2 rounded-md transition-all ${theme === 'light' ? 'focus-within:ring-4 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-white' : 'focus-within:ring-4 focus-within:ring-blue-700 focus-within:ring-offset-2 focus-within:ring-offset-[#10192b]'}`}>
+              <Textarea
+                id={String(fieldId)}
+                placeholder={field.placeholder}
+                value={form[fieldId]}
+                onChange={handleChange}
+                onKeyDown={handleTextareaKeyDown}
+                onInput={handleAutoResize}
+                className={`min-h-[80px] flex-1 ${inputClass}`}
+                disabled={loading}
+              />
+            </div>
           </div>
         );
       })}
