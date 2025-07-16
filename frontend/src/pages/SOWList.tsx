@@ -168,7 +168,7 @@ export function SOWList() {
                         <Button
                           variant="destructive"
                           size="icon"
-                          className="delete-btn opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto bg-transparent border-0 shadow-none hover:bg-transparent focus:bg-transparent focus:ring-0 focus:outline-none text-inherit hover:text-red-500 focus:text-red-600"
+                          className="delete-btn opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto bg-transparent shadow-none hover:bg-transparent focus:bg-transparent focus:ring-0 focus:outline-none text-inherit hover:text-red-500 focus:text-red-600"
                           title="Delete SOW"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -179,20 +179,27 @@ export function SOWList() {
                           <Trash className="w-4 h-4" />
                         </Button>
                       </AlertDialogTrigger>
-                      <AlertDialogContent ref={dialogContentRef}
-                        className="shadow-2xl border border-white/20 bg-white/10 backdrop-blur-md p-0 md:p-2 rounded-2xl max-w-md w-full"
+                      <AlertDialogContent
+                        ref={dialogContentRef}
+                        className={
+                          `${theme === 'light'
+                            ? 'shadow-2xl border border-gray-200 bg-white/90 text-gray-800 backdrop-blur-xl p-0 md:p-2 rounded-2xl max-w-md w-full'
+                            : 'shadow-2xl border border-white/40 bg-white/20 backdrop-blur-xl p-0 md:p-2 rounded-2xl max-w-md w-full'}
+                        `}
                       >
                         <div className="mt-4" />
-                        <div className="px-8 pb-8 pt-2">
+                        <div className={
+                          `px-8 pb-8 pt-2 ${theme === 'light' ? 'text-gray-800' : ''}`
+                        }>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Delete SOW?</AlertDialogTitle>
-                            <AlertDialogDescription>
+                            <AlertDialogTitle className={theme === 'light' ? 'text-gray-800' : ''}>Delete SOW?</AlertDialogTitle>
+                            <AlertDialogDescription className={theme === 'light' ? 'text-gray-700' : ''}>
                               Are you sure you want to delete <span className="font-bold">{sow.title || 'this SOW'}</span>? This action cannot be undone.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter className="mt-6 flex flex-row gap-4 justify-end">
                             <AlertDialogCancel
-                              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                              className={`bg-white/10 border-white/20 ${theme === 'light' ? 'text-gray-800' : 'text-white'} hover:bg-white/20`}
                               onClick={() => {
                                 setDeleteDialogOpen(false);
                                 setSowToDelete(null);
@@ -201,7 +208,7 @@ export function SOWList() {
                               Cancel
                             </AlertDialogCancel>
                             <AlertDialogAction
-                              className="bg-red-600 hover:bg-red-700 text-white border-0 px-6 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 font-semibold"
+                              className={`bg-red-600 hover:bg-red-700 ${theme === 'light' ? 'text-gray-100' : 'text-white'} border-0 px-6 py-2 rounded-lg shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 font-semibold`}
                               onClick={async (e) => {
                                 e.preventDefault();
                                 if (!token || !sowToDelete) return;

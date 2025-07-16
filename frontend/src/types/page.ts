@@ -10,6 +10,7 @@ export interface Slide {
   sowNumber?: string;
   sowDate?: string;
   overflowId?: number;
+  sectionType?: string; // Added for robust section identification
 }
 
 export interface SOWData {
