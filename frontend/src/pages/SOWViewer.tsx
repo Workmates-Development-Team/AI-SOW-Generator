@@ -78,22 +78,30 @@ export default function SOWViewer() {
     // Apply client name to signature slide
     // The `+(slide.content || "")` part can be added add the model generated text in the document
     const slidesWithContent = presentationState.slides.map(slide => {
+      let sectionType = slide.sectionType;
+      if (!sectionType) {
+        const title = slide.title?.toLowerCase() || '';
+        if (title === 'project terms') sectionType = 'project-terms';
+        else if (title === 'assumptions and constraints') sectionType = 'assumptions';
+        else if (title === 'acceptance criteria') sectionType = 'acceptance';
+        else if (title === 'objectives') sectionType = 'objectives';
+      }
       if (slide.template === 'signature' && presentationState?.clientName) {
-        return { ...slide, content: presentationState.clientName };
+        return { ...slide, content: presentationState.clientName, sectionType };
       }
       if (slide.title === SUPPORT_SERVICES_TITLE) {
-        return { ...slide, content: SUPPORT_SERVICES_PREFIX };
+        return { ...slide, content: SUPPORT_SERVICES_PREFIX, sectionType };
       }
       if (slide.title === GENERAL_TERMS_TITLE) {
-        return { ...slide, content: GENERAL_TERMS_PREFIX };
+        return { ...slide, content: GENERAL_TERMS_PREFIX, sectionType };
       }
       if (slide.title === PROJECT_TERMS_TITLE) {
-        return { ...slide, content: PROJECT_TERMS_PREFIX };
+        return { ...slide, content: PROJECT_TERMS_PREFIX, sectionType };
       }
       if (slide.title === TERMINATION_TITLE) {
-        return { ...slide, content: TERMINATION_PREFIX };
+        return { ...slide, content: TERMINATION_PREFIX, sectionType };
       }
-      return slide;
+      return { ...slide, sectionType };
     });
 
     const finalSlides: Slide[] = [];

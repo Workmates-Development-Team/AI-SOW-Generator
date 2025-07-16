@@ -133,18 +133,18 @@ export class ContentSplitter {
     const baseMaxLines = this.MAX_LINES_FIRST_PAGE;
     const maxLinesDefault = isFirstSlide ? this.MAX_LINES_FIRST_PAGE : this.MAX_LINES_OVERFLOW_PAGE;
     const contentType = slide.contentType || 'text';
-    const title = slide.title?.toLowerCase() || '';
+    const sectionType = slide.sectionType || '';
 
     let adjustedMaxLines = maxLinesDefault;
 
-    if (title.includes('assumptions and constraints')) {
-      adjustedMaxLines = Math.floor(baseMaxLines * (overflowId > 0 ? 0.7 : 0.37));
-    } else if (title.includes('acceptance criteria')) {
-      adjustedMaxLines = Math.floor(baseMaxLines * (overflowId > 0 ? 0.65 : 0.47));
-    } else if (title.includes('objectives')) {
+    if (sectionType === 'assumptions') {
+      adjustedMaxLines = Math.floor(baseMaxLines * (overflowId > 0 ? 0.5 : 0.3));
+    } else if (sectionType === 'acceptance') {
+      adjustedMaxLines = Math.floor(baseMaxLines * (overflowId > 0 ? 0.5 : 0.37));
+    } else if (sectionType === 'objectives') {
       adjustedMaxLines = Math.floor(baseMaxLines * (overflowId > 0 ? 0.7 : 0.55));
-    } else if (title.includes('project terms')) {
-      adjustedMaxLines = Math.floor(baseMaxLines * (overflowId > 0 ? 0.5 : 0.5));
+    } else if (sectionType === 'project-terms') {
+      adjustedMaxLines = Math.floor(baseMaxLines * (overflowId > 0 ? 0.6 : 0.5));
     }
 
     const measurement = this.measureContent(slide.content, adjustedMaxLines, contentType);
@@ -182,6 +182,7 @@ export class ContentSplitter {
         content: measurement.overflowContent,
         template: "plain",
         overflowId: nextOverflowId,
+        sectionType: slide.sectionType,
       };
 
       const additionalSlides = this.splitSlideContent(
